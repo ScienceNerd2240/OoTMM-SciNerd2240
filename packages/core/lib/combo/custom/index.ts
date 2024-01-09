@@ -1,8 +1,8 @@
 import path from 'path';
-import fs from 'fs/promises';
-import { Buffer } from 'buffer';
+import fs from 'fs';
+import { FILES } from '@ootmm/data';
 
-import { Game, DATA_FILES } from '../config';
+import { Game } from '../config';
 import { DmaData } from '../dma';
 import { splitObject } from './split';
 import { arrayToIndexMap, toU32Buffer } from '../util';
@@ -17,11 +17,9 @@ import { Options } from '../options';
 import { Patchfile } from '../patch-build/patchfile';
 import { grayscale } from '../image';
 
-const FILES_TO_INDEX_OOT = arrayToIndexMap(DATA_FILES.oot);
-const FILES_TO_INDEX_MM = arrayToIndexMap(DATA_FILES.mm);
 const FILES_TO_INDEX = {
-  oot: FILES_TO_INDEX_OOT,
-  mm: FILES_TO_INDEX_MM,
+  oot: arrayToIndexMap(FILES.oot),
+  mm: arrayToIndexMap(FILES.mm),
 };
 
 type CustomEntry = {
@@ -65,12 +63,12 @@ const makeSplitObject = async (roms: DecompressedRoms, entry: CustomEntry) => {
   const buf = await getObjectBuffer(roms, entry.game, entry.file);
   const obj = splitObject(buf, entry.offsets);
 
-  if (!process.env.ROLLUP) {
+  if (!process.env.BROWSER) {
     const outDir = path.resolve('build', 'custom');
     const outBasename = entry.name.toLowerCase();
     const outFilename = path.resolve(outDir, `${outBasename}.zobj`);
-    await fs.mkdir(outDir, { recursive: true });
-    await fs.writeFile(outFilename, obj.data);
+    await fs.promises.mkdir(outDir, { recursive: true });
+    await fs.promises.writeFile(outFilename, obj.data);
   }
 
   return obj;
@@ -153,7 +151,7 @@ class CustomAssetsBuilder {
     private roms: DecompressedRoms,
     private patch: Patchfile,
   ) {
-    const cgPath = process.env.ROLLUP ? '' : path.resolve('include', 'combo', 'custom.h');
+    const cgPath = process.env.BROWSER ? '' : path.resolve('include', 'combo', 'custom.h');
     this.cg = new CodeGen(cgPath, 'CUSTOM_H');
     this.vrom = 0x08000000;
     this.objectId = 0x2000;
@@ -260,6 +258,7 @@ class CustomAssetsBuilder {
     await this.addObjectFile('BTN_A', 'btn_a.zobj', [0x06000da0]);
     await this.addObjectFile('BTN_C_HORIZONTAL', 'btn_c_horizontal.zobj', [0x06000e10]);
     await this.addObjectFile('BTN_C_VERTICAL', 'btn_c_vertical.zobj', [0x06000960]);
+    await this.addObjectFile('BOMBCHU_BAG', 'bombchu_bag.zobj', [0x060006A0, 0x060008E0, 0x06001280]);
 
     /* Add the object table */
     const objectTableBuffer = toU32Buffer(this.objectVroms.map(o => [o.vstart, o.vend]).flat());
@@ -267,7 +266,7 @@ class CustomAssetsBuilder {
     this.cg.define('CUSTOM_OBJECT_TABLE_VROM', objectTableVrom);
     this.cg.define('CUSTOM_OBJECT_TABLE_SIZE', this.objectVroms.length);
 
-    if (!process.env.ROLLUP) {
+    if (!process.env.BROWSER) {
       await this.cg.emit();
     }
   }

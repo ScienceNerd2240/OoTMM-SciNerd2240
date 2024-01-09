@@ -198,8 +198,12 @@ static int isItemAmbiguous(s16 gi)
         return !comboConfig(CFG_SHARED_BOMB_BAGS);
     case GI_OOT_MAGIC_UPGRADE:
     case GI_OOT_MAGIC_UPGRADE2:
+    case GI_OOT_MAGIC_JAR_SMALL:
+    case GI_OOT_MAGIC_JAR_LARGE:
     case GI_MM_MAGIC_UPGRADE:
     case GI_MM_MAGIC_UPGRADE2:
+    case GI_MM_MAGIC_JAR_SMALL:
+    case GI_MM_MAGIC_JAR_LARGE:
         return !comboConfig(CFG_SHARED_MAGIC);
     case GI_OOT_ARROW_FIRE:
     case GI_MM_ARROW_FIRE:
@@ -363,13 +367,25 @@ static int isItemAmbiguous(s16 gi)
     case GI_MM_SHIELD_HERO:
     case GI_MM_SHIELD_MIRROR:
         return !comboConfig(CFG_SHARED_SHIELDS);
+    case GI_OOT_BOMBCHU_5:
     case GI_OOT_BOMBCHU_10:
+    case GI_OOT_BOMBCHU_20:
+    case GI_OOT_BOMBCHU_BAG_5:
+    case GI_OOT_BOMBCHU_BAG_10:
+    case GI_OOT_BOMBCHU_BAG_20:
+    case GI_MM_BOMBCHU:
+    case GI_MM_BOMBCHU_5:
+    case GI_MM_BOMBCHU_10:
+    case GI_MM_BOMBCHU_20:
+    case GI_MM_BOMBCHU_BAG:
+    case GI_MM_BOMBCHU_BAG_5:
+    case GI_MM_BOMBCHU_BAG_10:
+    case GI_MM_BOMBCHU_BAG_20:
+        return !comboConfig(CFG_SHARED_BOMBCHU);
     case GI_OOT_MAGIC_BEAN:
     case GI_OOT_BOTTLE_EMPTY:
     case GI_OOT_BOTTLE_MILK:
     case GI_OOT_SWORD_KOKIRI:
-    case GI_OOT_BOMBCHU_5:
-    case GI_OOT_BOMBCHU_20:
     case GI_OOT_MILK:
     case GI_OOT_POTION_RED:
     case GI_OOT_POTION_GREEN:
@@ -385,7 +401,6 @@ static int isItemAmbiguous(s16 gi)
     case GI_OOT_FISH:
     case GI_OOT_POE:
     case GI_OOT_BIG_POE:
-    case GI_MM_BOMBCHU:
     case GI_MM_MAGIC_BEAN:
     case GI_MM_BOTTLE_POTION_RED:
     case GI_MM_BOTTLE_POTION_GREEN:
@@ -395,9 +410,6 @@ static int isItemAmbiguous(s16 gi)
     case GI_MM_BOTTLE_BIG_POE:
     case GI_MM_BOTTLE_EMPTY:
     case GI_MM_SWORD_KOKIRI:
-    case GI_MM_BOMBCHU_20:
-    case GI_MM_BOMBCHU_10:
-    case GI_MM_BOMBCHU_5:
     case GI_MM_BOTTLE_MILK:
     case GI_MM_MILK:
     case GI_MM_POTION_RED:

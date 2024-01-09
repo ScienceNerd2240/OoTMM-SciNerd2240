@@ -485,16 +485,51 @@ static int addItemNutsUpgrade(GameState_Play* play, u8 itemId, s16 gi, u16 param
     return 0;
 }
 
+static void addBombchuRawOot(u8 count)
+{
+    if (comboConfig(CFG_OOT_BOMBCHU_BAG) && gOotSave.inventory.items[ITS_OOT_BOMBCHU] != ITEM_OOT_BOMBCHU_10)
+        return;
+
+    addAmmoOot(ITS_OOT_BOMBCHU, ITEM_OOT_BOMBCHU_10, 50, count);
+}
+
+static void addBombchuRawMm(u8 count)
+{
+    if (comboConfig(CFG_MM_BOMBCHU_BAG))
+    {
+        if (gMmSave.inventory.items[ITS_MM_BOMBCHU] == ITEM_MM_BOMBCHU)
+            addAmmoMm(ITS_MM_BOMBCHU, ITEM_MM_BOMBCHU, 50, count);
+    }
+    else
+    {
+        if (gMmSave.inventory.upgrades.bombBag)
+            addAmmoMm(ITS_MM_BOMBCHU, ITEM_MM_BOMBCHU, kMaxBombs[gMmSave.inventory.upgrades.bombBag], count);
+    }
+}
+
+static void addBombchuOot(u8 count)
+{
+    addBombchuRawOot(count);
+    if (comboConfig(CFG_SHARED_BOMBCHU))
+        addBombchuRawMm(count);
+}
+
+static void addBombchuMm(u8 count)
+{
+    addBombchuRawMm(count);
+    if (comboConfig(CFG_SHARED_BOMBCHU))
+        addBombchuRawOot(count);
+}
+
 static int addItemBombchuOot(GameState_Play* play, u8 itemId, s16 gi, u16 param)
 {
-    addAmmoOot(ITS_OOT_BOMBCHU, ITEM_OOT_BOMBCHU_10, 50, param);
+    addBombchuOot(param);
     return 0;
 }
 
 static int addItemBombchuMm(GameState_Play* play, u8 itemId, s16 gi, u16 param)
 {
-    if (gMmSave.inventory.upgrades.bombBag)
-        addAmmoMm(ITS_MM_BOMBCHU, ITEM_MM_BOMBCHU, 40, param);
+    addBombchuMm(param);
     return 0;
 }
 
@@ -527,9 +562,9 @@ static void addArrowsOot(u8 count)
 
 static void addArrowsMm(u8 count)
 {
-    addBombsRawMm(count);
+    addArrowsRawMm(count);
     if (comboConfig(CFG_SHARED_BOWS))
-        addBombsRawOot(count);
+        addArrowsRawOot(count);
 }
 
 static int addItemArrowsOot(GameState_Play* play, u8 itemId, s16 gi, u16 param)
@@ -1631,6 +1666,132 @@ static int addItemOwl(GameState_Play* play, u8 itemId, s16 gi, u16 param)
     return 0;
 }
 
+static void addMagicRawOot(u8 count)
+{
+    s16 acc;
+    s16 max;
+
+    if (!gOotSave.playerData.magicUpgrade)
+        return;
+    acc = gOotSave.playerData.magicAmount;
+    acc += count;
+    max = gOotSave.playerData.magicUpgrade2 ? 0x60 : 0x30;
+    if (acc > max)
+        acc = max;
+    gOotSave.playerData.magicAmount = acc;
+}
+
+static void addMagicRawMm(u8 count)
+{
+    s16 acc;
+    s16 max;
+
+    if (!gMmSave.playerData.magicAcquired)
+        return;
+    acc = gMmSave.playerData.magicAmount;
+    acc += count;
+    max = gMmSave.playerData.doubleMagic ? 0x60 : 0x30;
+    if (acc > max)
+        acc = max;
+    gMmSave.playerData.magicAmount = acc;
+}
+
+static void addMagicEffect(GameState_Play* play, u8 count)
+{
+#if defined(GAME_OOT)
+    Magic_Refill(play);
+    Magic_RequestChange(play, count, 5);
+#else
+    AddMagic(play, count);
+#endif
+}
+
+static void addMagicOot(GameState_Play* play, u8 count)
+{
+#if defined(GAME_MM)
+    if (!comboConfig(CFG_SHARED_MAGIC))
+        play = NULL;
+#endif
+
+    if (play)
+    {
+        addMagicEffect(play, count);
+        return;
+    }
+
+    if (comboConfig(CFG_SHARED_MAGIC))
+        addMagicRawMm(count);
+    addMagicRawOot(count);
+}
+
+static void addMagicMm(GameState_Play* play, u8 count)
+{
+#if defined(GAME_OOT)
+    if (!comboConfig(CFG_SHARED_MAGIC))
+        play = NULL;
+#endif
+
+    if (play)
+    {
+        addMagicEffect(play, count);
+        return;
+    }
+
+    if (comboConfig(CFG_SHARED_MAGIC))
+        addMagicRawOot(count);
+    addMagicRawMm(count);
+}
+
+static int addItemMagicOot(GameState_Play* play, u8 itemId, s16 gi, u16 param)
+{
+    addMagicOot(play, param * (comboConfig(CFG_SHARED_MAGIC) ? 0x18 : 0x0c));
+    return 0;
+}
+
+static int addItemMagicMm(GameState_Play* play, u8 itemId, s16 gi, u16 param)
+{
+    addMagicMm(play, param * 0x18);
+    return 0;
+}
+
+static void addBombchuBagRawOot(void)
+{
+    gOotSave.inventory.items[ITS_OOT_BOMBCHU] = ITEM_OOT_BOMBCHU_10;
+}
+
+static void addBombchuBagRawMm(void)
+{
+    gMmSave.inventory.items[ITS_MM_BOMBCHU] = ITEM_MM_BOMBCHU;
+}
+
+static void addBombchuBagOot(u8 count)
+{
+    addBombchuBagRawOot();
+    if (comboConfig(CFG_SHARED_BOMBCHU))
+        addBombchuBagRawMm();
+    addBombchuOot(count);
+}
+
+static void addBombchuBagMm(u8 count)
+{
+    addBombchuBagRawMm();
+    if (comboConfig(CFG_SHARED_BOMBCHU))
+        addBombchuBagRawOot();
+    addBombchuMm(count);
+}
+
+static int addItemBombchuBagOot(GameState_Play* play, u8 itemId, s16 gi, u16 param)
+{
+    addBombchuBagOot(param);
+    return 0;
+}
+
+static int addItemBombchuBagMm(GameState_Play* play, u8 itemId, s16 gi, u16 param)
+{
+    addBombchuBagMm(param);
+    return 0;
+}
+
 static const AddItemFunc kAddItemHandlers[] = {
     addItemRupeesOot,
     addItemRupeesMm,
@@ -1719,6 +1880,10 @@ static const AddItemFunc kAddItemHandlers[] = {
     addItemPondFish,
     addItemWorldMap,
     addItemOwl,
+    addItemMagicOot,
+    addItemMagicMm,
+    addItemBombchuBagOot,
+    addItemBombchuBagMm,
 };
 
 extern const u8 kAddItemFuncs[];

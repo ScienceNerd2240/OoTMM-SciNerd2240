@@ -1,14 +1,16 @@
+import { cloneDeep } from 'lodash';
+import { MACROS, WORLD, REGIONS, POOL, ENTRANCES } from '@ootmm/data';
+
 import { Game, GAMES } from '../config';
 import { gameId } from '../util';
 import { Expr, exprTrue, MM_TIME_SLICES } from './expr';
 import { ExprParser } from './expr-parser';
-import { DATA_POOL, DATA_MACROS, DATA_WORLD, DATA_REGIONS, DATA_ENTRANCES_POOL, DATA_HINTS_POOL } from '../data';
+import { DATA_HINTS_POOL } from '../data';
 import { DUNGEONS, SETTINGS, Settings } from '../settings';
 import { Monitor } from '../monitor';
 import { defaultPrices } from './price';
 import { Item, itemByID, ItemHelpers, Items } from '../items';
 import { Random } from '../random';
-import { cloneDeep } from 'lodash';
 
 export const WORLD_FLAGS = [
   'ganonTrials',
@@ -97,7 +99,7 @@ export type WorldArea = {
 };
 
 type WorldCheckNumeric = {
-  type: 'chest' | 'collectible' | 'gs' | 'sf' | 'cow' | 'shop' | 'scrub' | 'sr' | 'pot' | 'grass' | 'fish';
+  type: 'chest' | 'collectible' | 'gs' | 'sf' | 'cow' | 'shop' | 'scrub' | 'sr' | 'pot' | 'grass' | 'fish' | 'fairy' | 'rupee';
   id: number;
 };
 
@@ -118,15 +120,6 @@ export type WorldGossip = {
   type: 'gossip' | 'gossip-grotto' | 'gossip-moon';
 };
 
-export type WorldEntrance = {
-  id: string;
-  type: 'boss' | 'dungeon' | 'overworld' | 'region' | 'region-extra' | 'region-shortcut' | 'one-way' | 'one-way-ikana' | 'one-way-song' | 'one-way-statue' | 'one-way-owl' | 'indoors' | 'indoors-extra' | 'indoors-exit' | 'indoors-special';
-  from: string;
-  to: string;
-  reverse: string | null;
-  game: Game;
-};
-
 export type ExprParsers = {
   oot: ExprParser;
   mm: ExprParser;
@@ -139,7 +132,6 @@ export type World = {
   regions: { [k: string]: string };
   gossip: { [k: string]: WorldGossip };
   checkHints: { [k: string]: string[] };
-  entrances: Map<string, WorldEntrance>;
   locations: Set<string>;
   songLocations: Set<string>;
   warpLocations: Set<string>;
@@ -209,7 +201,6 @@ export function cloneWorld(world: World): World {
     regions: cloneDeep(world.regions),
     gossip: cloneDeep(world.gossip),
     checkHints: cloneDeep(world.checkHints),
-    entrances: new Map(world.entrances),
     locations: new Set(world.locations),
     songLocations: new Set(world.songLocations),
     warpLocations: new Set(world.warpLocations),
@@ -297,7 +288,6 @@ export class LogicPassWorld {
       regions: {},
       gossip: {},
       checkHints: {},
-      entrances: new Map,
       locations: new Set(),
       songLocations: new Set(),
       warpLocations: new Set(),
@@ -316,7 +306,6 @@ export class LogicPassWorld {
     /* Create the expr parser */
     this.loadAreas(game, this.world.exprParsers[game]);
     this.loadPool(game);
-    this.loadEntrances(game);
   }
 
   private loadMacrosFile(exprParser: ExprParser, data: any) {
@@ -336,17 +325,17 @@ export class LogicPassWorld {
   }
 
   private loadMacros(game: Game, exprParser: ExprParser) {
-    this.loadMacrosFile(exprParser, DATA_MACROS.common);
-    this.loadMacrosFile(exprParser, DATA_MACROS[game]);
+    this.loadMacrosFile(exprParser, MACROS.common);
+    this.loadMacrosFile(exprParser, MACROS[game]);
   }
 
   private loadAreas(game: Game, exprParser: ExprParser) {
-    const data = DATA_WORLD[game];
+    const data = WORLD[game];
     for (let areaSetName in data) {
       let areaSet = (data as any)[areaSetName];
       /* Handle MQ */
       if (game === 'oot' && this.world.mq.has(areaSetName)) {
-        areaSet = (DATA_WORLD.mq as any)[areaSetName];
+        areaSet = (WORLD.mq as any)[areaSetName];
       }
       for (let name in areaSet) {
         const area = areaSet[name];
@@ -381,7 +370,7 @@ export class LogicPassWorld {
           throw new Error(`Undefined region for area ${name}`);
         }
 
-        if (region !== 'ENTRANCE' && DATA_REGIONS[region] === undefined) {
+        if (region !== 'ENTRANCE' && REGIONS[region as keyof typeof REGIONS] === undefined) {
           throw new Error(`Unknown region ${region}`);
         }
 
@@ -422,7 +411,7 @@ export class LogicPassWorld {
   }
 
   private loadPool(game: Game) {
-    for (const record of DATA_POOL[game]) {
+    for (const record of POOL[game]) {
       const location = gameId(game, String(record.location), ' ');
       if (!this.world.locations.has(location))
         continue;
@@ -457,21 +446,6 @@ export class LogicPassWorld {
       } else if (ItemHelpers.isDungeonReward(item)) {
         this.world.warpLocations.add(location);
       }
-    }
-  }
-
-  private loadEntrances(game: Game) {
-    for (const record of DATA_ENTRANCES_POOL[game]) {
-      const id = gameId(game, String(record.id), '_');
-      const reverseRaw = String(record.reverse);
-      let reverse: string | null = null;
-      if (reverseRaw !== 'NONE') {
-        reverse = gameId(game, reverseRaw, '_');
-      }
-      const from = gameId(game, String(record.from), ' ');
-      const to = gameId(game, String(record.to), ' ');
-      const type = String(record.type) as WorldEntrance['type'];
-      this.world.entrances.set(id, { id, from, to, type, reverse, game });
     }
   }
 }

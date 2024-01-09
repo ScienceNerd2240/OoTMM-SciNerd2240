@@ -9,14 +9,14 @@ import { toU32Buffer } from '../util';
 import { png } from '../util/png';
 import { Color, ColorArg, ColorRandom, COLORS } from './color';
 import { recolorImage } from '../image';
-import fs from 'fs/promises';
+import fs from 'fs';
 import { enableModelOotLinkChild, enableModelOotLinkAdult } from './model';
 import { BufferPath } from './type';
 import { randomizeMusic } from './music';
 
 export { makeCosmetics } from './util';
 export { COSMETICS } from './data';
-export { Cosmetics } from './type';
+export type { Cosmetics } from './type';
 
 const OBJECTS_TABLE_ADDR = 0x800f8ff8;
 
@@ -58,14 +58,14 @@ class CosmeticsPass {
       return null;
     }
 
-    if (Buffer.isBuffer(path)) {
-      return path;
-    }
-
-    if (!process.env.ROLLUP) {
-      return fs.readFile(path);
+    if (typeof path === 'string') {
+      if (!process.env.BROWSER) {
+        return fs.promises.readFile(path);
+      } else {
+        throw new Error(`Cannot load buffers from path`);
+      }
     } else {
-      throw new Error(`Cannot load buffers from path`);
+      return Buffer.from(path);
     }
   }
 

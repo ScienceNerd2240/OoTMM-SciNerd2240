@@ -1,5 +1,5 @@
-import { Confvar } from '../confvars';
-import { DATA_POOL } from '../data';
+import { POOL } from '@ootmm/data';
+
 import { Item, ItemGroups, ItemHelpers, Items, PlayerItem, PlayerItems, itemByID, makePlayerItem } from '../items';
 import { ItemID } from '../items/defs';
 import { Monitor } from '../monitor';
@@ -10,6 +10,7 @@ import { exprTrue } from './expr';
 import { LOCATIONS_ZELDA, Location, isLocationOtherFairy, isLocationRenewable, locationData, makeLocation } from './locations';
 import { ItemSharedDef, SharedItemGroups } from './shared';
 import { World } from './world';
+import { ItemProperties } from './item-properties';
 
 const BROKEN_ACTORS_CHECKS = [
   'OOT Dodongo Cavern Grass East Corridor Side Room',
@@ -277,6 +278,7 @@ export class LogicPassWorldTransform {
       worlds: World[];
       settings: Settings;
       fixedLocations: Set<Location>;
+      itemProperties: ItemProperties;
     }
   ) {
     this.fixedLocations = new Set(state.fixedLocations);
@@ -590,10 +592,24 @@ export class LogicPassWorldTransform {
       this.replaceItem(Items.MM_BOMBS_30,   Items.SHARED_BOMBS_30);
     }
 
+    if (settings.sharedBombchuBags) {
+      this.replaceItem(Items.OOT_BOMBCHU_5,   Items.SHARED_BOMBCHU_5);
+      this.replaceItem(Items.OOT_BOMBCHU_10,  Items.SHARED_BOMBCHU_10);
+      this.replaceItem(Items.OOT_BOMBCHU_20,  Items.SHARED_BOMBCHU_20);
+      this.replaceItem(Items.MM_BOMBCHU,      Items.SHARED_BOMBCHU);
+      this.replaceItem(Items.MM_BOMBCHU_5,    Items.SHARED_BOMBCHU_5);
+      this.replaceItem(Items.MM_BOMBCHU_10,   Items.SHARED_BOMBCHU_10);
+      this.replaceItem(Items.MM_BOMBCHU_20,   Items.SHARED_BOMBCHU_20);
+    }
+
     if (settings.sharedMagic) {
       this.replaceItem(Items.OOT_MAGIC_UPGRADE, Items.SHARED_MAGIC_UPGRADE);
       this.replaceItem(Items.MM_MAGIC_UPGRADE,  Items.SHARED_MAGIC_UPGRADE);
       this.removeItem(Items.SHARED_MAGIC_UPGRADE, 2);
+      this.replaceItem(Items.OOT_MAGIC_JAR_SMALL, Items.SHARED_MAGIC_JAR_SMALL);
+      this.replaceItem(Items.OOT_MAGIC_JAR_LARGE, Items.SHARED_MAGIC_JAR_LARGE);
+      this.replaceItem(Items.MM_MAGIC_JAR_SMALL, Items.SHARED_MAGIC_JAR_SMALL);
+      this.replaceItem(Items.MM_MAGIC_JAR_LARGE, Items.SHARED_MAGIC_JAR_LARGE);
     }
 
     if (settings.sharedMagicArrowFire) {
@@ -876,40 +892,50 @@ export class LogicPassWorldTransform {
 
     /* Pond */
     if (!settings.pondFishShuffle) {
-      const locs = DATA_POOL.oot.filter((x: any) => x.type === 'fish').map((x: any) => gameId('oot', x.location, ' ')) as string[];
+      const locs = POOL.oot.filter((x: any) => x.type === 'fish').map((x: any) => gameId('oot', x.location, ' ')) as string[];
       this.removeLocations(locs);
     }
 
     /* Potsanity */
     if (!settings.shufflePotsOot) {
-      const pots = DATA_POOL.oot.filter((x: any) => x.type === 'pot').map((x: any) => gameId('oot', x.location, ' ')) as string[];
+      const pots = POOL.oot.filter((x: any) => x.type === 'pot').map((x: any) => gameId('oot', x.location, ' ')) as string[];
       this.removeLocations(pots);
     } else {
       if (settings.goal === 'triforce' || settings.goal === 'triforce3') {
-        const potsGanonTower = DATA_POOL.oot.filter((x: any) => x.type === 'pot' && x.scene === 'GANON_TOWER').map((x: any) => gameId('oot', x.location, ' ')) as string[];
+        const potsGanonTower = POOL.oot.filter((x: any) => x.type === 'pot' && x.scene === 'GANON_TOWER').map((x: any) => gameId('oot', x.location, ' ')) as string[];
         this.removeLocations(potsGanonTower);
       }
     }
 
     if (!settings.shufflePotsMm) {
-      const pots = DATA_POOL.mm.filter((x: any) => x.type === 'pot').map((x: any) => gameId('mm', x.location, ' ')) as string[];
+      const pots = POOL.mm.filter((x: any) => x.type === 'pot').map((x: any) => gameId('mm', x.location, ' ')) as string[];
       this.removeLocations(pots);
     } else {
       if (settings.goal === 'triforce' || settings.goal === 'triforce3') {
-        const potsMajora = DATA_POOL.mm.filter((x: any) => x.type === 'pot' && x.scene === 'LAIR_MAJORA').map((x: any) => gameId('mm', x.location, ' ')) as string[];
+        const potsMajora = POOL.mm.filter((x: any) => x.type === 'pot' && x.scene === 'LAIR_MAJORA').map((x: any) => gameId('mm', x.location, ' ')) as string[];
         this.removeLocations(potsMajora);
       }
     }
 
     /* Grasssanity */
     if (!settings.shuffleGrassOot) {
-      const grass = DATA_POOL.oot.filter((x: any) => x.type === 'grass').map((x: any) => gameId('oot', x.location, ' ')) as string[];
+      const grass = POOL.oot.filter((x: any) => x.type === 'grass').map((x: any) => gameId('oot', x.location, ' ')) as string[];
       this.removeLocations(grass);
     }
 
     if (!settings.shuffleGrassMm) {
-      const grass = DATA_POOL.mm.filter((x: any) => x.type === 'grass').map((x: any) => gameId('mm', x.location, ' ')) as string[];
+      const grass = POOL.mm.filter((x: any) => x.type === 'grass').map((x: any) => gameId('mm', x.location, ' ')) as string[];
       this.removeLocations(grass);
+    }
+
+    if (!settings.shuffleFreeRupeesOot) {
+      const locs = POOL.oot.filter((x: any) => x.type === 'rupee').map((x: any) => gameId('oot', x.location, ' ')) as string[];
+      this.removeLocations(locs);
+    }
+
+    if (!settings.shuffleFreeRupeesMm) {
+      const locs = POOL.mm.filter((x: any) => x.type === 'rupee').map((x: any) => gameId('mm', x.location, ' ')) as string[];
+      this.removeLocations(locs);
     }
 
     /* Carpenters */
@@ -926,6 +952,29 @@ export class LogicPassWorldTransform {
           world.dungeons['GF'].delete(loc);
         }
       }
+    }
+
+    /* Handle Diving Game Rupees */
+    if (!settings.divingGameRupeeShuffle) {
+      this.removeLocations([
+        'OOT Zora Domain Diving Game Green Rupee',
+        'OOT Zora Domain Diving Game Blue Rupee',
+        'OOT Zora Domain Diving Game Red Rupee',
+        'OOT Zora Domain Diving Game Purple Rupee',
+        'OOT Zora Domain Diving Game Huge Rupee',
+      ]);
+    }
+
+    /* Handle Fairy Fountains */
+    if (!settings.fairyFountainFairyShuffleOot) {
+      const fairies = POOL.oot.filter((x: any) => x.type === 'fairy').map((x: any) => gameId('oot', x.location, ' ')) as string[];
+      this.removeLocations(fairies);
+    }
+
+    /* Handle Fairy Fountains */
+    if (!settings.fairyFountainFairyShuffleMm) {
+      const fairies = POOL.mm.filter((x: any) => x.type === 'fairy').map((x: any) => gameId('mm', x.location, ' ')) as string[];
+      this.removeLocations(fairies);
     }
 
     /* Make the basic item pool */
@@ -990,9 +1039,6 @@ export class LogicPassWorldTransform {
       this.addItem(Items.MM_WALLET);
     }
 
-    /* Setup shared items */
-    this.setupSharedItems();
-
     /* Handle progressive shields */
     if (this.state.settings.progressiveShieldsOot === 'progressive') {
       this.replaceItem(Items.OOT_SHIELD_MIRROR, Items.OOT_SHIELD);
@@ -1003,6 +1049,9 @@ export class LogicPassWorldTransform {
       this.replaceItem(Items.MM_SHIELD_MIRROR, Items.MM_SHIELD);
       this.addItem(Items.MM_SHIELD);
     }
+
+    /* Setup shared items */
+    this.setupSharedItems();
 
     /* Handle non-MQ Fire */
     if (settings.smallKeyShuffleOot !== 'anywhere') {
@@ -1179,6 +1228,7 @@ export class LogicPassWorldTransform {
       this.scarcifyPool(1);
       break;
     case 'minimal':
+    case 'barren':
       this.scarcifyPool(2);
       break;
     case 'plentiful':
@@ -1289,7 +1339,7 @@ export class LogicPassWorldTransform {
     /* Handle required junks */
     const renewableJunks: PlayerItems = new Map;
     for (const pi of this.pool.keys()) {
-      if (ItemHelpers.isJunk(pi.item) && ItemHelpers.isItemConsumable(pi.item)) {
+      if (this.state.itemProperties.junk.has(pi.item) && ItemHelpers.isItemConsumable(pi.item)) {
         for (const loc of this.locsByItem.get(pi) || []) {
           const world = this.state.worlds[locationData(loc).world as number];
           if (isLocationRenewable(world, loc) && !this.fixedLocations.has(loc)) {

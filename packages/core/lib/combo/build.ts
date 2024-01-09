@@ -1,7 +1,7 @@
-import { spawn } from "child_process";
-import fs from "fs/promises";
-import path from "path";
-import { Buffer } from "buffer";
+import childProcess from "child_process";
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 import { GAMES } from "./config";
 import { Options } from "./options";
@@ -22,13 +22,13 @@ const cloneDependencies = async () => {
   const stampFile = path.resolve(thirdPartyDir, '.stamp');
   if (await fileExists(stampFile))
     return;
-  await fs.mkdir(thirdPartyDir, { recursive: true });
+  await fs.promises.mkdir(thirdPartyDir, { recursive: true });
   return new Promise((resolve, reject) => {
-    const proc = spawn('git', ['clone', '--depth', '50', 'https://github.com/decompals/ultralib', thirdPartyDir + '/ultralib'], { stdio: 'inherit' });
+    const proc = childProcess.spawn('git', ['clone', '--depth', '50', 'https://github.com/decompals/ultralib', thirdPartyDir + '/ultralib'], { stdio: 'inherit' });
     proc.on('close', (code) => {
       if (code !== 0)
         return reject(new Error(`git clone failed with code ${code}`));
-      fs.writeFile(stampFile, '').then(_ => resolve(null));
+      fs.promises.writeFile(stampFile, '').then(_ => resolve(null));
     });
   });
 };
@@ -36,11 +36,11 @@ const cloneDependencies = async () => {
 const make = async (opts: Options) => {
   await cloneDependencies();
   return new Promise((resolve, reject) => {
-    const args = ['-j', '32'];
+    const args = ['-j', os.availableParallelism().toString()];
     if (opts.debug) {
       args.push('DEBUG=1');
     }
-    const proc = spawn('make', args, { stdio: 'inherit' });
+    const proc = childProcess.spawn('make', args, { stdio: 'inherit' });
     proc.on('close', (code) => {
       if (code === 0) {
         resolve(null);
@@ -54,8 +54,8 @@ const make = async (opts: Options) => {
 const getBuildArtifacts = async (root: string): Promise<BuildOutput> => {
   const [oot, mm] = await Promise.all(GAMES.map(async (g) => {
     const [payload, patches] = await Promise.all([
-      fs.readFile(path.resolve(root, g + '_payload.bin')),
-      fs.readFile(path.resolve(root, g + '_patch.bin')),
+      fs.promises.readFile(path.resolve(root, g + '_payload.bin')),
+      fs.promises.readFile(path.resolve(root, g + '_patch.bin')),
     ]);
     return { payload, patches };
   }));
@@ -74,7 +74,7 @@ const fetchBuildArtifacts = async (opts: Options): Promise<BuildOutput> => {
 };
 
 export const build = async (opts: Options): Promise<BuildOutput> => {
-  if (!process.env.ROLLUP) {
+  if (!process.env.BROWSER) {
     await make(opts);
     return getBuildArtifacts('build' + (opts.debug ? '/Debug' : '/Release'));
   } else {

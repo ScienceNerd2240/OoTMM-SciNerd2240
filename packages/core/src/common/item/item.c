@@ -30,6 +30,9 @@ void comboSyncItems(void)
     if (comboConfig(CFG_SHARED_BOMB_BAGS))
         gForeignSave.inventory.ammo[ITS_FOREIGN_BOMBS] = gSave.inventory.ammo[ITS_NATIVE_BOMBS];
 
+    if (comboConfig(CFG_SHARED_BOMBCHU))
+        gForeignSave.inventory.ammo[ITS_FOREIGN_BOMBCHU] = gSave.inventory.ammo[ITS_NATIVE_BOMBCHU];
+
     if (comboConfig(CFG_SHARED_MAGIC))
        gForeignSave.playerData.magicAmount = gSave.playerData.magicAmount;
 
@@ -125,16 +128,13 @@ static u32 sComboOverridesCount;
 
 void comboInitOverride(void)
 {
-    u64 mask;
     DmaEntry e;
 
-    mask = osSetIntMask(1);
     comboDmaLookup(&e, COMBO_VROM_CHECKS);
     sComboOverridesCount = comboDmaLoadFile(NULL, COMBO_VROM_CHECKS) / sizeof(ComboOverrideData);
     sComboOverridesDevAddr = e.pstart | PI_DOM1_ADDR2;
     memset(sComboOverridesCache, 0xff, sizeof(sComboOverridesCache));
     sComboOverridesCacheCursor = 0;
-    osSetIntMask(mask);
 }
 
 u8 comboSceneKey(u8 sceneId)
@@ -211,7 +211,7 @@ static int overrideData(ComboOverrideData* data, u32 key)
         ovData[0] = comboReadPhysU32(sComboOverridesDevAddr + cursor * sizeof(ComboOverrideData) + 0x00);
         ovData[1] = comboReadPhysU32(sComboOverridesDevAddr + cursor * sizeof(ComboOverrideData) + 0x04);
         memcpy(&d, ovData, sizeof(d));
-    
+
         if (d.key == key)
         {
             /* Copy and add to cache */
@@ -230,7 +230,6 @@ static int overrideData(ComboOverrideData* data, u32 key)
 void comboItemOverride(ComboItemOverride* dst, const ComboItemQuery* q)
 {
     ComboOverrideData data;
-    u64 mask;
     int isOverride;
     s16 gi;
     int neg;
@@ -252,9 +251,7 @@ void comboItemOverride(ComboItemOverride* dst, const ComboItemQuery* q)
         isOverride = 0;
     else
     {
-        mask = osSetIntMask(1);
         isOverride = overrideData(&data, makeOverrideKey(q));
-        osSetIntMask(mask);
     }
 
     if (isOverride)
@@ -270,7 +267,7 @@ void comboItemOverride(ComboItemOverride* dst, const ComboItemQuery* q)
 
     if (isPlayerSelf(dst->player))
     {
-        gi = comboProgressive(gi);
+        gi = comboProgressive(gi, q->ovFlags);
     }
 
     if (neg)

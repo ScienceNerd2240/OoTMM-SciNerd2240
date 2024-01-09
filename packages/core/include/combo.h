@@ -25,6 +25,7 @@
 # include <combo/text.h>
 # include <combo/common/ocarina.h>
 # include <combo/common/actors/Obj_Mure2.h>
+# include <combo/common/actors/Obj_Mure3.h>
 
 # if defined(GAME_OOT)
 #  include <combo/oot/play.h>
@@ -36,6 +37,9 @@
 #  include <combo/oot/actors/En_Kusa.h>
 #  include <combo/oot/actors/En_Tubo_Trap.h>
 #  include <combo/oot/actors/En_Ossan.h>
+#  include <combo/oot/actors/En_Ex_Ruppy.h>
+#  include <combo/oot/actors/En_Diving_Game.h>
+#  include <combo/oot/actors/En_Elf.h>
 # endif
 
 # if defined(GAME_MM)
@@ -53,6 +57,7 @@
 #  include <combo/mm/actors/Obj_Grass_Carry.h>
 #  include <combo/mm/actors/En_Tubo_Trap.h>
 #  include <combo/mm/actors/En_Kusa.h>
+#  include <combo/mm/actors/En_Elf.h>
 # endif
 
 # include <combo/common/actors/En_Item00.h>
@@ -241,9 +246,7 @@ void comboTextHijackOathToOrder(GameState_Play* play);
 #endif
 
 /* Progressive */
-s32 comboProgressive(s32 gi);
-s32 comboProgressiveOot(s32 gi);
-s32 comboProgressiveMm(s32 gi);
+s16 comboProgressive(s16 gi, int ovflags);
 
 /* Cache */
 void    comboCacheClear(void);

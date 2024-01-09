@@ -78,6 +78,9 @@ u32     GetSwitchFlag(GameState_Play* play, int flag);
 u32     SetSwitchFlag(GameState_Play* play, int flag);
 void    ClearSwitchFlag(GameState_Play* play, int flag);
 void    SetRoomClear(GameState_Play* play, int flag);
+u32     GetRoomClearFlag(GameState_Play* play, int flag);
+
+void Actor_ProcessInitChain(Actor* this, void* data);
 
 #if defined(GAME_MM)
 Actor*  SpawnActorEx(void* const_1, GameState_Play* play, s16 actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int, int, int);
@@ -146,6 +149,10 @@ float RandFloat(void);
 
 int GetActiveItem(GameState_Play* play);
 
+#if defined(GAME_MM)
+void AddMagic(GameState_Play* play, s16 amount);
+#endif
+
 u8 AddItem(GameState_Play* play, u8 itemId);
 u8 AddItemWithIcon(GameState_Play* play, Actor_Player* link, const GetItem* giEntry);
 u8 GetItemCollectBehavior(s16 itemId);
@@ -179,6 +186,7 @@ void Sram_CopySave(void*, void*);
 void Play_Init(GameState_Play*);
 void Play_Draw(GameState_Play*);
 
+s32 Player_InCsMode(GameState_Play*);
 void Interface_LoadItemIconImpl(GameState_Play* play, int slot);
 void UpdateEquipment(GameState_Play* play, Actor_Player* link);
 
@@ -198,6 +206,8 @@ int Player_UsingItem(Actor_Player* link);
 void PlaySound(u16 soundId);
 void PlaySoundSpecial(u16 soundId);
 void PlayMusic(int arg0, int arg1, int arg2, int arg3, int arg4);
+void Actor_PlaySfx(Actor* actor, u32 id);
+void PlayLoopingSfxAtActor(Actor* actor, u32 id);
 
 #if defined(GAME_MM)
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId);
@@ -342,8 +352,10 @@ typedef enum {
 } MagicChangeType;
 #endif
 
+s32 Health_ChangeBy(GameState_Play* play, s16 amount);
 s32 Magic_RequestChange(GameState_Play* play, s16 amount, s16 type);
 void Magic_Update(GameState_Play* play);
+void Magic_Refill(GameState_Play*);
 
 /* Unsure what this does */
 void SetTextFlags(u16 bits);
@@ -369,5 +381,7 @@ extern u8 gFogState;
 void SpawnCollectible2(GameState_Play* play, int unk, void* unk2, u16 unk3);
 f32 VectDist(Vec3f* vec1, Vec3f* vec2);
 #endif
+
+void EffectSsIceSmoke_Spawn(GameState_Play* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale);
 
 extern void* __osPiHandle;

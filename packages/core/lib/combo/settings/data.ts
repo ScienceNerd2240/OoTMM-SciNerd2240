@@ -97,6 +97,7 @@ export const SETTINGS = [{
     { value: 'normal', name: 'Normal', description: 'The regular item count for each game.' },
     { value: 'scarce', name: 'Scarce', description: 'One less of every major item. No Heart Pieces.' },
     { value: 'minimal', name: 'Minimal', description: 'Only one of each major item. No Heart Pieces or Containers.' },
+    { value: 'barren', name: 'Barren', description: 'Minimal item pool, plus every shuffled item that is not strictly required to reach the goal (beatable only) or any location (all locations) gets removed.' },
   ],
   default: 'normal'
 }, {
@@ -493,6 +494,20 @@ export const SETTINGS = [{
   description: 'Controls whether or not the grass is shuffled (MM)',
   default: false
 }, {
+  key: 'shuffleFreeRupeesOot',
+  name: 'Freestanding Rupees Shuffle (OoT)',
+  category: 'main.shuffle',
+  type: 'boolean',
+  description: 'Controls whether or not the freestanding rupees are shuffled (OoT)',
+  default: false
+}, {
+  key: 'shuffleFreeRupeesMm',
+  name: 'Freestanding Rupees Shuffle (MM)',
+  category: 'main.shuffle',
+  type: 'boolean',
+  description: 'Controls whether or not the freestanding rupees are shuffled (MM)',
+  default: false
+}, {
   key: 'shuffleOcarinasOot',
   name: 'Ocarina Shuffle (OoT)',
   category: 'main.shuffle',
@@ -526,6 +541,27 @@ export const SETTINGS = [{
   category: 'main.shuffle',
   type: 'boolean',
   description: 'Controls whether or not the Fish (and the Loach) in the Fishing Pond are shuffled amongst all the items.',
+  default: false
+}, {
+  key: 'divingGameRupeeShuffle',
+  name: 'Diving Game Rupee Shuffle',
+  category: 'main.shuffle',
+  type: 'boolean',
+  description: 'Controls whether or not the Zora\'s Domain Diving Game has 5 random items instead of green, blue, red, purple and 500 rupees.',
+  default: false
+}, {
+  key: 'fairyFountainFairyShuffleOot',
+  name: 'Fairy Fountain Fairy Shuffle (OoT)',
+  category: 'main.shuffle',
+  type: 'boolean',
+  description: 'Controls whether or not fairies in fairy fountains are shuffled (OoT).',
+  default: false
+}, {
+  key: 'fairyFountainFairyShuffleMm',
+  name: 'Fairy Fountain Fairy Shuffle (MM)',
+  category: 'main.shuffle',
+  type: 'boolean',
+  description: 'Controls whether or not fairies in fairy fountains are shuffled (MM).',
   default: false
 }, {
   key: 'eggShuffle',
@@ -1038,6 +1074,20 @@ export const SETTINGS = [{
   default: false,
   cond: (s: any) => s.silverRupeeShuffle !== 'vanilla',
 }, {
+  key: 'bombchuBagOot',
+  name: 'Bombchu Bag (OoT)',
+  category: 'items.extensions',
+  type: 'boolean',
+  description: 'Turns the first out-of-shop bombchu pack you find into the bombchu bag. Has logical implications.',
+  default: false,
+}, {
+  key: 'bombchuBagMm',
+  name: 'Bombchu Bag (MM)',
+  category: 'items.extensions',
+  type: 'boolean',
+  description: 'Turns the first out-of-shop bombchu pack you find into the bombchu bag. Has logical implications.',
+  default: false,
+}, {
   key: 'ocarinaButtonsShuffleOot',
   name: 'Ocarina Buttons Shuffle (OoT)',
   category: 'items.extensions',
@@ -1303,6 +1353,13 @@ export const SETTINGS = [{
   default: false,
   cond: (s: any) => s.skeletonKeyOot && s.skeletonKeyMm,
 }, {
+  key: 'sharedBombchuBags',
+  name: 'Shared Bombchu Bags',
+  category: 'items.shared',
+  type: 'boolean',
+  default: false,
+  cond: (s: any) => s.bombchuBagOot && s.bombchuBagMm,
+}, {
   key: 'agelessSwords',
   name: 'Ageless Swords',
   category: 'items.ageless',
@@ -1387,6 +1444,18 @@ export const SETTINGS = [{
     { value: 'full', name: 'Full' },
   ],
   description: 'Enable the ability to shuffle dungeons within their own game or across both.',
+  default: 'none'
+}, {
+  key: 'erWallmasters',
+  name: 'Wallmaster Shuffle',
+  category: 'entrances',
+  type: 'enum',
+  values: [
+    { value: 'none', name: 'None' },
+    { value: 'ownGame', name: 'Own Game' },
+    { value: 'full', name: 'Full' },
+  ],
+  description: 'TODO',
   default: 'none'
 }, {
   key: 'erMajorDungeons',
