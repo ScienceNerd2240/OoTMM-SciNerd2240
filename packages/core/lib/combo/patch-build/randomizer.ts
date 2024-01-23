@@ -84,6 +84,7 @@ const SHARED_ITEMS_OOT = new Map([
   ['SHARED_BOMBCHU_5',        'OOT_BOMBCHU_5'],
   ['SHARED_BOMBCHU_10',       'OOT_BOMBCHU_10'],
   ['SHARED_BOMBCHU_20',       'OOT_BOMBCHU_20'],
+  ['SHARED_FAIRY_BIG',        'OOT_FAIRY_BIG'],
 ]);
 
 const SHARED_ITEMS_MM = new Map([
@@ -140,6 +141,7 @@ const SHARED_ITEMS_MM = new Map([
   ['SHARED_BOMBCHU_5',        'MM_BOMBCHU_5'],
   ['SHARED_BOMBCHU_10',       'MM_BOMBCHU_10'],
   ['SHARED_BOMBCHU_20',       'MM_BOMBCHU_20'],
+  ['SHARED_FAIRY_BIG',        'MM_FAIRY_BIG'],
 ]);
 
 const SHARED_ITEMS = {
@@ -344,6 +346,8 @@ function checkKey(check: WorldCheck): number {
   case 'grass':
   case 'fairy':
   case 'rupee':
+  case 'heart':
+  case 'fairy_spot':
     /* xflag */
     typeId = 0x10 + ((id >> 16) & 0xf);
     break;
@@ -359,6 +363,8 @@ function checkKey(check: WorldCheck): number {
   case 'grass':
   case 'fairy':
   case 'rupee':
+  case 'heart':
+  case 'fairy_spot':
     sceneId = (SCENES as any)[check.scene];
     if (sceneId === undefined) {
       throw new Error(`Unknown scene ${check.scene}`);
@@ -728,8 +734,6 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     OOT_SOULS_NPC: settings.soulsNpcOot,
     MM_REMOVED_FAIRIES: settings.strayFairyOtherShuffle === 'removed',
     SHARED_SKELETON_KEY: settings.sharedSkeletonKey,
-    OOT_SHUFFLE_POTS: settings.shufflePotsOot,
-    MM_SHUFFLE_POTS: settings.shufflePotsMm,
     OOT_SHUFFLE_GRASS: settings.shuffleGrassOot,
     MM_SHUFFLE_GRASS: settings.shuffleGrassMm,
     MENU_NOTEBOOK: settings.menuNotebook,
@@ -756,6 +760,11 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     MM_BOMBCHU_BAG: settings.bombchuBagMm,
     SHARED_BOMBCHU: settings.sharedBombchuBags,
     ER_WALLMASTERS: settings.erWallmasters !== 'none',
+    OOT_OPEN_MASK_SHOP: settings.openMaskShop,
+    OOT_BRIDGE_VANILLA: settings.rainbowBridge === 'vanilla',
+    OOT_BRIDGE_MEDALLIONS: settings.rainbowBridge === 'medallions',
+    OOT_BRIDGE_CUSTOM: settings.rainbowBridge === 'custom',
+    MULTIPLAYER: settings.mode !== 'single',
   };
 
   for (const v in exprs) {

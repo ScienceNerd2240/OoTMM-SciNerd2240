@@ -71,7 +71,7 @@ int comboItemPrecondEx(const ComboItemQuery* q, s16 price)
     return SC_OK;
 }
 
-void comboGiveItem(Actor* actor, GameState_Play* play, const ComboItemQuery* q, float a, float b)
+static void comboGiveItemRaw(Actor* actor, GameState_Play* play, const ComboItemQuery* q, float a, float b)
 {
     static ComboItemQuery sItemQ;
     static ComboItemQuery sItemQBox;
@@ -91,6 +91,21 @@ void comboGiveItem(Actor* actor, GameState_Play* play, const ComboItemQuery* q, 
             g.itemQuery = &sItemQ;
         }
     }
+}
+
+void comboGiveItem(Actor* actor, GameState_Play* play, const ComboItemQuery* q, float a, float b)
+{
+    ComboItemQuery qNothing = ITEM_QUERY_INIT;
+    const ComboItemQuery* qPtr;
+
+    if (multiIsMarked(play, q->ovType, q->sceneId, q->roomId, q->id))
+    {
+        qNothing.gi = GI_NOTHING;
+        qPtr = &qNothing;
+    }
+    else
+        qPtr = q;
+    comboGiveItemRaw(actor, play, qPtr, a, b);
 }
 
 void comboGiveItemNpc(Actor* actor, GameState_Play* play, s16 gi, int npc, float a, float b)
@@ -266,9 +281,7 @@ void comboItemOverride(ComboItemOverride* dst, const ComboItemQuery* q)
     dst->giRaw = gi;
 
     if (isPlayerSelf(dst->player))
-    {
         gi = comboProgressive(gi, q->ovFlags);
-    }
 
     if (neg)
         gi = -gi;
@@ -278,7 +291,7 @@ void comboItemOverride(ComboItemOverride* dst, const ComboItemQuery* q)
 }
 
 
-int comboAddItemEx(GameState_Play* play, const ComboItemQuery* q, int updateText)
+int comboAddItemRawEx(GameState_Play* play, const ComboItemQuery* q, int updateText)
 {
     ComboItemOverride o;
     NetContext* net;
@@ -289,10 +302,38 @@ int comboAddItemEx(GameState_Play* play, const ComboItemQuery* q, int updateText
 
     /* Add the item if it's for us */
     if (isPlayerSelf(o.player))
-        count = comboAddItem(play, o.gi);
-    else
+        count = comboAddItemRaw(play, o.gi);
+
+    /* Update text */
+    if (updateText)
+        comboTextHijackItemEx(play, &o, count);
+
+    if (comboConfig(CFG_MULTIPLAYER) && q->ovType != OV_NONE)
     {
-        /* We need to send it */
+        /* Mark the item */
+        if (isPlayerSelf(o.player))
+        {
+#if defined(GAME_OOT)
+            multiSetMarkedOot(play, q->ovType, q->sceneId, q->roomId, q->id);
+#else
+            multiSetMarkedMm(play, q->ovType, q->sceneId, q->roomId, q->id);
+#endif
+
+            /* If the item was a renewable, add it to the GI skips */
+            if (q->ovFlags & OVF_RENEW)
+            {
+                for (int i = 0; i < ARRAY_SIZE(gSharedCustomSave.netGiSkip); ++i)
+                {
+                    if (gSharedCustomSave.netGiSkip[i] == GI_NONE)
+                    {
+                        gSharedCustomSave.netGiSkip[i] = o.gi;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* Send the item on the network */
         net = netMutexLock();
         netWaitCmdClear();
         bzero(&net->cmdOut, sizeof(net->cmdOut));
@@ -304,17 +345,28 @@ int comboAddItemEx(GameState_Play* play, const ComboItemQuery* q, int updateText
 #else
         net->cmdOut.itemSend.game = 1;
 #endif
-        net->cmdOut.itemSend.gi = o.gi;
+        net->cmdOut.itemSend.gi = comboItemResolve(play, o.gi);
         net->cmdOut.itemSend.key = makeOverrideKey(q);
         net->cmdOut.itemSend.flags = (s16)q->ovFlags;
         netMutexUnlock();
     }
 
-    /* Update text */
-    if (updateText)
-        comboTextHijackItemEx(play, &o, count);
-
     return -1;
+}
+
+int comboAddItemEx(GameState_Play* play, const ComboItemQuery* q, int updateText)
+{
+    ComboItemQuery qNothing = ITEM_QUERY_INIT;
+    const ComboItemQuery* qPtr;
+
+    if (multiIsMarked(play, q->ovType, q->sceneId, q->roomId, q->id))
+    {
+        qNothing.gi = GI_NOTHING;
+        qPtr = &qNothing;
+    }
+    else
+        qPtr = q;
+    return comboAddItemRawEx(play, qPtr, updateText);
 }
 
 void comboPlayerAddItem(GameState_Play* play, s16 gi)
@@ -328,6 +380,7 @@ void comboPlayerAddItem(GameState_Play* play, s16 gi)
     Actor* chest;
     Actor_Player* player;
     ComboItemQuery q = ITEM_QUERY_INIT;
+    ComboItemOverride o;
 
     /* Check for a chest */
     player = GET_LINK(play);
@@ -356,5 +409,16 @@ void comboPlayerAddItem(GameState_Play* play, s16 gi)
     if (q.gi < 0)
         q.gi = -q.gi;
 
-    comboAddItemEx(play, &q, 1);
+    comboItemOverride(&o, &q);
+    comboAddItemRawEx(play, &q, 1);
+    comboPlayItemFanfare(o.gi, 0);
+}
+
+u8 comboItemType(s16 gi)
+{
+    if (gi == 0)
+        return ITT_NONE;
+    if (gi < 0)
+        gi = -gi;
+    return kExtendedGetItems[gi - 1].type;
 }

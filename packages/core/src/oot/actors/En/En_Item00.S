@@ -5,7 +5,7 @@ PATCH_START 0x800e775c
 .int 0x1a4
 PATCH_END
 
-/* Use custom init */
+/* Use custom callbacks */
 PATCH_START 0x800e7760
 .int EnItem00_InitWrapper
 PATCH_END
@@ -88,4 +88,10 @@ PATCH_END
 
 PATCH_START 0x80012d6e
 .short ITEM_OOT_BOMBCHU_5
+PATCH_END
+
+/* Use our sound effect handler */
+PATCH_START 0x80012ee0
+  jal EnItem00_PlaySoundXflag
+   move a0,s0
 PATCH_END

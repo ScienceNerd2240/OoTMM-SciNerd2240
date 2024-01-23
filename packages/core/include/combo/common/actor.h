@@ -29,7 +29,6 @@
 # define AC_EN_HORSE                0x014
 # define AC_EN_ITEM00               0x015
 # define AC_EN_ARROW                0x016
-# define AC_CUSTOM_ITEM             0x017
 # define AC_EN_ELF                  0x018
 # define AC_EN_NIW                  0x019
 # define AC_EN_TITE                 0x01b
@@ -483,7 +482,6 @@
 # define AC_EN_A_OBJ            0x026
 # define AC_OBJ_WTURN           0x027
 # define AC_EN_RIVER_SOUND      0x028
-# define AC_CUSTOM_ITEM         0x029
 # define AC_EN_OSSAN            0x02a
 # define AC_EN_FAMOS            0x02d
 # define AC_EN_BOMBF            0x02f
@@ -1028,6 +1026,7 @@
 
 #if !defined(__ASSEMBLER__)
 typedef struct GameState_Play GameState_Play;
+typedef struct ActorContext ActorContext;
 typedef struct Actor Actor;
 
 typedef void (*ActorCallback)(Actor*, GameState_Play*);
@@ -1105,8 +1104,8 @@ _Static_assert(sizeof(Actor) == 0x144, "MM Actor size is wrong");
 _Static_assert(sizeof(ActorList) == 0xC, "MM ActorList size is wrong");
 #endif
 
-Actor* comboSpawnActor(void* unk, GameState_Play *play, short actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable);
-Actor* comboSpawnActorEx(void* unk, GameState_Play *play, short actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3);
+Actor* comboSpawnActor(ActorContext* actorCtx, GameState_Play *play, short actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable);
+Actor* comboSpawnActorEx(ActorContext* actorCtx, GameState_Play *play, short actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3);
 
 #endif
 

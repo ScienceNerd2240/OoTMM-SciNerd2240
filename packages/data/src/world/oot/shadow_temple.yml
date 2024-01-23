@@ -33,6 +33,7 @@
     "Shadow Temple Scythe Silver Rupees": "true"
   locations:
     "Shadow Temple Compass": "soul_redead_gibdo && (has_weapon || can_use_sticks || can_use_din || can_hammer)"
+    "Shadow Temple Beamos Big Fairy": "can_play_storms"
 "Shadow Temple Scythe Silver Rupees":
   dungeon: Shadow
   exits:
@@ -62,6 +63,10 @@
     "Shadow Temple SR Pit 3": "true"
     "Shadow Temple SR Pit 4": "true"
     "Shadow Temple SR Pit 5": "true"
+    "Shadow Temple Stalfos Big Fairy": "can_play_storms"
+    # TODO: Boomerang?
+    "Shadow Temple Heart Scythe 1": "can_play_time && is_adult"
+    "Shadow Temple Heart Scythe 2": "can_play_time && is_adult"
 "Shadow Temple Falling Spikes":
   dungeon: Shadow
   locations:
@@ -115,6 +120,7 @@
     "Shadow Temple Pot After Wind 2": "true"
     "Shadow Temple Flying Pot After Wind 1": "soul_flying_pot"
     "Shadow Temple Flying Pot After Wind 2": "soul_flying_pot"
+    "Shadow Temple Big Fairy After Wind": "can_play_sun"
 "Shadow Temple Boat":
   dungeon: Shadow
   exits:
@@ -125,6 +131,8 @@
     SHADOW_SHORTCUT: "has(STRENGTH)"
   locations:
     "Shadow Temple GS Near Boat": "can_longshot || hookshot_anywhere || (climb_anywhere && (has_weapon || has_ranged_weapon || has_explosives || can_use_din))"
+    "Shadow Temple Heart Shortcut 1": "scarecrow_hookshot"
+    "Shadow Temple Heart Shortcut 2": "scarecrow_hookshot"
 "Shadow Temple After Boat":
   dungeon: Shadow
   exits:
@@ -143,3 +151,6 @@
     "Shadow Temple Pot Boat Before Bridge 2": "true"
     "Shadow Temple Pot Boat After Bridge 1": "can_use_bow || scarecrow_longshot || climb_anywhere"
     "Shadow Temple Pot Boat After Bridge 2": "can_use_bow || scarecrow_longshot || climb_anywhere"
+    "Shadow Temple Heart Pre-Boss 1": "scarecrow_longshot || climb_anywhere"
+    "Shadow Temple Heart Pre-Boss 2": "scarecrow_longshot || climb_anywhere"
+    "Shadow Temple Heart Pre-Boss 3": "scarecrow_longshot || climb_anywhere"

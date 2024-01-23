@@ -2,10 +2,14 @@ location,                                                   type,           hint
 Hatch Chicken,                                              npc,            NONE,                 GROTTOS,                        WEIRD_EGG,                  WEIRD_EGG
 Hatch Pocket Cucco,                                         npc,            NONE,                 GROTTOS,                        POCKET_EGG,                 POCKET_EGG
 Link's House Pot,                                           pot,            NONE,                 LINK_HOUSE,                     0x0002,                     RECOVERY_HEART
-Kokiri Forest Mido Top Left,                                chest,          NONE,                 KOKIRI_MIDO,                    0x00,                       RUPEE_BLUE
-Kokiri Forest Mido Top Right,                               chest,          NONE,                 KOKIRI_MIDO,                    0x01,                       RUPEE_BLUE
-Kokiri Forest Mido Bottom Left,                             chest,          NONE,                 KOKIRI_MIDO,                    0x02,                       RUPEE_GREEN
-Kokiri Forest Mido Bottom Right,                            chest,          NONE,                 KOKIRI_MIDO,                    0x03,                       RECOVERY_HEART
+Mido's House Top Left,                                      chest,          NONE,                 KOKIRI_MIDO,                    0x00,                       RUPEE_BLUE
+Mido's House Top Right,                                     chest,          NONE,                 KOKIRI_MIDO,                    0x01,                       RUPEE_BLUE
+Mido's House Bottom Left,                                   chest,          NONE,                 KOKIRI_MIDO,                    0x02,                       RUPEE_GREEN
+Mido's House Bottom Right,                                  chest,          NONE,                 KOKIRI_MIDO,                    0x03,                       RECOVERY_HEART
+Saria's House Heart 1,                                      heart,          NONE,                 KOKIRI_SARIA,                   0x00002,                    RECOVERY_HEART
+Saria's House Heart 2,                                      heart,          NONE,                 KOKIRI_SARIA,                   0x00003,                    RECOVERY_HEART
+Saria's House Heart 3,                                      heart,          NONE,                 KOKIRI_SARIA,                   0x00004,                    RECOVERY_HEART
+Saria's House Heart 4,                                      heart,          NONE,                 KOKIRI_SARIA,                   0x00005,                    RECOVERY_HEART
 Kokiri Forest Kokiri Sword Chest,                           chest,          NONE,                 KOKIRI_FOREST,                  0x00,                       SWORD_KOKIRI
 Kokiri Forest Storms Grotto,                                chest,          NONE,                 GROTTOS,                        0x0c,                       RUPEE_RED
 Kokiri Forest GS Soil,                                      gs,             NONE,                 KOKIRI_FOREST,                  0x68,                       GS_TOKEN
@@ -59,6 +63,9 @@ Kokiri Forest Rupee Adult 4,                                rupee,          NONE
 Kokiri Forest Rupee Adult 5,                                rupee,          NONE,                 KOKIRI_FOREST,                  0x4800b,                    RUPEE_GREEN
 Kokiri Forest Rupee Adult 6,                                rupee,          NONE,                 KOKIRI_FOREST,                  0x5800b,                    RUPEE_GREEN
 Kokiri Forest Rupee Adult 7,                                rupee,          NONE,                 KOKIRI_FOREST,                  0x6800b,                    RUPEE_RED
+Kokiri Forest Heart 1,                                      heart,          NONE,                 KOKIRI_FOREST,                  0x00013,                    RECOVERY_HEART
+Kokiri Forest Heart 2,                                      heart,          NONE,                 KOKIRI_FOREST,                  0x00014,                    RECOVERY_HEART
+Kokiri Forest Heart 3,                                      heart,          NONE,                 KOKIRI_FOREST,                  0x00015,                    RECOVERY_HEART
 Kokiri Shop Item 1,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x00,                       RECOVERY_HEART
 Kokiri Shop Item 2,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x01,                       ARROWS_10
 Kokiri Shop Item 3,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x02,                       ARROWS_30
@@ -94,6 +101,7 @@ Lost Woods Grass Deep 5,                                    grass,          NONE
 Lost Woods Grass Deep 6,                                    grass,          NONE,                 LOST_WOODS,                     0x00805,                    RANDOM
 Lost Woods Grotto Scrub Nuts Upgrade,                       scrub,          NONE,                 GROTTOS,                        0x03,                       NUT_UPGRADE
 Lost Woods Grotto Scrub Back,                               scrub,          NONE,                 GROTTOS,                        0x04,                       DEKU_SEEDS_30
+Lost Woods Grotto Scrub Big Fairy,                          fairy_spot,     NONE,                 GROTTOS,                        0x00600,                    FAIRY_BIG
 Lost Woods Grotto Generic,                                  chest,          NONE,                 GROTTOS,                        0x14,                       RUPEE_BLUE
 Lost Woods Grotto Generic Grass 1,                          grass,          NONE,                 GROTTOS,                        0x03402,                    RANDOM
 Lost Woods Grotto Generic Grass 2,                          grass,          NONE,                 GROTTOS,                        0x03403,                    RANDOM
@@ -111,6 +119,7 @@ Lost Woods Rupee Arrow 6,                                   rupee,          NONE
 Lost Woods Rupee Arrow 7,                                   rupee,          NONE,                 LOST_WOODS,                     0x0030a,                    RUPEE_GREEN
 Lost Woods Rupee Arrow 8,                                   rupee,          NONE,                 LOST_WOODS,                     0x0030b,                    RUPEE_GREEN
 Lost Woods Rupee Boulder,                                   rupee,          NONE,                 LOST_WOODS,                     0x00704,                    RUPEE_BLUE
+Lost Woods Pool Big Fairy,                                  fairy_spot,     NONE,                 LOST_WOODS,                     0x00303,                    FAIRY_BIG
 Deku Theater Sticks Upgrade,                                npc,            NONE,                 GROTTOS,                        THEATER_STICKS,             STICK_UPGRADE
 Deku Theater Nuts Upgrade,                                  npc,            NONE,                 GROTTOS,                        THEATER_NUTS,               NUT_UPGRADE
 Saria's Song,                                               npc,            NONE,                 SACRED_FOREST_MEADOW,           SARIA_SONG,                 SONG_SARIA
@@ -186,6 +195,7 @@ Graveyard Dampe Game,                                       collectible,    NONE
 Graveyard ReDead Tomb,                                      chest,          NONE,                 TOMB_REDEAD,                    0x00,                       HEART_PIECE
 Graveyard Royal Tomb Song,                                  npc,            NONE,                 TOMB_ROYAL,                     ROYAL_TOMB_SONG,            SONG_SUN
 Graveyard Royal Tomb Chest,                                 chest,          NONE,                 TOMB_ROYAL,                     0x00,                       BOMBS_5
+Graveyard Royal Tomb Big Fairy,                             fairy_spot,     NONE,                 TOMB_ROYAL,                     0x00008,                    FAIRY_BIG
 Graveyard Fairy Tomb,                                       chest,          NONE,                 TOMB_FAIRY,                     0x00,                       SHIELD_HYLIAN
 Graveyard Fairy Fountain Fairy 1,                           fairy,          NONE,                 TOMB_FAIRY,                     0x00005,                    FAIRY
 Graveyard Fairy Fountain Fairy 2,                           fairy,          NONE,                 TOMB_FAIRY,                     0x10005,                    FAIRY
@@ -250,8 +260,14 @@ Death Mountain Cow Grotto Rupee 4,                          rupee,          NONE
 Death Mountain Cow Grotto Rupee 5,                          rupee,          NONE,                 GROTTOS,                        0x40305,                    RUPEE_GREEN
 Death Mountain Cow Grotto Rupee 6,                          rupee,          NONE,                 GROTTOS,                        0x50305,                    RUPEE_GREEN
 Death Mountain Cow Grotto Rupee 7,                          rupee,          NONE,                 GROTTOS,                        0x60305,                    RUPEE_RED
+Death Mountain Cow Grotto Heart 1,                          heart,          NONE,                 GROTTOS,                        0x00306,                    RECOVERY_HEART
+Death Mountain Cow Grotto Heart 2,                          heart,          NONE,                 GROTTOS,                        0x00307,                    RECOVERY_HEART
+Death Mountain Cow Grotto Heart 3,                          heart,          NONE,                 GROTTOS,                        0x00308,                    RECOVERY_HEART
+Death Mountain Cow Grotto Heart 4,                          heart,          NONE,                 GROTTOS,                        0x00309,                    RECOVERY_HEART
+Death Mountain Cow Grotto Big Fairy,                        fairy_spot,     NONE,                 GROTTOS,                        0x00304,                    FAIRY_BIG
 Death Mountain Rupee Upper,                                 rupee,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00001,                    RUPEE_RED
 Death Mountain Rupee Lower,                                 rupee,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00002,                    RUPEE_BLUE
+Death Mountain Big Fairy,                                   fairy_spot,     NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00026,                    FAIRY_BIG
 Darunia,                                                    npc,            NONE,                 GORON_CITY,                     DARUNIA_BRACELET,           STRENGTH
 Goron City Maze Center 1,                                   chest,          NONE,                 GORON_CITY,                     0x02,                       RUPEE_PURPLE
 Goron City Maze Center 2,                                   chest,          NONE,                 GORON_CITY,                     0x01,                       RUPEE_PURPLE
@@ -475,6 +491,7 @@ Lake Hylia Grass Pack 3 Bush 12,                            grass,          NONE
 Lake Hylia Rupee 1,                                         rupee,          NONE,                 LAKE_HYLIA,                     0x00031,                    RUPEE_GREEN
 Lake Hylia Rupee 2,                                         rupee,          NONE,                 LAKE_HYLIA,                     0x00032,                    RUPEE_GREEN
 Lake Hylia Rupee 3,                                         rupee,          NONE,                 LAKE_HYLIA,                     0x00033,                    RUPEE_GREEN
+Lake Hylia Island Big Fairy,                                fairy_spot,     NONE,                 LAKE_HYLIA,                     0x00037,                    FAIRY_BIG
 Laboratory Dive,                                            npc,            NONE,                 LABORATORY,                     LABORATORY_DIVE,            HEART_PIECE
 Laboratory Eye Drops,                                       npc,            NONE,                 LABORATORY,                     TRADE_EYE_DROPS,            EYE_DROPS
 Laboratory GS Crate,                                        gs,             NONE,                 LABORATORY,                     0x9b,                       GS_TOKEN
@@ -543,6 +560,7 @@ Lon Lon Ranch Pot 7,                                        pot,            NONE
 Hyrule Field Ocarina of Time,                               npc,            NONE,                 HYRULE_FIELD,                   OCARINA_TIME_ITEM,          OCARINA
 Hyrule Field Song of Time,                                  npc,            NONE,                 HYRULE_FIELD,                   OCARINA_TIME_SONG,          SONG_TIME
 Hyrule Field Grotto Scrub HP,                               scrub,          NONE,                 GROTTOS,                        0x07,                       HEART_PIECE
+Hyrule Field Grotto Scrub Big Fairy,                        fairy_spot,     NONE,                 GROTTOS,                        0x00102,                    FAIRY_BIG
 Hyrule Field Grotto Southeast,                              chest,          NONE,                 GROTTOS,                        0x02,                       RUPEE_RED
 Hyrule Field Grotto Southeast Grass 1,                      grass,          NONE,                 GROTTOS,                        0x02202,                    RANDOM
 Hyrule Field Grotto Southeast Grass 2,                      grass,          NONE,                 GROTTOS,                        0x02203,                    RANDOM
@@ -614,6 +632,7 @@ Hyrule Field Grass Pack 4 Bush 09,                          grass,          NONE
 Hyrule Field Grass Pack 4 Bush 10,                          grass,          NONE,                 HYRULE_FIELD,                   0x9003d,                    RANDOM
 Hyrule Field Grass Pack 4 Bush 11,                          grass,          NONE,                 HYRULE_FIELD,                   0xa003d,                    RANDOM
 Hyrule Field Grass Pack 4 Bush 12,                          grass,          NONE,                 HYRULE_FIELD,                   0xb003d,                    RANDOM
+Hyrule Field River Big Fairy,                               fairy_spot,     NONE,                 HYRULE_FIELD,                   0x00048,                    FAIRY_BIG
 Hyrule Field Fairy Fountain Fairy 1,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x02000,                    FAIRY
 Hyrule Field Fairy Fountain Fairy 2,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x12000,                    FAIRY
 Hyrule Field Fairy Fountain Fairy 3,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x22000,                    FAIRY
@@ -848,6 +867,11 @@ Deku Tree Grass Pre-Boss Room 2,                            grass,          NONE
 Deku Tree Grass Pre-Boss Room 3,                            grass,          NONE,                 INSIDE_DEKU_TREE,               0x00902,                    RECOVERY_HEART
 Deku Tree Grass Compass Room 1,                             grass,          NONE,                 INSIDE_DEKU_TREE,               0x00a02,                    DEKU_SEEDS_5
 Deku Tree Grass Compass Room 2,                             grass,          NONE,                 INSIDE_DEKU_TREE,               0x00a03,                    RECOVERY_HEART
+Deku Tree Heart Main Room Lower,                            heart,          NONE,                 INSIDE_DEKU_TREE,               0x00019,                    RECOVERY_HEART
+Deku Tree Heart Main Room Upper,                            heart,          NONE,                 INSIDE_DEKU_TREE,               0x0001a,                    RECOVERY_HEART
+Deku Tree Heart Pre-Boss 1,                                 heart,          NONE,                 INSIDE_DEKU_TREE,               0x00906,                    RECOVERY_HEART
+Deku Tree Heart Pre-Boss 2,                                 heart,          NONE,                 INSIDE_DEKU_TREE,               0x00907,                    RECOVERY_HEART
+Deku Tree Heart Pre-Boss 3,                                 heart,          NONE,                 INSIDE_DEKU_TREE,               0x00908,                    RECOVERY_HEART
 Deku Tree Boss Container,                                   collectible,    NONE,                 LAIR_GOHMA,                     0x1f,                       HEART_CONTAINER
 Deku Tree Boss,                                             npc,            NONE,                 LAIR_GOHMA,                     BLUE_WARP_GOHMA,            STONE_EMERALD
 Deku Tree Boss Grass 1,                                     grass,          NONE,                 LAIR_GOHMA,                     0x00101,                    RECOVERY_HEART
@@ -905,12 +929,16 @@ Dodongo Cavern Grass Pre-Boss,                              grass,          NONE
 Dodongo Cavern Grass Bomb Bag Room,                         grass,          NONE,                 DODONGO_CAVERN,                 0x00900,                    DEKU_SEEDS_5
 Dodongo Cavern Grass Pre-Miniboss,                          grass,          NONE,                 DODONGO_CAVERN,                 0x00a00,                    RECOVERY_HEART
 Dodongo Cavern Grass East Corridor Side Room,               grass,          NONE,                 DODONGO_CAVERN,                 0x00b03,                    DEKU_SEEDS_5
+Dodongo Cavern Heart Miniboss Lava,                         heart,          NONE,                 DODONGO_CAVERN,                 0x00305,                    RECOVERY_HEART
+Dodongo Cavern Heart Miniboss Upper 1,                      heart,          NONE,                 DODONGO_CAVERN,                 0x00306,                    RECOVERY_HEART
+Dodongo Cavern Heart Miniboss Upper 2,                      heart,          NONE,                 DODONGO_CAVERN,                 0x00307,                    RECOVERY_HEART
+Dodongo Cavern Heart Bomb Bag Room,                         heart,          NONE,                 DODONGO_CAVERN,                 0x0090d,                    RECOVERY_HEART
 Dodongo Cavern Boss Chest,                                  chest,          NONE,                 LAIR_KING_DODONGO,              0x00,                       BOMBS_10
 Dodongo Cavern Boss Container,                              collectible,    NONE,                 LAIR_KING_DODONGO,              0x1f,                       HEART_CONTAINER
 Dodongo Cavern Boss,                                        npc,            NONE,                 LAIR_KING_DODONGO,              BLUE_WARP_KING_DODONGO,     STONE_RUBY
 Jabu-Jabu Map Chest,                                        chest,          NONE,                 INSIDE_JABU_JABU,               0x02,                       MAP_JJ
 Jabu-Jabu Compass Chest,                                    chest,          NONE,                 INSIDE_JABU_JABU,               0x04,                       COMPASS_JJ
-Jabu-Jabu Boomerang Chest,                                  chest,          JABU_BOOMERANG,                 INSIDE_JABU_JABU,               0x01,                       BOOMERANG
+Jabu-Jabu Boomerang Chest,                                  chest,          JABU_BOOMERANG,       INSIDE_JABU_JABU,               0x01,                       BOOMERANG
 Jabu-Jabu Scrub,                                            scrub,          NONE,                 INSIDE_JABU_JABU,               0x20,                       NUTS_5
 Jabu-Jabu GS Water Switch,                                  gs,             NONE,                 INSIDE_JABU_JABU,               0x1b,                       GS_TOKEN
 Jabu-Jabu GS Bottom Lower,                                  gs,             NONE,                 INSIDE_JABU_JABU,               0x18,                       GS_TOKEN
@@ -972,6 +1000,10 @@ Forest Temple Pot Rotating Room 1,                          pot,            NONE
 Forest Temple Pot Rotating Room 2,                          pot,            NONE,                 TEMPLE_FOREST,                  0x0e06,                     ARROWS_10
 Forest Temple Pot Green Poe Pot 1,                          pot,            NONE,                 TEMPLE_FOREST,                  0x1006,                     RECOVERY_HEART
 Forest Temple Pot Green Poe Pot 2,                          pot,            NONE,                 TEMPLE_FOREST,                  0x1007,                     ARROWS_10
+Forest Temple Heart Garden 1,                               heart,          NONE,                 TEMPLE_FOREST,                  0x00809,                    RECOVERY_HEART
+Forest Temple Heart Garden 2,                               heart,          NONE,                 TEMPLE_FOREST,                  0x0080a,                    RECOVERY_HEART
+Forest Temple Heart Well 1,                                 heart,          NONE,                 TEMPLE_FOREST,                  0x00902,                    RECOVERY_HEART
+Forest Temple Heart Well 2,                                 heart,          NONE,                 TEMPLE_FOREST,                  0x00903,                    RECOVERY_HEART
 Forest Temple Boss Container,                               collectible,    NONE,                 LAIR_PHANTOM_GANON,             0x1f,                       HEART_CONTAINER
 Forest Temple Boss,                                         npc,            NONE,                 LAIR_PHANTOM_GANON,             BLUE_WARP_PHANTOM_GANON,    MEDALLION_FOREST
 Fire Temple Jail 1 Chest,                                   chest,          NONE,                 TEMPLE_FIRE,                    0x01,                       SMALL_KEY_FIRE
@@ -1008,6 +1040,15 @@ Fire Temple Pot Ring 1,                                     pot,            NONE
 Fire Temple Pot Ring 2,                                     pot,            NONE,                 TEMPLE_FIRE,                    0x0a38,                     RECOVERY_HEART
 Fire Temple Pot Ring 3,                                     pot,            NONE,                 TEMPLE_FIRE,                    0x0a39,                     RECOVERY_HEART
 Fire Temple Pot Ring 4,                                     pot,            NONE,                 TEMPLE_FIRE,                    0x0a3a,                     RECOVERY_HEART
+Fire Temple Heart Ledge Above Main 1,                       heart,          NONE,                 TEMPLE_FIRE,                    0x00600,                    RECOVERY_HEART
+Fire Temple Heart Ledge Above Main 2,                       heart,          NONE,                 TEMPLE_FIRE,                    0x00601,                    RECOVERY_HEART
+Fire Temple Heart Ledge Above Main 3,                       heart,          NONE,                 TEMPLE_FIRE,                    0x00602,                    RECOVERY_HEART
+Fire Temple Heart Map Room 1,                               heart,          NONE,                 TEMPLE_FIRE,                    0x01007,                    RECOVERY_HEART
+Fire Temple Heart Map Room 2,                               heart,          NONE,                 TEMPLE_FIRE,                    0x01008,                    RECOVERY_HEART
+Fire Temple Heart Map Room 3,                               heart,          NONE,                 TEMPLE_FIRE,                    0x01009,                    RECOVERY_HEART
+Fire Temple Heart Elevator 1,                               heart,          NONE,                 TEMPLE_FIRE,                    0x01506,                    RECOVERY_HEART
+Fire Temple Heart Elevator 2,                               heart,          NONE,                 TEMPLE_FIRE,                    0x01507,                    RECOVERY_HEART
+Fire Temple Heart Elevator 3,                               heart,          NONE,                 TEMPLE_FIRE,                    0x01508,                    RECOVERY_HEART
 Fire Temple Boss Container,                                 collectible,    NONE,                 LAIR_VOLVAGIA,                  0x1f,                       HEART_CONTAINER
 Fire Temple Boss,                                           npc,            NONE,                 LAIR_VOLVAGIA,                  BLUE_WARP_VOLVAGIA,         MEDALLION_FIRE
 Ice Cavern Iron Boots,                                      chest,          ICE_CAVERN_CHEST,     ICE_CAVERN,                     0x02,                       BOOTS_IRON
@@ -1041,6 +1082,10 @@ Ice Cavern Rupee Ice,                                       rupee,          NONE
 Ice Cavern Rupee Midair 1,                                  rupee,          NONE,                 ICE_CAVERN,                     0x00500,                    RUPEE_RED
 Ice Cavern Rupee Midair 2,                                  rupee,          NONE,                 ICE_CAVERN,                     0x00501,                    RUPEE_RED
 Ice Cavern Rupee Midair 3,                                  rupee,          NONE,                 ICE_CAVERN,                     0x00502,                    RUPEE_RED
+Ice Cavern Heart 1,                                         heart,          NONE,                 ICE_CAVERN,                     0x00906,                    RECOVERY_HEART
+Ice Cavern Heart 2,                                         heart,          NONE,                 ICE_CAVERN,                     0x00907,                    RECOVERY_HEART
+Ice Cavern Heart 3,                                         heart,          NONE,                 ICE_CAVERN,                     0x00908,                    RECOVERY_HEART
+Ice Cavern Entrance Big Fairy,                              fairy_spot,     NONE,                 ICE_CAVERN,                     0x0010d,                    FAIRY_BIG
 Water Temple Under Center,                                  chest,          NONE,                 TEMPLE_WATER,                   0x06,                       RUPEE_BLUE
 Water Temple Compass,                                       chest,          NONE,                 TEMPLE_WATER,                   0x09,                       COMPASS_WATER
 Water Temple Longshot,                                      chest,          NONE,                 TEMPLE_WATER,                   0x07,                       HOOKSHOT
@@ -1081,6 +1126,10 @@ Water Temple Pot Corridor 1,                                pot,            NONE
 Water Temple Pot Corridor 2,                                pot,            NONE,                 TEMPLE_WATER,                   0x1404,                     RECOVERY_HEART
 Water Temple Pot River 1,                                   pot,            NONE,                 TEMPLE_WATER,                   0x150d,                     ARROWS_10
 Water Temple Pot River 2,                                   pot,            NONE,                 TEMPLE_WATER,                   0x150e,                     FAIRY
+Water Temple Heart 1,                                       heart,          NONE,                 TEMPLE_WATER,                   0x0150b,                    RECOVERY_HEART
+Water Temple Heart 2,                                       heart,          NONE,                 TEMPLE_WATER,                   0x0150c,                    RECOVERY_HEART
+Water Temple Heart 3,                                       heart,          NONE,                 TEMPLE_WATER,                   0x0150f,                    RECOVERY_HEART
+Water Temple Heart 4,                                       heart,          NONE,                 TEMPLE_WATER,                   0x01510,                    RECOVERY_HEART
 Bottom of the Well Compass,                                 chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x01,                       COMPASS_BOTW
 Bottom of the Well Under Debris,                            chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x02,                       BOMBCHU_10
 Bottom of the Well Back West,                               chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x04,                       NUTS_10
@@ -1142,6 +1191,9 @@ Bottom of the Well Rupee 2,                                 rupee,          NONE
 Bottom of the Well Rupee 3,                                 rupee,          NONE,                 BOTTOM_OF_THE_WELL,             0x0011c,                    RUPEE_BLUE
 Bottom of the Well Rupee 4,                                 rupee,          NONE,                 BOTTOM_OF_THE_WELL,             0x0011d,                    RUPEE_BLUE
 Bottom of the Well Rupee 5,                                 rupee,          NONE,                 BOTTOM_OF_THE_WELL,             0x0011e,                    RUPEE_BLUE
+Bottom of the Well Heart 1,                                 heart,          NONE,                 BOTTOM_OF_THE_WELL,             0x0020d,                    RECOVERY_HEART
+Bottom of the Well Heart 2,                                 heart,          NONE,                 BOTTOM_OF_THE_WELL,             0x0020e,                    RECOVERY_HEART
+Bottom of the Well Basement Big Fairy,                      fairy_spot,     NONE,                 BOTTOM_OF_THE_WELL,             0x00113,                    FAIRY_BIG
 Shadow Temple Map,                                          chest,          NONE,                 TEMPLE_SHADOW,                  0x01,                       MAP_SHADOW
 Shadow Temple Hover Boots,                                  chest,          NONE,                 TEMPLE_SHADOW,                  0x07,                       BOOTS_HOVER
 Shadow Temple Silver Rupees,                                chest,          NONE,                 TEMPLE_SHADOW,                  0x02,                       SMALL_KEY_SHADOW
@@ -1203,6 +1255,16 @@ Shadow Temple Pot Boat After Bridge 2,                      pot,            NONE
 Shadow Temple Flying Pot Early Maze,                        pot,            NONE,                 TEMPLE_SHADOW,                  0x0006,                     RECOVERY_HEART
 Shadow Temple Flying Pot After Wind 1,                      pot,            NONE,                 TEMPLE_SHADOW,                  0x1404,                     RECOVERY_HEART
 Shadow Temple Flying Pot After Wind 2,                      pot,            NONE,                 TEMPLE_SHADOW,                  0x1405,                     NUTS_5
+Shadow Temple Heart Scythe 1,                               heart,          NONE,                 TEMPLE_SHADOW,                  0x01004,                    RECOVERY_HEART
+Shadow Temple Heart Scythe 2,                               heart,          NONE,                 TEMPLE_SHADOW,                  0x01005,                    RECOVERY_HEART
+Shadow Temple Heart Shortcut 1,                             heart,          NONE,                 TEMPLE_SHADOW,                  0x01506,                    RECOVERY_HEART
+Shadow Temple Heart Shortcut 2,                             heart,          NONE,                 TEMPLE_SHADOW,                  0x01507,                    RECOVERY_HEART
+Shadow Temple Heart Pre-Boss 1,                             heart,          NONE,                 TEMPLE_SHADOW,                  0x01508,                    RECOVERY_HEART
+Shadow Temple Heart Pre-Boss 2,                             heart,          NONE,                 TEMPLE_SHADOW,                  0x01509,                    RECOVERY_HEART
+Shadow Temple Heart Pre-Boss 3,                             heart,          NONE,                 TEMPLE_SHADOW,                  0x0150a,                    RECOVERY_HEART
+Shadow Temple Beamos Big Fairy,                             fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x00503,                    FAIRY_BIG
+Shadow Temple Stalfos Big Fairy,                            fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x00915,                    FAIRY_BIG
+Shadow Temple Big Fairy After Wind,                         fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x01302,                    FAIRY_BIG
 Shadow Temple Boss HC,                                      collectible,    NONE,                 LAIR_BONGO_BONGO,               0x1f,                       HEART_CONTAINER
 Shadow Temple Boss,                                         npc,            NONE,                 LAIR_BONGO_BONGO,               BLUE_WARP_BONGO_BONGO,      MEDALLION_SHADOW
 Gerudo Fortress Jail 1,                                     collectible,    NONE,                 THIEVES_HIDEOUT,                0x0c,                       SMALL_KEY_GF
@@ -1226,6 +1288,7 @@ Gerudo Fortress Pot Jail 2 4,                               pot,            NONE
 Gerudo Fortress Pot Jail 2 5,                               pot,            NONE,                 THIEVES_HIDEOUT,                0x050b,                     RECOVERY_HEART
 Gerudo Fortress Pot Jail 2 6,                               pot,            NONE,                 THIEVES_HIDEOUT,                0x050c,                     RECOVERY_HEART
 Gerudo Fortress Pot Jail 2 7,                               pot,            NONE,                 THIEVES_HIDEOUT,                0x050d,                     RECOVERY_HEART
+Gerudo Fortress Kitchen Big Fairy,                          fairy_spot,     NONE,                 THIEVES_HIDEOUT,                0x00309,                    FAIRY_BIG
 Spirit Temple Child First Chest,                            chest,          NONE,                 TEMPLE_SPIRIT,                  0x08,                       SHIELD_DEKU
 Spirit Temple Child Second Chest,                           chest,          NONE,                 TEMPLE_SPIRIT,                  0x00,                       SMALL_KEY_SPIRIT
 Spirit Temple Child Climb 1,                                chest,          NONE,                 TEMPLE_SPIRIT,                  0x0c,                       SHIELD_DEKU
@@ -1297,6 +1360,10 @@ Spirit Temple Flying Pot Topmost 3,                         pot,            NONE
 Spirit Temple Flying Pot Topmost 4,                         pot,            NONE,                 TEMPLE_SPIRIT,                  0x1907,                     RECOVERY_HEART
 Spirit Temple Flying Pot Topmost 5,                         pot,            NONE,                 TEMPLE_SPIRIT,                  0x1908,                     NUTS_5
 Spirit Temple Flying Pot Topmost 6,                         pot,            NONE,                 TEMPLE_SPIRIT,                  0x1909,                     NUTS_5
+Spirit Temple Heart 1,                                      heart,          NONE,                 TEMPLE_SPIRIT,                  0x01702,                    RECOVERY_HEART
+Spirit Temple Heart 2,                                      heart,          NONE,                 TEMPLE_SPIRIT,                  0x01703,                    RECOVERY_HEART
+Spirit Temple Adult Silver Rupees Big Fairy,                fairy_spot,     NONE,                 TEMPLE_SPIRIT,                  0x00c01,                    FAIRY_BIG
+Spirit Temple Adult Sunlight Big Fairy,                     fairy_spot,     NONE,                 TEMPLE_SPIRIT,                  0x01206,                    FAIRY_BIG
 Gerudo Training Grounds Entrance 1,                         chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x07,                       ARROWS_10
 Gerudo Training Grounds Entrance 2,                         chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x13,                       RUPEE_BLUE
 Gerudo Training Grounds Stalfos,                            chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x00,                       SMALL_KEY_GTG
@@ -1334,6 +1401,9 @@ Gerudo Training Grounds SR Water 2,                         sr,             NONE
 Gerudo Training Grounds SR Water 3,                         sr,             NONE,                 GERUDO_TRAINING_GROUND,         0x4e,                       RUPEE_SILVER_GTG_WATER
 Gerudo Training Grounds SR Water 4,                         sr,             NONE,                 GERUDO_TRAINING_GROUND,         0x4f,                       RUPEE_SILVER_GTG_WATER
 Gerudo Training Grounds SR Water 5,                         sr,             NONE,                 GERUDO_TRAINING_GROUND,         0x50,                       RUPEE_SILVER_GTG_WATER
+Gerudo Training Grounds Heart 1,                            heart,          NONE,                 GERUDO_TRAINING_GROUND,         0x0070a,                    RECOVERY_HEART
+Gerudo Training Grounds Heart 2,                            heart,          NONE,                 GERUDO_TRAINING_GROUND,         0x0070b,                    RECOVERY_HEART
+Gerudo Training Grounds Entrance Big Fairy,                 fairy_spot,     NONE,                 GERUDO_TRAINING_GROUND,         0x00008,                    FAIRY_BIG
 Ganon Castle Water Chest 1,                                 chest,          NONE,                 INSIDE_GANON_CASTLE,            0x06,                       RECOVERY_HEART
 Ganon Castle Water Chest 2,                                 chest,          NONE,                 INSIDE_GANON_CASTLE,            0x07,                       ICE_TRAP
 Ganon Castle Forest Chest,                                  chest,          NONE,                 INSIDE_GANON_CASTLE,            0x09,                       RUPEE_BLUE
@@ -1390,7 +1460,7 @@ Ganon Castle Pot Fire End 1,                                pot,            NONE
 Ganon Castle Pot Fire End 2,                                pot,            NONE,                 INSIDE_GANON_CASTLE,            0x0f05,                     MAGIC_JAR_SMALL
 Ganon Castle Pot Spirit End 1,                              pot,            NONE,                 INSIDE_GANON_CASTLE,            0x1304,                     NUTS_5
 Ganon Castle Pot Spirit End 2,                              pot,            NONE,                 INSIDE_GANON_CASTLE,            0x1305,                     MAGIC_JAR_SMALL
-Ganon Castle Fairy Fountain Fairy 1,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x11004,                    FAIRY
+Ganon Castle Fairy Fountain Fairy 1,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x01004,                    FAIRY
 Ganon Castle Fairy Fountain Fairy 2,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x11004,                    FAIRY
 Ganon Castle Fairy Fountain Fairy 3,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x21004,                    FAIRY
 Ganon Castle Fairy Fountain Fairy 4,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x31004,                    FAIRY
@@ -1398,6 +1468,12 @@ Ganon Castle Fairy Fountain Fairy 5,                        fairy,          NONE
 Ganon Castle Fairy Fountain Fairy 6,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x51004,                    FAIRY
 Ganon Castle Fairy Fountain Fairy 7,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x61004,                    FAIRY
 Ganon Castle Fairy Fountain Fairy 8,                        fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x71004,                    FAIRY
+Ganon Castle Heart Shadow 1,                                heart,          NONE,                 INSIDE_GANON_CASTLE,            0x00c08,                    RECOVERY_HEART
+Ganon Castle Heart Shadow 2,                                heart,          NONE,                 INSIDE_GANON_CASTLE,            0x00c0a,                    RECOVERY_HEART
+Ganon Castle Heart Shadow 3,                                heart,          NONE,                 INSIDE_GANON_CASTLE,            0x00c0c,                    RECOVERY_HEART
+Ganon Castle Heart Fire,                                    heart,          NONE,                 INSIDE_GANON_CASTLE,            0x00e13,                    RECOVERY_HEART
+Ganon Castle Heart Spirit,                                  heart,          NONE,                 INSIDE_GANON_CASTLE,            0x0111b,                    RECOVERY_HEART
+Ganon Castle Spirit Big Fairy,                              fairy_spot,     NONE,                 INSIDE_GANON_CASTLE,            0x0110b,                    FAIRY_BIG
 Ganon Tower Pot 01,                                         pot,            NONE,                 GANON_TOWER,                    0x0801,                     MAGIC_JAR_LARGE
 Ganon Tower Pot 02,                                         pot,            NONE,                 GANON_TOWER,                    0x0802,                     RECOVERY_HEART
 Ganon Tower Pot 03,                                         pot,            NONE,                 GANON_TOWER,                    0x0803,                     MAGIC_JAR_SMALL
@@ -1578,9 +1654,9 @@ MQ Jabu-Jabu Grass Big Octo Top 1,                          grass,          NONE
 MQ Jabu-Jabu Grass Big Octo Top 2,                          grass,          NONE,                 INSIDE_JABU_JABU,               0x00605,                    DEKU_SEEDS_5
 MQ Jabu-Jabu Grass Torch Room,                              grass,          NONE,                 INSIDE_JABU_JABU,               0x00b04,                    RECOVERY_HEART
 MQ Jabu-Jabu Grass Boomerang Room,                          grass,          NONE,                 INSIDE_JABU_JABU,               0x00e02,                    DEKU_SEEDS_5
-MQ Jabu-Jabu Rupee 1,                                       rupee,          NONE,                 INSIDE_JABU_JABU,               0x00100,                    RUPEE_GREEN
-MQ Jabu-Jabu Rupee 2,                                       rupee,          NONE,                 INSIDE_JABU_JABU,               0x00101,                    RUPEE_GREEN
-MQ Jabu-Jabu Rupee 3,                                       rupee,          NONE,                 INSIDE_JABU_JABU,               0x00102,                    RUPEE_GREEN
+MQ Jabu-Jabu Rupee Bottom,                                  rupee,          NONE,                 INSIDE_JABU_JABU,               0x00100,                    RUPEE_GREEN
+MQ Jabu-Jabu Rupee Middle,                                  rupee,          NONE,                 INSIDE_JABU_JABU,               0x00101,                    RUPEE_GREEN
+MQ Jabu-Jabu Rupee Top,                                     rupee,          NONE,                 INSIDE_JABU_JABU,               0x00102,                    RUPEE_GREEN
 MQ Bottom of the Well Map Chest,                            chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x03,                       MAP_BOTW
 MQ Bottom of the Well Compass Chest,                        chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x02,                       COMPASS_BOTW
 MQ Bottom of the Well Lens Chest,                           chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x01,                       LENS
@@ -1600,6 +1676,8 @@ MQ Bottom of the Well Grass Dead-Hand 1,                    grass,          NONE
 MQ Bottom of the Well Grass Dead-Hand 2,                    grass,          NONE,                 BOTTOM_OF_THE_WELL,             0x00401,                    DEKU_SEEDS_5
 MQ Bottom of the Well Grass Dead-Hand 3,                    grass,          NONE,                 BOTTOM_OF_THE_WELL,             0x00402,                    RECOVERY_HEART
 MQ Bottom of the Well Grass Dead-Hand 4,                    grass,          NONE,                 BOTTOM_OF_THE_WELL,             0x00403,                    DEKU_SEEDS_5
+MQ Bottom of the Well Lobby Cage Big Fairy,                 fairy_spot,     NONE,                 BOTTOM_OF_THE_WELL,             0x0000d,                    FAIRY_BIG
+MQ Bottom of the Well Basement Big Fairy,                   fairy_spot,     NONE,                 BOTTOM_OF_THE_WELL,             0x00111,                    FAIRY_BIG
 MQ Ice Cavern Map Chest,                                    chest,          NONE,                 ICE_CAVERN,                     0x01,                       MAP_IC
 MQ Ice Cavern Compass Chest,                                chest,          NONE,                 ICE_CAVERN,                     0x00,                       COMPASS_IC
 MQ Ice Cavern Iron Boots,                                   chest,          ICE_CAVERN_CHEST,     ICE_CAVERN,                     0x02,                       BOOTS_IRON
@@ -1702,6 +1780,8 @@ MQ Fire Temple Pot Hammer Loop 7,                           pot,            NONE
 MQ Fire Temple Pot Hammer Loop 8,                           pot,            NONE,                 TEMPLE_FIRE,                    0x120f,                     FLEXIBLE
 MQ Fire Temple Pot Boss Key Room 1,                         pot,            NONE,                 TEMPLE_FIRE,                    0x130d,                     FLEXIBLE
 MQ Fire Temple Pot Boss Key Room 2,                         pot,            NONE,                 TEMPLE_FIRE,                    0x130e,                     MAGIC_JAR_SMALL
+MQ Fire Temple Hammer Loop Stalfos Big Fairy,               fairy_spot,     NONE,                 TEMPLE_FIRE,                    0x00f01,                    FAIRY_BIG
+MQ Fire Temple Hammer Loop Iron Knuckle Big Fairy,          fairy_spot,     NONE,                 TEMPLE_FIRE,                    0x01207,                    FAIRY_BIG
 MQ Water Temple Map Chest,                                  chest,          NONE,                 TEMPLE_WATER,                   0x02,                       MAP_WATER
 MQ Water Temple Compass Chest,                              chest,          NONE,                 TEMPLE_WATER,                   0x01,                       COMPASS_WATER
 MQ Water Temple Longshot Chest,                             chest,          NONE,                 TEMPLE_WATER,                   0x00,                       HOOKSHOT
@@ -1744,6 +1824,9 @@ MQ Water Temple Pot Twisted Room Cage 1,                    pot,            NONE
 MQ Water Temple Pot Twisted Room Cage 2,                    pot,            NONE,                 TEMPLE_WATER,                   0x1415,                     RECOVERY_HEART
 MQ Water Temple Pot River 1,                                pot,            NONE,                 TEMPLE_WATER,                   0x1512,                     ARROWS_10
 MQ Water Temple Pot River 2,                                pot,            NONE,                 TEMPLE_WATER,                   0x1513,                     FLEXIBLE
+MQ Water Temple Big Fairy Before Dark Link Ledge,           fairy_spot,     NONE,                 TEMPLE_WATER,                   0x00601,                    FAIRY_BIG
+MQ Water Temple Big Fairy Before Dark Link Near Door 1,     fairy_spot,     NONE,                 TEMPLE_WATER,                   0x00605,                    FAIRY_BIG
+MQ Water Temple Big Fairy Before Dark Link Near Door 2,     fairy_spot,     NONE,                 TEMPLE_WATER,                   0x00606,                    FAIRY_BIG
 MQ Shadow Temple Compass Chest,                             chest,          NONE,                 TEMPLE_SHADOW,                  0x01,                       COMPASS_SHADOW
 MQ Shadow Temple Hover Boots Chest,                         chest,          NONE,                 TEMPLE_SHADOW,                  0x07,                       BOOTS_HOVER
 MQ Shadow Temple First Gibdos Chest,                        chest,          NONE,                 TEMPLE_SHADOW,                  0x03,                       SMALL_KEY_SHADOW
@@ -1822,6 +1905,9 @@ MQ Shadow Temple Flying Pot Entrance Maze 3,                pot,            NONE
 MQ Shadow Temple Flying Pot Entrance Maze 4,                pot,            NONE,                 TEMPLE_SHADOW,                  0x0009,                     NUTS_5
 MQ Shadow Temple Flying Pot Room Before Boat 1,             pot,            NONE,                 TEMPLE_SHADOW,                  0x1405,                     RECOVERY_HEART
 MQ Shadow Temple Flying Pot Room Before Boat 2,             pot,            NONE,                 TEMPLE_SHADOW,                  0x1406,                     NUTS_5
+MQ Shadow Temple Beamos Big Fairy,                          fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x00503,                    FAIRY_BIG
+MQ Shadow Temple Guillotines Room Big Fairy,                fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x0091d,                    FAIRY_BIG
+MQ Shadow Temple Big Fairy After Wind,                      fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x01305,                    FAIRY_BIG
 MQ Spirit Temple Entrance Initial Chest,                    chest,          NONE,                 TEMPLE_SPIRIT,                  0x1a,                       BOMBCHU_5
 MQ Spirit Temple Lobby Back-Left Chest,                     chest,          NONE,                 TEMPLE_SPIRIT,                  0x1e,                       SMALL_KEY_SPIRIT
 MQ Spirit Temple Lobby Back-Right Chest,                    chest,          NONE,                 TEMPLE_SPIRIT,                  0x1f,                       BOMBCHU_5
@@ -1889,6 +1975,7 @@ MQ Spirit Temple Pot Child Back 4,                          pot,            NONE
 MQ Spirit Temple Flying Pot Statue Room Upper,              pot,            NONE,                 TEMPLE_SPIRIT,                  0x0512,                     NOTHING
 MQ Spirit Temple Flying Pot Statue Room Lower,              pot,            NONE,                 TEMPLE_SPIRIT,                  0x0513,                     NOTHING
 MQ Spirit Temple Flying Pot Statue Room Stairs,             pot,            NONE,                 TEMPLE_SPIRIT,                  0x0516,                     NOTHING
+MQ Spirit Temple Dinolfos Room Big Fairy,                   fairy_spot,     NONE,                 TEMPLE_SPIRIT,                  0x01202,                    FAIRY_BIG
 MQ Gerudo Training Grounds Entryway Left Chest,             chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x13,                       ARROWS_10
 MQ Gerudo Training Grounds Entryway Right Chest,            chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x07,                       BOMBCHU_10
 MQ Gerudo Training Grounds Maze First Chest,                chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x0b,                       RUPEE_PURPLE
@@ -1969,3 +2056,11 @@ MQ Ganon Pot Fire End 1,                                    pot,            NONE
 MQ Ganon Pot Fire End 2,                                    pot,            NONE,                 INSIDE_GANON_CASTLE,            0x0f05,                     MAGIC_JAR_SMALL
 MQ Ganon Pot Spirit End 1,                                  pot,            NONE,                 INSIDE_GANON_CASTLE,            0x1304,                     NUTS_5
 MQ Ganon Pot Spirit End 2,                                  pot,            NONE,                 INSIDE_GANON_CASTLE,            0x1305,                     MAGIC_JAR_SMALL
+MQ Ganon Castle Fairy Fountain Fairy 1,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x01005,                    FAIRY
+MQ Ganon Castle Fairy Fountain Fairy 2,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x11005,                    FAIRY
+MQ Ganon Castle Fairy Fountain Fairy 3,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x21005,                    FAIRY
+MQ Ganon Castle Fairy Fountain Fairy 4,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x31005,                    FAIRY
+MQ Ganon Castle Fairy Fountain Fairy 5,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x41005,                    FAIRY
+MQ Ganon Castle Fairy Fountain Fairy 6,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x51005,                    FAIRY
+MQ Ganon Castle Fairy Fountain Fairy 7,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x61005,                    FAIRY
+MQ Ganon Castle Fairy Fountain Fairy 8,                     fairy,          NONE,                 INSIDE_GANON_CASTLE,            0x71005,                    FAIRY

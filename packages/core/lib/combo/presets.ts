@@ -6,6 +6,7 @@ const PRESET_DEFAULT = DEFAULT_SETTINGS;
 
 const PRESET_BLITZ = makeSettings({
   tingleShuffle: 'starting',
+  openMaskShop: true,
   mapCompassShuffle: 'starting',
   smallKeyShuffleMm: 'removed',
   smallKeyShuffleHideout: 'vanilla',
@@ -13,6 +14,7 @@ const PRESET_BLITZ = makeSettings({
   bossKeyShuffleMm: 'ownDungeon',
   strayFairyChestShuffle: 'starting',
   strayFairyOtherShuffle: 'vanilla',
+  rainbowBridge: 'custom',
   shuffleMasterSword: false,
   shuffleGerudoCard: false,
   shuffleMerchantsMm: false,
@@ -30,6 +32,8 @@ const PRESET_BLITZ = makeSettings({
   defaultHoldTarget: true,
   progressiveGoronLullaby: 'single',
   freeScarecrowOot: true,
+  bombchuBagMm: true,
+  bombchuBagOot: true,
   sharedBows: true,
   sharedBombBags: true,
   sharedMagic: true,
@@ -48,6 +52,7 @@ const PRESET_BLITZ = makeSettings({
   sharedHealth: true,
   noPlandoHints: true,
   hintImportance: true,
+  sharedBombchuBags: true,
   tricks: [
     'MM_LENS',
     'MM_NO_SEAHORSE',
@@ -131,11 +136,13 @@ const PRESET_BLITZ = makeSettings({
 
 const PRESET_BLITZ_PRECOMPLETED = makeSettings({
   hintImportance: true,
+  openMaskShop: true,
   tingleShuffle: "starting",
   mapCompassShuffle: "starting",
   smallKeyShuffleMm: "removed",
   smallKeyShuffleHideout: "vanilla",
   strayFairyChestShuffle: "starting",
+  rainbowBridge: 'custom',
   shuffleMasterSword: false,
   shuffleGerudoCard: false,
   startingAge: "random",
@@ -243,16 +250,6 @@ const PRESET_BLITZ_PRECOMPLETED = makeSettings({
       "stones": true,
       "medallions": false,
       "remains": true
-    },
-    "GANON_BK": {
-      "count": 5,
-      "stones": true
-    },
-    MAJORA: {
-      "count": 4,
-      "stones": true,
-      "medallions": false,
-      "remains": true
     }
   },
   plando: {
@@ -278,12 +275,14 @@ const PRESET_BLITZ_PRECOMPLETED = makeSettings({
 
 const PRESET_TRIFORCE_BLITZ = makeSettings({
   goal: "triforce3",
+  openMaskShop: true,
   hintImportance: true,
   tingleShuffle: "starting",
   mapCompassShuffle: "starting",
   smallKeyShuffleMm: "removed",
   smallKeyShuffleHideout: "vanilla",
   strayFairyChestShuffle: "starting",
+  rainbowBridge: 'custom',
   shuffleMasterSword: false,
   shuffleGerudoCard: false,
   startingAge: "random",
@@ -308,6 +307,8 @@ const PRESET_TRIFORCE_BLITZ = makeSettings({
   sunlightArrows: true,
   shortHookshotMm: true,
   lenientSpikes: false,
+  bombchuBagMm: true,
+  bombchuBagOot: true,
   sharedBows: true,
   sharedBombBags: true,
   sharedMagic: true,
@@ -325,6 +326,7 @@ const PRESET_TRIFORCE_BLITZ = makeSettings({
   sharedWallets: true,
   sharedHealth: true,
   sharedShields: true,
+  sharedBombchuBags: true,
   startingItems: {
     OOT_NUTS_10: 2,
     OOT_SHIELD_DEKU: 1,
@@ -425,6 +427,7 @@ const PRESET_ALLSANITY = makeSettings({
   strayFairyChestShuffle: 'anywhere',
   strayFairyOtherShuffle: 'anywhere',
   ganonBossKey: 'anywhere',
+  rainbowBridge: 'medallions',
   dungeonRewardShuffle: 'anywhere',
   scrubShuffleOot: true,
   cowShuffleOot: true,
@@ -499,6 +502,7 @@ const PRESET_HELL = makeSettings({
   strayFairyChestShuffle: 'anywhere',
   strayFairyOtherShuffle: 'anywhere',
   ganonBossKey: 'custom',
+  rainbowBridge: 'medallions',
   majoraChild: 'custom',
   dungeonRewardShuffle: 'anywhere',
   scrubShuffleOot: true,
@@ -699,6 +703,8 @@ const PRESET_HELL = makeSettings({
     'MM_GBT_CENTRAL_GEYSER',
     'MM_BANK_NO_WALLET',
     'MM_CLOCK_TOWER_WAIT',
+    'MM_WFT_RUPEES_ICE',
+    'MM_ISTT_RUPEES_GORON',
   ]
 });
 

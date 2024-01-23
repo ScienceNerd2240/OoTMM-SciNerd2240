@@ -116,6 +116,7 @@
   locations:
     "Spirit Temple GS Boulders": "can_play_time"
     "Spirit Temple Adult Silver Rupees": "silver_rupees_spirit_boulders"
+    "Spirit Temple Adult Silver Rupees Big Fairy": "silver_rupees_spirit_boulders && can_play_sun"
     "Spirit Temple SR Boulders 1": "true"
     "Spirit Temple SR Boulders 2": "true"
     "Spirit Temple SR Boulders 3": "true"
@@ -178,6 +179,7 @@
     "Spirit Temple Adult Late Sun on Wall": "can_reflect_light"
     "Spirit Temple Adult Invisible 1": "has_lens && soul_armos"
     "Spirit Temple Adult Invisible 2": "has_lens && soul_armos"
+    "Spirit Temple Adult Sunlight Big Fairy": "can_play_sun"
 "Spirit Temple Adult Hand":
   dungeon: Spirit
   exits:
@@ -192,7 +194,7 @@
   events:
     SPIRIT_LIGHT_STATUE: "has_mirror_shield && has_explosives"
   locations:
-    "Spirit Temple Adult Boss Key Chest": "can_play_zelda && (can_hookshot && can_hit_triggers_distance) || climb_anywhere || hookshot_anywhere"
+    "Spirit Temple Adult Boss Key Chest": "can_play_zelda && ((can_hookshot && can_hit_triggers_distance) || climb_anywhere || hookshot_anywhere)"
     "Spirit Temple Adult Topmost Sun on Wall": "can_reflect_light"
     "Spirit Temple Flying Pot Topmost 1": "soul_flying_pot"
     "Spirit Temple Flying Pot Topmost 2": "soul_flying_pot"
@@ -200,3 +202,5 @@
     "Spirit Temple Flying Pot Topmost 4": "soul_flying_pot"
     "Spirit Temple Flying Pot Topmost 5": "soul_flying_pot"
     "Spirit Temple Flying Pot Topmost 6": "soul_flying_pot"
+    "Spirit Temple Heart 1": "can_hookshot"
+    "Spirit Temple Heart 2": "can_hookshot"

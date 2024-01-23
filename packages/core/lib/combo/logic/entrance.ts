@@ -10,6 +10,8 @@ import { Location, makeLocation } from './locations';
 import { LogicPassSolver } from './solve';
 import { PlayerItems } from '../items';
 import { ItemProperties } from './item-properties';
+import { mapValues } from 'lodash';
+import { optimizeExpr } from './expr-optimizer';
 
 type Entrance = keyof typeof ENTRANCES;
 
@@ -430,11 +432,11 @@ export class LogicPassEntrances {
     /* Delete the overworld entrances from the world */
     for (const eName of entrances) {
       const e = ENTRANCES[eName];
-      delete world.areas[e.from].exits[e.to];
+      delete world.areas[e.from].exits[e.to!];
       const reverse = (e as any).reverse as Entrance | undefined;
       if (reverse) {
         const r = ENTRANCES[reverse];
-        delete world.areas[r.from].exits[r.to];
+        delete world.areas[r.from!].exits[r.to!];
       }
     }
 
@@ -732,6 +734,15 @@ export class LogicPassEntrances {
 
   run() {
     let attempts = 1;
+
+    /* TODO: Do this somewhere else */
+    for (const world of this.input.worlds) {
+      for (const area of Object.values(world.areas)) {
+        area.exits = mapValues(area.exits, e => optimizeExpr(e));
+        area.events = mapValues(area.events, e => optimizeExpr(e));
+        area.locations = mapValues(area.locations, e => optimizeExpr(e));
+      }
+    }
 
     for (;;) {
       try {

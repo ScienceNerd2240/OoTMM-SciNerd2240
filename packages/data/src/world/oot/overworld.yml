@@ -137,6 +137,9 @@
     "Kokiri Forest Rupee Child 2": "is_child"
     "Kokiri Forest Rupee Crawl 1": "is_child"
     "Kokiri Forest Rupee Crawl 2": "is_child"
+    "Kokiri Forest Heart 1": "is_child"
+    "Kokiri Forest Heart 2": "is_child"
+    "Kokiri Forest Heart 3": "is_child"
   gossip:
     "Kokiri Gossip Near Lost Woods Open": "true"
 "Kokiri Forest Adult Rupees":
@@ -178,14 +181,19 @@
   exits:
     "Kokiri Forest": "true"
   locations:
-    "Kokiri Forest Mido Top Left": "true"
-    "Kokiri Forest Mido Top Right": "true"
-    "Kokiri Forest Mido Bottom Left": "true"
-    "Kokiri Forest Mido Bottom Right": "true"
+    "Mido's House Top Left": "true"
+    "Mido's House Top Right": "true"
+    "Mido's House Bottom Left": "true"
+    "Mido's House Bottom Right": "true"
 "Saria's House":
   region: ENTRANCE
   exits:
     "Kokiri Forest": "true"
+  locations:
+    "Saria's House Heart 1": "true"
+    "Saria's House Heart 2": "true"
+    "Saria's House Heart 3": "true"
+    "Saria's House Heart 4": "true"
 "House of Twins":
   region: ENTRANCE
   exits:
@@ -299,6 +307,7 @@
     "Hyrule Field Grass Pack 4 Bush 10": "can_cut_grass"
     "Hyrule Field Grass Pack 4 Bush 11": "can_cut_grass"
     "Hyrule Field Grass Pack 4 Bush 12": "can_cut_grass"
+    "Hyrule Field River Big Fairy": "can_play_storms"
 "Hyrule Field Drawbridge":
   region: HYRULE_FIELD
   time: flow
@@ -311,6 +320,7 @@
     "Hyrule Field": "true"
   locations:
     "Hyrule Field Grotto Scrub HP": "can_hit_scrub && scrub_price(0x07)"
+    "Hyrule Field Grotto Scrub Big Fairy": "can_play_storms"
 "Hyrule Field Open Grotto":
   region: ENTRANCE
   age_change: false
@@ -442,7 +452,7 @@
     "Shooting Gallery Child": "is_day && is_child"
     "Market Bazaar": "is_day && is_child"
     "Market Potion Shop": "is_day && is_child"
-    "MM Clock Town": "is_child && is_day"
+    "MM Clock Town": "is_child && (is_day || setting(openMaskShop))"
   events:
     RICHARD: "is_night && is_child"
     RUPEES: "is_child"
@@ -753,7 +763,7 @@
   time: night
   exits:
     "Market Castle Entry": "true"
-    "Ganon Castle Exterior After Bridge": "special(BRIDGE) || (longshot_anywhere && trick(OOT_GANON_CASTLE_ENTRY))"
+    "Ganon Castle Exterior After Bridge": "rainbow_bridge || (longshot_anywhere && trick(OOT_GANON_CASTLE_ENTRY))"
     "Near Fairy Fountain Defense": "can_lift_gold"
   locations:
     "Ganon Castle Exterior GS": "true"
@@ -761,7 +771,7 @@
   region: GANON_CASTLE_EXTERIOR
   age_change: false
   exits:
-    "Ganon Castle Exterior": "is_adult && special(BRIDGE)"
+    "Ganon Castle Exterior": "is_adult && rainbow_bridge"
     "Hyrule Castle Courtyard": "is_child"
     "Ganon Castle": "true"
 "Near Fairy Fountain Defense":
@@ -808,6 +818,7 @@
     "Lost Woods Grass 1": "can_cut_grass"
     "Lost Woods Grass 2": "can_cut_grass"
     "Lost Woods Grass 3": "can_cut_grass"
+    "Lost Woods Pool Big Fairy": "can_play_storms"
   gossip:
     "Lost Woods Gossip Under Bridge": "true"
 "Lost Woods Rupee Arrow":
@@ -848,14 +859,12 @@
     "Kokiri Forest": "true"
     "Hyrule Field": "true"
     "Lost Woods": "can_longshot || hookshot_anywhere"
-  locations:
-    "Lost Woods Gift from Saria": "event(SARIA_GIFT)"
 "Lost Woods Bridge from Forest":
   region: LOST_WOODS
   exits:
-    "Lost Woods Bridge": "event(SARIA_GIFT)"
-  events:
-    SARIA_GIFT: "soul_npc(SOUL_NPC_SARIA)"
+    "Lost Woods Bridge": "true"
+  locations:
+    "Lost Woods Gift from Saria": "soul_npc(SOUL_NPC_SARIA)"
 "Lost Woods Deep":
   region: LOST_WOODS
   exits:
@@ -899,6 +908,7 @@
   locations:
     "Lost Woods Grotto Scrub Nuts Upgrade": "can_hit_scrub && scrub_price(0x03)"
     "Lost Woods Grotto Scrub Back": "can_hit_scrub && scrub_price(0x04)"
+    "Lost Woods Grotto Scrub Big Fairy": "can_play_sun"
 "Sacred Meadow Entryway":
   region: SACRED_MEADOW
   exits:
@@ -1088,7 +1098,7 @@
   region: ENTRANCE
   exits:
     "Kakariko": "true"
-    "Dampe Grave Entrance": "trick(OOT_REVERSE_DAMPE) && climb_anywhere && (is_child || can_play_time)"
+    "Windmill Exit": "climb_anywhere || hookshot_anywhere || (is_adult && trick(OOT_WINDMILL_HP_NOTHING))"
   events:
     WELL_DRAIN: "is_child && can_play_storms"
   locations:
@@ -1098,6 +1108,7 @@
   region: NONE
   exits:
     "Windmill": "true"
+    "Dampe Grave Entrance": "trick(OOT_REVERSE_DAMPE) && ((climb_anywhere && (is_child || can_play_time)) || time_travel_at_will)" #blindly make your way backwards to the entrance
 "Kakariko Carpenter House":
   region: ENTRANCE
   exits:
@@ -1191,6 +1202,7 @@
   locations:
     "Graveyard Royal Tomb Song": "soul_keese && (has_ranged_weapon || can_use_sword || has_explosives || can_hammer || can_use_sticks)"
     "Graveyard Royal Tomb Chest": "has_fire"
+    "Graveyard Royal Tomb Big Fairy": "can_play_sun"
 "Graveyard Shield Grave":
   region: ENTRANCE
   exits:
@@ -1272,6 +1284,7 @@
     "Death Mountain GS Above Dodongo":  "gs_night && is_adult && (can_hammer || trick(OOT_DMT_RED_ROCK_GS))"
     "Death Mountain Rupee Upper": "is_child && event(BOULDER_DEATH_MOUNTAIN)"
     "Death Mountain Rupee Lower": "is_child && has_explosives_or_hammer"
+    "Death Mountain Big Fairy": "can_play_sun"
 "Death Mountain Summit":
   region: DEATH_MOUNTAIN_TRAIL
   time: flow
@@ -1326,6 +1339,11 @@
     "Death Mountain Cow Grotto Rupee 5": "true"
     "Death Mountain Cow Grotto Rupee 6": "true"
     "Death Mountain Cow Grotto Rupee 7": "true"
+    "Death Mountain Cow Grotto Heart 1": "true"
+    "Death Mountain Cow Grotto Heart 2": "true"
+    "Death Mountain Cow Grotto Heart 3": "true"
+    "Death Mountain Cow Grotto Heart 4": "true"
+    "Death Mountain Cow Grotto Big Fairy": "can_play_storms"
 "Fairy Fountain Magic":
   region: ENTRANCE
   exits:
@@ -1519,7 +1537,7 @@
     "Zora Shop": "is_child || has_blue_fire"
     "Zora Domain Grotto": "hidden_grotto_storms"
   events:
-    KING_ZORA_LETTER: "is_child && has(RUTO_LETTER) && soul_npc(SOUL_NPC_KING_ZORA)"
+    KING_ZORA_LETTER: "is_child && has(RUTO_LETTER)"
     STICKS: "is_child"
     NUTS: "true"
     RUPEES: "true"
@@ -1603,6 +1621,7 @@
     "Lake Hylia GS Island": "is_child && gs_night && can_damage_skull"
     "Lake Hylia GS Soil": "gs_soil && can_damage_skull"
     "Lake Hylia GS Big Tree": "is_adult && gs_night && (can_longshot || climb_anywhere)"
+    "Lake Hylia Island Big Fairy": "can_play_sun && (is_child || scarecrow_longshot || longshot_anywhere || climb_anywhere)"
     # These pots do exist in the vanilla game but they fail to load
     "Lake Hylia Pot 1": "is_child"
     "Lake Hylia Pot 2": "is_child"
@@ -1721,7 +1740,7 @@
   region: ZORA_FOUNTAIN
   exits:
     "Zora Domain Back": "true"
-    "Jabu-Jabu": "is_child && ((has_bottle && (has(FISH) || event(FISH))) || (trick(OOT_ENTER_JABU) && (climb_anywhere || hookshot_anywhere || has_weapon || can_use_sticks || time_travel_at_will)))"
+    "Jabu-Jabu": "is_child && (has_fish || (trick(OOT_ENTER_JABU) && (climb_anywhere || hookshot_anywhere || has_weapon || can_use_sticks || time_travel_at_will)))"
     "Zora Fountain Frozen": "is_adult || climb_anywhere || longshot_anywhere"
     "Fairy Fountain Farore": "has_explosives"
     "Zora Fountain Deep": "is_adult && has_tunic_zora && has_iron_boots"
