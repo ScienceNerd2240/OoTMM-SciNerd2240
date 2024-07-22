@@ -1,6 +1,10 @@
 #include <combo.h>
 #include <combo/item.h>
 #include <combo/player.h>
+#include <combo/magic.h>
+#include <combo/global.h>
+#include <combo/draw.h>
+#include <combo/actor.h>
 
 #if defined(GAME_OOT)
 # define EN_ELF_INIT_VROM        0x808862f4
@@ -87,13 +91,13 @@ void EnElf_Draw(Actor_EnElf* this, GameState_Play* play)
     static const float scale = 25.0f;
 
     ModelViewScale(scale, scale, scale, MAT_MUL);
-    comboDrawGI(play, &this->base, this->extendedGiDraw, 0);
+    Draw_Gi(play, &this->base, this->extendedGiDraw, 0);
 }
 
 #if defined(GAME_OOT)
 s32 EnElf_CantGiveItem(GameState_Play* play) {
     Actor_Player* link;
-    link = GET_LINK(play);
+    link = GET_PLAYER(play);
 
     if (link->state & (PLAYER_ACTOR_STATE_FROZEN | PLAYER_ACTOR_STATE_EPONA))
         return 1;
@@ -113,7 +117,7 @@ void EnElf_UpdateWrapper(Actor_EnElf* this, GameState_Play* play)
 
     if (Message_IsClosed(&this->base, play))
     {
-        UnfreezePlayer(play);
+        Player_Unfreeze(play);
         this->base.update = update;
     }
     else
@@ -123,7 +127,7 @@ void EnElf_UpdateWrapper(Actor_EnElf* this, GameState_Play* play)
 #else
         this->unk_250 = 0.0f;
 #endif
-        FreezePlayer(play);
+        Player_Freeze(play);
     }
 }
 
@@ -160,7 +164,7 @@ void EnElf_GiveItem(Actor_EnElf* this, GameState_Play* play)
 #else
         PlayerDisplayTextBox(play, 0x52, NULL);
 #endif
-        FreezePlayer(play);
+        Player_Freeze(play);
 
         this->base.update = EnElf_UpdateWrapper;
     }
@@ -198,7 +202,7 @@ void EnElf_SpawnFairyGroupMember(Actor_EnElf* spawner, GameState_Play* play, s16
 {
     ComboItemQuery q;
     ComboItemOverride o;
-    Actor_EnElf* fairy = (Actor_EnElf*)SpawnActor(&play->actorCtx, play, actorId, x, y, z, rx, ry, rz, variable);
+    Actor_EnElf* fairy = (Actor_EnElf*)Actor_Spawn(&play->actorCtx, play, actorId, x, y, z, rx, ry, rz, variable);
 
     if (!fairy)
     {

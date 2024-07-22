@@ -1,6 +1,10 @@
 #include <combo.h>
 #include <combo/item.h>
 #include <combo/net.h>
+#include <combo/player.h>
+#include <combo/config.h>
+#include <combo/actor.h>
+#include <combo/time.h>
 
 #define SET_HANDLER(a, h) do { *(void**)(((char*)(a)) + 0x1ac) = (h); } while (0)
 
@@ -10,7 +14,7 @@ static void sendNetOwl(GameState_Play* play, int owlId)
     int npc;
     s16 gi;
 
-    if (!comboConfig(CFG_MULTIPLAYER))
+    if (!Config_Flag(CFG_MULTIPLAYER))
         return;
 
     if (owlId == 0xf)
@@ -28,8 +32,8 @@ static void sendNetOwl(GameState_Play* play, int owlId)
     netWaitCmdClear();
     bzero(&net->cmdOut, sizeof(net->cmdOut));
     net->cmdOut.op = NET_OP_ITEM_SEND;
-    net->cmdOut.itemSend.playerFrom = gComboData.playerId;
-    net->cmdOut.itemSend.playerTo = gComboData.playerId;
+    net->cmdOut.itemSend.playerFrom = gComboConfig.playerId;
+    net->cmdOut.itemSend.playerTo = gComboConfig.playerId;
     net->cmdOut.itemSend.game = 1;
     net->cmdOut.itemSend.gi = gi;
     net->cmdOut.itemSend.key = ((u32)OV_NPC << 24) | npc;
@@ -48,9 +52,15 @@ void ObjWarpstone_GiveItem(Actor* this, GameState_Play* play)
     s16 gi;
     u8 id;
 
+    /* Fix a vanilla bug where day-night transitions can mess up the owl */
+    if (gSave.time >= CLOCK_TIME(5, 59) && gSave.time <= CLOCK_TIME(6, 1))
+        return;
+    if (gSave.time >= CLOCK_TIME(17, 59) && gSave.time <= CLOCK_TIME(18, 1))
+        return;
+
     id = this->variable & 0xf;
 
-    if (!comboConfig(CFG_MM_OWL_SHUFFLE) || (id == 0xf))
+    if (!Config_Flag(CFG_MM_OWL_SHUFFLE) || (id == 0xf))
     {
         gMmOwlFlags |= ((u32)1 << id);
         sendNetOwl(play, id);
@@ -60,8 +70,8 @@ void ObjWarpstone_GiveItem(Actor* this, GameState_Play* play)
         return;
     }
 
-    link = GET_LINK(play);
-    if (Actor_HasParent(this))
+    link = GET_PLAYER(play);
+    if (Actor_HasParentZ(this))
     {
         /* Prevents duping */
         EnableOwl(id);
@@ -105,7 +115,7 @@ PATCH_CALL(0x80b92ea8, ObjWarpstone_TalkedTo);
 
 void ObjWarpstone_Save(GameState_Play* play)
 {
-    comboSave(play, SF_OWL);
+    Save_DoSave(play, SF_OWL);
     PlaySound(0x4823);
     Message_Close(play);
 }

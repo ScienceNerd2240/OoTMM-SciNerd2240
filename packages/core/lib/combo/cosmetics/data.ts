@@ -1,4 +1,8 @@
 export const COSMETICS = [{
+  key: 'defaultHold',
+  name: 'Default Hold Target',
+  type: 'boolean',
+}, {
   key: 'ootTunicKokiri',
   name: 'OoT Kokiri Tunic',
   type: 'color',
@@ -41,13 +45,20 @@ export const COSMETICS = [{
 }, {
   key: 'modelOotChildLink',
   name: 'Player Model - Child Link (OoT)',
-  type: 'zobj',
+  type: 'file',
+  ext: 'zobj',
 }, {
   key: 'modelOotAdultLink',
   name: 'Player Model - Adult Link (OoT)',
-  type: 'zobj',
+  type: 'file',
+  ext: 'zobj',
 }, {
   key: 'music',
   name: 'Custom Music ZIP',
-  type: 'zip',
-}] as const;
+  type: 'file',
+  ext: 'zip',
+}, {
+  key: 'musicNames',
+  name: 'Display Music Names',
+  type: 'boolean',
+},] as const;

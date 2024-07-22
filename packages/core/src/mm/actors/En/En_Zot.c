@@ -1,11 +1,12 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/config.h>
 
 int EnZot_HasGivenItem(Actor* this)
 {
     int ret;
 
-    ret = Actor_HasParent(this);
+    ret = Actor_HasParentZ(this);
     if (ret)
         gMmExtraFlags.zoraHallLights = 1;
     return ret;
@@ -51,9 +52,9 @@ void EnZot_DisplayBeaverHint(Actor* this, GameState_Play* play)
     comboTextAppendHeader(&b);
     start = b;
     comboTextAppendStr(&b, "I've heard that the beavers are betting ");
-    comboTextAppendItemNameQueryEx(&b, &q1, TF_PREPOS | TF_PROGRESSIVE, gComboData.staticHintsImportance[14]);
+    comboTextAppendItemNameQueryEx(&b, &q1, TF_PREPOS | TF_PROGRESSIVE, gComboConfig.staticHintsImportance[14]);
     comboTextAppendStr(&b, " and ");
-    comboTextAppendItemNameQueryEx(&b, &q2, TF_PREPOS | TF_PROGRESSIVE, gComboData.staticHintsImportance[15]);
+    comboTextAppendItemNameQueryEx(&b, &q2, TF_PREPOS | TF_PROGRESSIVE, gComboConfig.staticHintsImportance[15]);
     comboTextAppendStr(&b, "." TEXT_SIGNAL TEXT_END);
     comboTextAutoLineBreaks(start);
 }

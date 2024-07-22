@@ -1,14 +1,18 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/player.h>
+#include <combo/config.h>
+#include <combo/inventory.h>
+#include <combo/actor.h>
 
 static void EnKz_MaybeSetMovedPos(Actor* this, GameState_Play* play)
 {
     int isOpen;
     void (*EnKz_SetMovedPos)(Actor*, GameState_Play*);
 
-    if (comboConfig(CFG_OOT_KZ_OPEN))
+    if (Config_Flag(CFG_OOT_KZ_OPEN))
         isOpen = 1;
-    else if (gSave.age == AGE_ADULT && comboConfig(CFG_OOT_KZ_OPEN_ADULT))
+    else if (gSave.age == AGE_ADULT && Config_Flag(CFG_OOT_KZ_OPEN_ADULT))
         isOpen = 1;
     else if (GetEventChk(EV_OOT_CHK_KING_ZORA_MOVED))
         isOpen = 1;
@@ -26,7 +30,7 @@ PATCH_CALL(0x80ad67a4, EnKz_MaybeSetMovedPos);
 
 int EnKz_HasGiveItem(Actor* this)
 {
-    if (Actor_HasParent(this))
+    if (Actor_HasParentZ(this))
     {
         this->parent = NULL;
         gOotExtraFlags.tunicZora = 1;
@@ -41,7 +45,7 @@ void EnKz_GiveItem(Actor* this, GameState_Play* play, s16 gi, float a, float b)
 {
     int npc;
 
-    if (!(GET_LINK(play)->state & PLAYER_ACTOR_STATE_GET_ITEM))
+    if (!(GET_PLAYER(play)->state & PLAYER_ACTOR_STATE_GET_ITEM))
         Message_Close(play);
 
     if (!gOotExtraFlags.tunicZora)

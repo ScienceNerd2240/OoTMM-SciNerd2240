@@ -2,7 +2,7 @@ import { Game } from '../config';
 import { itemByID } from '../items';
 import { Settings } from '../settings';
 import { gameId } from '../util';
-import { Expr, exprTrue, exprFalse, exprAnd, exprOr, exprAge, exprHas, exprRenewable, exprEvent, exprMasks, exprSetting, exprNot, exprCond, exprTrick, exprSpecial, exprOotTime, exprMmTime, exprLicense, exprPrice, exprGlitch, exprFish } from './expr';
+import { Expr, exprTrue, exprFalse, exprAnd, exprOr, exprAge, exprHas, exprRenewable, exprEvent, exprMasks, exprSetting, exprNot, exprCond, exprTrick, exprSpecial, exprOotTime, exprMmTime, exprLicense, exprPrice, exprFish, exprFlagOn, exprFlagOff } from './expr';
 import { ResolvedWorldFlags } from './world';
 
 const SIMPLE_TOKENS = ['||', '&&', '(', ')', ',', 'true', 'false', '!', '+', '-'] as const;
@@ -31,11 +31,16 @@ type Macro = {
 export class ExprParser {
   private ctx: ParseContext[] = [];
   private macros: {[k: string]: Macro} = {};
+  private vars: Map<string, number> = new Map;
 
   constructor(private settings: Settings, private resolvedFlags: ResolvedWorldFlags, private game: Game) {}
 
   addMacro(name: string, args: string[], buffer: string) {
     this.macros[name] = { args, buffer };
+  }
+
+  addVar(name: string, value: number) {
+    this.vars.set(name, value);
   }
 
   parse(input: string) {
@@ -51,11 +56,32 @@ export class ExprParser {
     return expr;
   }
 
-  private parseNumericSingle(): number | undefined {
-    const n = this.accept('number');
-    if (n !== undefined) {
-      return n;
+  private parseVar(): number | undefined {
+    const kw = this.accept('identifier');
+    if (kw !== 'var') {
+      return undefined;
     }
+    this.expect('(');
+    const name = this.expect('identifier');
+    this.expect(')');
+    if (this.vars.has(name)) {
+      return this.vars.get(name)!;
+    } else {
+      throw this.error(`Unknown var ${name}`);
+    }
+  }
+
+  private parseNumericSingle(): number | undefined {
+    let v;
+    v = this.accept('number');
+    if (v !== undefined) {
+      return v;
+    }
+    v = this.parseVar();
+    if (v !== undefined) {
+      return v;
+    }
+
     if (this.accept('(')) {
       const nexpr = this.parseNumeric();
       if (nexpr === undefined) {
@@ -253,17 +279,6 @@ export class ExprParser {
     return exprTrick(this.settings, trick);
   }
 
-  private parseExprGlitch(): Expr | undefined {
-    if (this.peek('identifier') !== 'glitch') {
-      return undefined;
-    }
-    this.accept('identifier');
-    this.expect('(');
-    const glitch = this.expect('identifier');
-    this.expect(')');
-    return exprGlitch(this.settings, glitch);
-  }
-
   private parseExprSpecial(): Expr | undefined {
     if (this.peek('identifier') !== 'special') {
       return undefined;
@@ -272,7 +287,7 @@ export class ExprParser {
     this.expect('(');
     const special = this.expect('identifier');
     this.expect(')');
-    return exprSpecial(special);
+    return exprSpecial(this.settings, special);
   }
 
   private parseExprOotTime(): Expr | undefined {
@@ -331,6 +346,28 @@ export class ExprParser {
     const maxPounds = this.expect('number');
     this.expect(')');
     return exprFish(ageAndType, minPounds, maxPounds);
+  }
+
+  private parseExprFlagOn(): Expr | undefined {
+    if (this.peek('identifier') !== 'flag_on') {
+      return undefined;
+    }
+    this.accept('identifier');
+    this.expect('(');
+    const flag = this.expect('identifier');
+    this.expect(')');
+    return exprFlagOn(flag);
+  }
+
+  private parseExprFlagOff(): Expr | undefined {
+    if (this.peek('identifier') !== 'flag_off') {
+      return undefined;
+    }
+    this.accept('identifier');
+    this.expect('(');
+    const flag = this.expect('identifier');
+    this.expect(')');
+    return exprFlagOff(flag);
   }
 
   private parseMacro(): Expr | undefined {
@@ -405,12 +442,13 @@ export class ExprParser {
       || this.parseExprMasks()
       || this.parseExprSetting()
       || this.parseExprTrick()
-      || this.parseExprGlitch()
       || this.parseExprSpecial()
       || this.parseExprOotTime()
       || this.parseExprMmTime()
       || this.parseExprPrice()
       || this.parseExprFish()
+      || this.parseExprFlagOn()
+      || this.parseExprFlagOff()
       || this.parseMacro();
   }
 

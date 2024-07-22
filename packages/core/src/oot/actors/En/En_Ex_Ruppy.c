@@ -1,6 +1,8 @@
 #include <combo.h>
 #include <combo/item.h>
 #include <combo/player.h>
+#include <combo/draw.h>
+#include <combo/actor.h>
 
 void EnExRuppy_ItemQuery(ComboItemQuery* q, Actor_EnExRuppy* this, GameState_Play* play)
 {
@@ -36,6 +38,18 @@ void EnExRuppy_ItemQuery(ComboItemQuery* q, Actor_EnExRuppy* this, GameState_Pla
     }
 }
 
+static int EnExRupy_IsShuffled(Actor_EnExRuppy* this, GameState_Play* play)
+{
+    ComboItemQuery q;
+    ComboItemOverride o;
+
+    EnExRuppy_ItemQuery(&q, this, play);
+    q.gi = GI_NONE;
+    comboItemOverride(&o, &q);
+
+    return o.gi != GI_NONE;
+}
+
 void EnExRuppy_Draw(Actor_EnExRuppy* this, GameState_Play* play)
 {
     ComboItemQuery q;
@@ -44,7 +58,7 @@ void EnExRuppy_Draw(Actor_EnExRuppy* this, GameState_Play* play)
     EnExRuppy_ItemQuery(&q, this, play);
     comboItemOverride(&o, &q);
     ModelViewScale(25.0f, 25.0f, 25.0f, MAT_MUL);
-    comboDrawGI(play, &this->actor, o.gi, 0);
+    Draw_Gi(play, &this->actor, o.gi, 0);
 }
 
 void EnExRuppy_HandlerCollected(Actor_EnExRuppy* this, GameState_Play* play)
@@ -54,12 +68,12 @@ void EnExRuppy_HandlerCollected(Actor_EnExRuppy* this, GameState_Play* play)
     {
         divingGame = (Actor_EnDivingGame*)this->actor.parent;
         divingGame->grabbedRupeesCounter++;
-        UnfreezePlayer(play);
-        ActorDestroy(&this->actor);
+        Player_Unfreeze(play);
+        Actor_Kill(&this->actor);
     }
     else
     {
-        FreezePlayer(play);
+        Player_Freeze(play);
     }
 }
 
@@ -70,7 +84,7 @@ void EnExRuppy_GiveItem(Actor_EnExRuppy* this, GameState_Play* play, Actor_EnDiv
     ComboItemOverride o;
     int major;
 
-    link = GET_LINK(play);
+    link = GET_PLAYER(play);
     if (link->state & (PLAYER_ACTOR_STATE_FROZEN | PLAYER_ACTOR_STATE_EPONA))
         return;
 
@@ -85,7 +99,7 @@ void EnExRuppy_GiveItem(Actor_EnExRuppy* this, GameState_Play* play, Actor_EnDiv
     if (major)
     {
         PlayerDisplayTextBox(play, 0xb4, NULL);
-        FreezePlayer(play);
+        Player_Freeze(play);
 
         /* Set the collected handler */
         this->actionFunc = EnExRuppy_HandlerCollected;
@@ -95,7 +109,7 @@ void EnExRuppy_GiveItem(Actor_EnExRuppy* this, GameState_Play* play, Actor_EnDiv
     else
     {
         divingGame->grabbedRupeesCounter++;
-        ActorDestroy(&this->actor);
+        Actor_Kill(&this->actor);
     }
 
     comboAddItemEx(play, &q, major);
@@ -107,10 +121,13 @@ void EnExRuppy_GiveItem(Actor_EnExRuppy* this, GameState_Play* play, Actor_EnDiv
 
 void EnExRuppy_InitWrapper(Actor_EnExRuppy* this, GameState_Play* play)
 {
-    ActorCallback init = actorAddr(AC_EN_EX_RUPPY, 0x80a8ab70);
+    ActorCallback init;
+
+    init = actorAddr(AC_EN_EX_RUPPY, 0x80a8ab70);
     init(&this->actor, play);
 
-    if (this->type == 0) {
+    if (this->type == 0 && EnExRupy_IsShuffled(this, play))
+    {
         this->actor.draw = EnExRuppy_Draw;
     }
 }

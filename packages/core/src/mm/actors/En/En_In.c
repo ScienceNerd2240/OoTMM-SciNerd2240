@@ -1,5 +1,6 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/shop.h>
 
 static u8 sIsMask;
 
@@ -138,7 +139,7 @@ int EnIn_HasActorGivenItem(Actor* actor)
 {
     int ret;
 
-    ret = Actor_HasParent(actor);
+    ret = Actor_HasParentZ(actor);
     if (ret)
     {
         if (sIsMask)

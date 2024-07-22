@@ -1,5 +1,8 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/config.h>
+#include <combo/shop.h>
+#include <combo/actor.h>
 
 static u16 kTingleMaps[] = {
     GI_MM_WORLD_MAP_CLOCK_TOWN,
@@ -67,7 +70,7 @@ static int EnBal_HasGivenItem(Actor* this, GameState_Play* play)
 {
     s16 mapId;
 
-    if (!Actor_HasParent(this))
+    if (!Actor_HasParentZ(this))
         return 0;
 
     mapId = *(s16*)((char*)this + 0x3ac);
@@ -152,8 +155,8 @@ static void EnBal_DisplayBuyTextBox(GameState_Play* play, u16 messageId, Actor* 
 
     /* Get tingle ID */
     tingleId = EnBal_GetTingleId(play);
-    price1 = gComboData.prices[PRICES_MM_TINGLE + tingleId * 2 + 0];
-    price2 = gComboData.prices[PRICES_MM_TINGLE + tingleId * 2 + 1];
+    price1 = gComboConfig.prices[PRICES_MM_TINGLE + tingleId * 2 + 0];
+    price2 = gComboConfig.prices[PRICES_MM_TINGLE + tingleId * 2 + 1];
 
     /* Override */
     b = play->msgCtx.font.textBuffer.schar;

@@ -9,7 +9,7 @@ import { DUNGEONS, Settings, SPECIAL_CONDS, SPECIAL_CONDS_FIELDS } from '../sett
 import { HINTS_PATHS, HintGossip, WorldHints } from '../logic/hints';
 import { countMapAdd, gameId, padBuffer16, toI8Buffer, toU16Buffer, toU32Buffer, toU8Buffer } from '../util';
 import { Patchfile } from './patchfile';
-import { LOCATIONS_ZELDA, makeLocation, makePlayerLocations } from '../logic/locations';
+import { locationsZelda, makeLocation, makePlayerLocations } from '../logic/locations';
 import { CONFVARS_VALUES, Confvar } from '../confvars';
 import { Region, regionData } from '../logic/regions';
 import { Item, ItemGroups, ItemHelpers, Items, ItemsCount } from '../items';
@@ -27,10 +27,11 @@ const DUNGEON_REWARD_LOCATIONS = [
   'MM Woodfall Temple Boss',
   'MM Snowhead Temple Boss',
   'MM Great Bay Temple Boss',
-  'MM Stone Tower Boss',
+  'MM Stone Tower Temple Inverted Boss',
 ];
 
 const SHARED_ITEMS_OOT = new Map([
+  ['SHARED_SWORD',            'OOT_SWORD_KOKIRI'],
   ['SHARED_BOW',              'OOT_BOW'],
   ['SHARED_BOMB_BAG',         'OOT_BOMB_BAG'],
   ['SHARED_ARROWS_5',         'OOT_ARROWS_5'],
@@ -71,6 +72,7 @@ const SHARED_ITEMS_OOT = new Map([
   ['SHARED_RUPEE_PURPLE',     'OOT_RUPEE_PURPLE'],
   ['SHARED_RUPEE_SILVER',     'MM_RUPEE_SILVER'], /* OoT lacks silver rupee */
   ['SHARED_RUPEE_GOLD',       'OOT_RUPEE_HUGE'], /* Equivalent */
+  ['SHARED_RUPEE_RAINBOW',    'OOT_RUPEE_RAINBOW'],
   ['SHARED_HEART_PIECE',      'OOT_HEART_PIECE'],
   ['SHARED_HEART_CONTAINER',  'OOT_HEART_CONTAINER'],
   ['SHARED_RECOVERY_HEART',   'OOT_RECOVERY_HEART'],
@@ -101,6 +103,7 @@ const SHARED_ITEMS_OOT = new Map([
 ]);
 
 const SHARED_ITEMS_MM = new Map([
+  ['SHARED_SWORD',            'MM_SWORD_KOKIRI'],
   ['SHARED_BOW',              'MM_BOW'],
   ['SHARED_BOMB_BAG',         'MM_BOMB_BAG'],
   ['SHARED_ARROWS_5',         'OOT_ARROWS_5'], /* MM lacks 5 pack */
@@ -141,6 +144,7 @@ const SHARED_ITEMS_MM = new Map([
   ['SHARED_RUPEE_PURPLE',     'MM_RUPEE_PURPLE'],
   ['SHARED_RUPEE_SILVER',     'MM_RUPEE_SILVER'],
   ['SHARED_RUPEE_GOLD',       'MM_RUPEE_GOLD'],
+  ['SHARED_RUPEE_RAINBOW',    'OOT_RUPEE_RAINBOW'], /* No MM equivalent */
   ['SHARED_HEART_PIECE',      'MM_HEART_PIECE'],
   ['SHARED_HEART_CONTAINER',  'MM_HEART_CONTAINER'],
   ['SHARED_RECOVERY_HEART',   'MM_RECOVERY_HEART'],
@@ -287,6 +291,20 @@ function entrance(srcName: string, world: World) {
   return data;
 }
 
+function entranceAbs(world: World, name: string) {
+  const dstName = world.entranceOverrides.get(name) || name;
+  const dstGame: Game = (/^OOT_/.test(dstName) ? 'oot' : 'mm');
+  const entr = ENTRANCES[dstName as keyof typeof ENTRANCES];
+  if (entr === undefined) {
+    throw new Error(`Unknown entrance ${dstName}`);
+  }
+  let data = entr.id;
+  if (dstGame === 'mm') {
+    data = (data | 0x80000000) >>> 0;
+  }
+  return data;
+}
+
 const entrance2 = (srcGame: Game, dstGame: Game, name: string) => {
   const entr = ENTRANCES[name as keyof typeof ENTRANCES];
   if (entr === undefined) {
@@ -372,11 +390,13 @@ function checkKey(check: WorldCheck): number {
     typeId = 0x0A;
     break;
   case 'pot':
+  case 'crate':
   case 'grass':
   case 'fairy':
   case 'rupee':
   case 'heart':
   case 'fairy_spot':
+  case 'wonder':
     /* xflag */
     typeId = 0x10 + ((id >> 16) & 0xf);
     break;
@@ -389,11 +409,13 @@ function checkKey(check: WorldCheck): number {
   case 'collectible':
   case 'sf':
   case 'pot':
+  case 'crate':
   case 'grass':
   case 'fairy':
   case 'rupee':
   case 'heart':
   case 'fairy_spot':
+  case 'wonder':
     sceneId = (SCENES as any)[check.scene];
     if (sceneId === undefined) {
       throw new Error(`Unknown scene ${check.scene}`);
@@ -423,6 +445,11 @@ const gameChecks = (worldId: number, settings: Settings, game: Game, logic: Logi
     if (c.game !== game) {
       continue;
     }
+
+    /* Skip cows if not shuffled */
+    if (c.game === 'oot' && c.type === 'cow' && !settings.cowShuffleOot) continue;
+    if (c.game === 'mm' && c.type === 'cow' && !settings.cowShuffleMm) continue;
+
     const key = checkKey(c);
     const itemGi = gi(settings, game, item.item, true);
     const b = Buffer.alloc(8, 0xff);
@@ -568,6 +595,100 @@ const gameHints = (settings: Settings, game: Game, hints: WorldHints): Buffer =>
   return padBuffer16(Buffer.concat(buffers));
 }
 
+function dungeonWarpsBuffer(world: World) {
+  const defaultWarps = [
+    'OOT_KOKIRI_FOREST_FROM_DEKU_TREE',
+    'OOT_MOUNTAIN_TRAIL_FROM_DODONGO_CAVERN',
+    'OOT_ZORA_FOUNTAIN_FROM_JABU_JABU',
+    'OOT_SACRED_MEADOW_FROM_TEMPLE_FOREST',
+    'OOT_DEATH_CRATER_FROM_TEMPLE_FIRE',
+    'OOT_LAKE_HYLIA_FROM_TEMPLE_WATER',
+    'OOT_GRAVEYARD_FROM_TEMPLE_SHADOW',
+    'OOT_DESERT_COLOSSUS_FROM_TEMPLE_SPIRIT',
+    'MM_WOODFALL_FROM_TEMPLE',
+    'MM_SNOWHEAD_FROM_TEMPLE',
+    'MM_GREAT_BAY_FROM_TEMPLE',
+    'MM_STONE_TOWER_INVERTED_FROM_TEMPLE',
+  ];
+
+  const entrances = defaultWarps.map((e) => entranceAbs(world, e));
+  return toU32Buffer(entrances);
+}
+
+function dungeonEntrancesBuffer(world: World) {
+  const mainDungeonsReverse: {[k: number]: number} = {};
+  const mainDungeonRegions: {[k: number]: string} = {};
+
+  const defaultEntrances = [
+    'OOT_DEKU_TREE',
+    'OOT_DODONGO_CAVERN',
+    'OOT_JABU_JABU',
+    'OOT_TEMPLE_FOREST',
+    'OOT_TEMPLE_FIRE',
+    'OOT_TEMPLE_WATER',
+    'OOT_TEMPLE_SHADOW',
+    'OOT_TEMPLE_SPIRIT',
+    'MM_TEMPLE_WOODFALL',
+    'MM_TEMPLE_SNOWHEAD',
+    'MM_TEMPLE_GREAT_BAY',
+    'MM_TEMPLE_STONE_TOWER_INVERTED',
+    'MM_TEMPLE_STONE_TOWER',
+    'MM_SPIDER_HOUSE_SWAMP',
+    'MM_SPIDER_HOUSE_OCEAN',
+    'OOT_BOTTOM_OF_THE_WELL',
+    'OOT_ICE_CAVERN',
+    'OOT_GERUDO_TRAINING_GROUNDS',
+    'MM_BENEATH_THE_WELL',
+    'MM_IKANA_CASTLE',
+    'MM_SECRET_SHRINE',
+    'MM_BENEATH_THE_WELL_BACK',
+    'MM_PIRATE_FORTRESS',
+    'OOT_GANON_CASTLE',
+    'OOT_GANON_TOWER',
+    'MM_MOON',
+  ];
+
+  /* Compute substitutions */
+  for (let i = 0; i < defaultEntrances.length; ++i) {
+    const entrance = world.entranceOverrides.get(defaultEntrances[i]) || defaultEntrances[i];
+    const index = defaultEntrances.indexOf(entrance);
+    if (index !== -1) {
+      mainDungeonsReverse[index] = i;
+    }
+  }
+
+  /* Compute main region */
+  for (const areaName in world.areas) {
+    const area = world.areas[areaName];
+    for (let i = 0; i < defaultEntrances.length; ++i) {
+      const entrName = defaultEntrances[i];
+      const entrData = ENTRANCES[entrName as keyof typeof ENTRANCES];
+      const to = entrData.to;
+      const areaTo = world.areas[to];
+      if (area.exits[to] && area.dungeon !== areaTo.dungeon) {
+        const region = area.region;
+        if (region !== 'NONE' && region !== 'POCKET' && region !== 'NAMELESS') {
+          mainDungeonRegions[i] = region;
+        }
+      }
+    }
+  }
+
+  const buffers: Buffer[] = [];
+  for (let i = 0; i < defaultEntrances.length; ++i) {
+    const dungeonIndex = mainDungeonsReverse[i];
+    let region = mainDungeonRegions[i] || 'NAMELESS';
+    if (dungeonIndex !== undefined) {
+      buffers.push(toU32Buffer([(dungeonIndex | 0x80000000) >>> 0]));
+    } else {
+      const regionId = (REGIONS as any)[region];
+      buffers.push(toU32Buffer([regionId]));
+    }
+  }
+
+  return Buffer.concat(buffers);
+}
+
 const regionsBuffer = (regions: Region[]) => {
   const data = regions.map((region) => {
     const regionId = (REGIONS as any)[regionData(region).id];
@@ -684,7 +805,8 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     GANON_NO_BOSS_KEY: settings.ganonBossKey === 'removed',
     SMALL_KEY_SHUFFLE: settings.smallKeyShuffleOot === 'anywhere',
     CSMC: settings.csmc === 'always',
-    CSMC_EXTRA: settings.csmcExtra,
+    CSMC_SKULLTULA: settings.csmcSkulltula,
+    CSMC_COW: settings.csmcCow,
     CSMC_AGONY: settings.csmc === 'agony',
     OOT_PROGRESSIVE_SHIELDS: settings.progressiveShieldsOot === 'progressive',
     OOT_PROGRESSIVE_SWORDS: settings.progressiveSwordsOot === 'progressive',
@@ -693,10 +815,13 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     MM_PROGRESSIVE_LULLABY: settings.progressiveGoronLullaby === 'progressive',
     DOOR_OF_TIME_OPEN: settings.doorOfTime === 'open',
     OOT_OPEN_DEKU: settings.dekuTree === 'open',
+    OOT_CLOSED_DEKU: settings.dekuTree === 'closed',
+    OOT_ADULT_DEKU:  world.resolvedFlags.openDungeonsOot.has('dekuTreeAdult'),
     ER_DUNGEONS: settings.erDungeons !== 'none',
     ER_MAJOR_DUNGEONS: settings.erMajorDungeons,
     ER_BOSS: settings.erBoss !== 'none',
     ER_ANY: isEntranceShuffle(settings),
+    SHARED_SWORDS: settings.sharedSwords,
     SHARED_BOWS: settings.sharedBows,
     SHARED_BOMB_BAGS: settings.sharedBombBags,
     SHARED_MAGIC: settings.sharedMagic,
@@ -719,6 +844,8 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     SHARED_WALLETS: settings.sharedWallets,
     SHARED_HEALTH: settings.sharedHealth,
     SHARED_SOULS_ENEMY: settings.sharedSoulsEnemy,
+    SHARED_SOULS_MISC: settings.sharedSoulsMisc,
+    SHARED_SOULS_NPC: settings.sharedSoulsNpc,
     SHARED_OCARINA_BUTTONS: settings.sharedOcarinaButtons,
     SHARED_SHIELDS: settings.sharedShields,
     SHARED_SPELL_FIRE: settings.sharedSpellFire,
@@ -733,6 +860,7 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     OOT_CROSS_WARP: settings.crossWarpOot,
     MM_CROSS_WARP: settings.crossWarpMm !== 'none',
     MM_CROSS_WARP_ADULT: settings.crossWarpMm === 'full',
+    MM_CROSS_AGE: settings.crossAge,
     MM_OCARINA_FAIRY: settings.fairyOcarinaMm,
     MM_HOOKSHOT_SHORT: settings.shortHookshotMm,
     MM_SONG_SUN: settings.sunSongMm,
@@ -749,10 +877,12 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     MM_MAJORA_CHILD_CUSTOM: settings.majoraChild === 'custom',
     FILL_WALLETS: settings.fillWallets,
     CHILD_WALLET: settings.childWallets,
-    OOT_ADULT_WELL: settings.wellAdult,
+    OOT_ADULT_WELL: world.resolvedFlags.openDungeonsOot.has('wellAdult'),
     COLOSSAL_WALLET: settings.colossalWallets,
     BOTTOMLESS_WALLET: settings.bottomlessWallets,
     OOT_AGELESS_BOOTS: settings.agelessBoots,
+    OOT_AGELESS_STRENGTH: settings.agelessStrength,
+    OOT_AGELESS_SWORDS: settings.agelessSwords,
     MM_OWL_SHUFFLE: settings.owlShuffle === 'anywhere',
     OOT_CARPENTERS_ONE: settings.gerudoFortress === 'single',
     OOT_CARPENTERS_NONE: settings.gerudoFortress === 'open',
@@ -761,19 +891,24 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     MM_NO_BOSS_KEY: settings.bossKeyShuffleMm === 'removed',
     MM_NO_SMALL_KEY: settings.smallKeyShuffleMm === 'removed',
     CSMC_HEARTS: settings.csmcHearts,
+    CSMC_MAP_COMPASS: settings.csmcMapCompass,
     OOT_BLUE_FIRE_ARROWS: settings.blueFireArrows,
     OOT_SUNLIGHT_ARROWS: settings.sunlightArrows,
     OOT_SILVER_RUPEE_SHUFFLE: settings.silverRupeeShuffle !== 'vanilla',
     OOT_FREE_SCARECROW: settings.freeScarecrowOot,
     OOT_SOULS_ENEMY: settings.soulsEnemyOot,
-    MM_SOULS_ENEMY: settings.soulsEnemyMm,
     OOT_SOULS_BOSS: settings.soulsBossOot,
-    MM_SOULS_BOSS: settings.soulsBossMm,
     OOT_SOULS_NPC: settings.soulsNpcOot,
+    OOT_SOULS_MISC: settings.soulsMiscOot,
+    MM_SOULS_ENEMY: settings.soulsEnemyMm,
+    MM_SOULS_BOSS: settings.soulsBossMm,
+    MM_SOULS_NPC: settings.soulsNpcMm,
+    MM_SOULS_MISC: settings.soulsMiscMm,
     MM_REMOVED_FAIRIES: settings.strayFairyOtherShuffle === 'removed',
     SHARED_SKELETON_KEY: settings.sharedSkeletonKey,
     OOT_SHUFFLE_GRASS: settings.shuffleGrassOot,
     MM_SHUFFLE_GRASS: settings.shuffleGrassMm,
+    OOT_SHUFFLE_MASK_TRADES: settings.shuffleMaskTrades,
     MENU_NOTEBOOK: settings.menuNotebook,
     OOT_AGELESS_CHILD_TRADE: settings.agelessChildTrade,
     OOT_START_ADULT: settings.startingAge === 'adult',
@@ -839,10 +974,40 @@ function worldConfig(world: World, settings: Settings): Set<Confvar> {
     MM_AUTO_INVERT_ALWAYS: settings.autoInvert === 'always',
     MM_AUTO_INVERT_FIRST_CYCLE: settings.autoInvert === 'firstCycle',
     MM_MOON_CRASH_CYCLE: settings.moonCrash === 'cycle',
+    MM_KEEP_ITEMS_RESET: settings.keepItemsReset,
+    MM_FAST_MASKS: settings.fastMasks,
     OOT_OPEN_ZD_SHORTCUT: settings.openZdShortcut,
     MM_CLOCKS: settings.clocks,
     MM_CLOCKS_PROGRESSIVE: settings.progressiveClocks !== 'separate',
     MM_CLOCKS_PROGRESSIVE_REVERSE: settings.progressiveClocks === 'descending',
+    ER_GROTTOS: settings.erGrottos !== 'none',
+    ER_OVERWORLD: settings.erOverworld !== 'none',
+    ER_INDOORS: settings.erIndoors !== 'none',
+    ER_REGIONS_OVERWORLD: settings.erRegions !== 'none' || settings.erOverworld !== 'none',
+    CROSS_GAME_FW: settings.crossGameFw,
+    RUPEE_SCALING: settings.rupeeScaling,
+    OOT_SWORDLESS_ADULT: settings.swordlessAdult,
+    OOT_TIME_TRAVEL_REQUIRES_MS: settings.timeTravelSword,
+    OOT_EXTRA_CHILD_SWORDS: settings.extraChildSwordsOot,
+    ONLY_OOT: settings.games === 'oot',
+    ONLY_MM: settings.games === 'mm',
+    OOT_PLANTED_BEANS: settings.ootPreplantedBeans,
+    OOT_OPEN_JABU_JABU: world.resolvedFlags.openDungeonsOot.has('JJ'),
+    OOT_OPEN_SHADOW_TEMPLE: world.resolvedFlags.openDungeonsOot.has('Shadow'),
+    OOT_OPEN_DODONGO_CAVERN: world.resolvedFlags.openDungeonsOot.has('DC'),
+    OOT_OPEN_WATER_TEMPLE: world.resolvedFlags.openDungeonsOot.has('Water'),
+    OOT_OPEN_WELL: world.resolvedFlags.openDungeonsOot.has('BotW'),
+    OOT_SONG_OF_DOUBLE_TIME: settings.songOfDoubleTimeOot,
+    MM_PRE_ACTIVATED_OWL_CT: world.resolvedFlags.mmPreActivatedOwls.has('clocktown'),
+    MM_PRE_ACTIVATED_OWL_MR: world.resolvedFlags.mmPreActivatedOwls.has('milkroad'),
+    MM_PRE_ACTIVATED_OWL_SS: world.resolvedFlags.mmPreActivatedOwls.has('swamp'),
+    MM_PRE_ACTIVATED_OWL_WF: world.resolvedFlags.mmPreActivatedOwls.has('woodfall'),
+    MM_PRE_ACTIVATED_OWL_MV: world.resolvedFlags.mmPreActivatedOwls.has('mountain'),
+    MM_PRE_ACTIVATED_OWL_SH: world.resolvedFlags.mmPreActivatedOwls.has('snowhead'),
+    MM_PRE_ACTIVATED_OWL_GB: world.resolvedFlags.mmPreActivatedOwls.has('greatbay'),
+    MM_PRE_ACTIVATED_OWL_ZC: world.resolvedFlags.mmPreActivatedOwls.has('zoracape'),
+    MM_PRE_ACTIVATED_OWL_IC: world.resolvedFlags.mmPreActivatedOwls.has('canyon'),
+    MM_PRE_ACTIVATED_OWL_ST: world.resolvedFlags.mmPreActivatedOwls.has('tower'),
   };
 
   for (const v in exprs) {
@@ -883,7 +1048,6 @@ export const randomizerHints = (world: number, logic: LogicResult): Buffer => {
 };
 
 const randomizerBoss = (worldId: number, logic: LogicResult): Buffer => toU8Buffer(logic.worlds[worldId].bossIds);
-const randomizerDungeons = (worldId: number, logic: LogicResult): Buffer => toU8Buffer(logic.worlds[worldId].dungeonIds);
 const randomizerTriforce = (logic: LogicResult): Buffer => toU16Buffer([logic.settings.triforcePieces, logic.settings.triforceGoal]);
 
 function specialConds(settings: Settings) {
@@ -914,6 +1078,8 @@ export const randomizerData = (worldId: number, logic: LogicResult): Buffer => {
   const buffers = [];
   buffers.push(logic.uuid);
   buffers.push(toU8Buffer([worldId + 1, 0, 0, 0]));
+  buffers.push(dungeonWarpsBuffer(logic.worlds[worldId]));
+  buffers.push(dungeonEntrancesBuffer(logic.worlds[worldId]));
   buffers.push(randomizerDungeonsBits(worldId, logic));
   buffers.push(randomizerWarps(worldId, logic));
   buffers.push(randomizerConfig(logic.worlds[worldId], logic.settings));
@@ -925,7 +1091,7 @@ export const randomizerData = (worldId: number, logic: LogicResult): Buffer => {
   buffers.push(toI8Buffer(logic.hints[worldId].staticHintsImportances));
   buffers.push(zoraSapphireBuffer(worldId, logic));
   buffers.push(randomizerBoss(worldId, logic));
-  buffers.push(randomizerDungeons(worldId, logic));
+  buffers.push(toU8Buffer([logic.settings.strayFairyRewardCount]));
   return Buffer.concat(buffers);
 };
 
@@ -961,8 +1127,22 @@ const effectiveStartingItems = (worldId: number, logic: LogicResult): ItemsCount
     }
   }
 
-  if (settings.skipZelda) addStartingItemLocsWorld(worldId, logic, LOCATIONS_ZELDA, itemsCount);
+  if (settings.skipZelda) addStartingItemLocsWorld(worldId, logic, locationsZelda(settings), itemsCount);
   if (settings.gerudoFortress === 'open') addStartingItemLocsWorld(worldId, logic, ['OOT Gerudo Member Card'], itemsCount);
+  if (settings.mmPreActivatedOwls.type != 'none')
+  {
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('clocktown')) addStartingItemLocsWorld(worldId, logic, ['MM Clock Town Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('milkroad')) addStartingItemLocsWorld(worldId, logic, ['MM Milk Road Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('swamp')) addStartingItemLocsWorld(worldId, logic, ['MM Southern Swamp Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('woodfall')) addStartingItemLocsWorld(worldId, logic, ['MM Woodfall Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('mountain')) addStartingItemLocsWorld(worldId, logic, ['MM Mountain Village Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('snowhead')) addStartingItemLocsWorld(worldId, logic, ['MM Snowhead Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('greatbay')) addStartingItemLocsWorld(worldId, logic, ['MM Great Bay Coast Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('zoracape')) addStartingItemLocsWorld(worldId, logic, ['MM Zora Cape Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('canyon')) addStartingItemLocsWorld(worldId, logic, ['MM Ikana Canyon Owl Statue'], itemsCount);
+    if (logic.worlds[worldId].resolvedFlags.mmPreActivatedOwls.has('tower')) addStartingItemLocsWorld(worldId, logic, ['MM Stone Tower Owl Statue'], itemsCount);
+  }
+
 
   return itemsCount;
 }

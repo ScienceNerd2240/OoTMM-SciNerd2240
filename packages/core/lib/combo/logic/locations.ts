@@ -14,7 +14,10 @@ const locationRegistry: {[k: Location]: LocationDescriptor} = {};
 export function makeLocation(id: string, world?: null | number): Location {
   const w = world === undefined ? null : world;
   const x = (id + ((w === null) ? '' : `@${world}`)) as Location;
-  locationRegistry[x] = { id, world: w };
+  const data = locationRegistry[x];
+  if (!data) {
+    locationRegistry[x] = { id, world: w };
+  }
   return x;
 }
 
@@ -54,10 +57,13 @@ export const OOT_ONE_TIME_SCRUBS = [
   'OOT Hyrule Field Grotto Scrub HP',
 ];
 
-export const LOCATIONS_ZELDA = [
-  'OOT Zelda\'s Letter',
-  'OOT Zelda\'s Song',
-];
+export function locationsZelda(settings: Settings) {
+  const locs = ['OOT Zelda\'s Letter', 'OOT Zelda\'s Song'];
+  if (settings.shuffleWonderItemsOot) {
+    locs.push('OOT Castle Courtyard Wonder Item');
+  }
+  return locs;
+}
 
 export function isLocationRenewable(world: World, loc: Location) {
   const locationId = locationData(loc).id;

@@ -1,6 +1,14 @@
 #ifndef COMBO_SAVE_H
 #define COMBO_SAVE_H
 
+#define GAMEMODE_NORMAL         0
+#define GAMEMODE_TITLE_SCREEN   1
+#define GAMEMODE_FILE_SELECT    2
+#define GAMEMODE_END_CREDIT     3
+#if defined(GAME_MM)
+# define GAMEMODE_OWL_SAVE      4
+#endif
+
 #if !defined(__ASSEMBLER__)
 # include <combo/oot/save.h>
 # include <combo/mm/save.h>
@@ -18,8 +26,15 @@ typedef struct ALIGNED(16)
     u8              soulsBossOot[2];
     u8              soulsBossMm[1];
     u8              soulsNpcOot[8];
+    u8              soulsNpcMm[8];
+    u8              soulsMiscOot[1];
+    u8              soulsMiscMm[1];
     u8              caughtChildFishWeight[20]; /* first item is length. should this be in OotCustomSave? */
     u8              caughtAdultFishWeight[20]; /* first item is length. should this be in OotCustomSave? */
+    u8              caughtFishFlags[5];
+    u8              foundMasterSword:1;
+    u8              storedSirloin:1;
+    u8              extraSwordsOot:2;
 #if defined(DEBUG)
     u8              cheats[4];
 #endif
@@ -27,6 +42,20 @@ typedef struct ALIGNED(16)
 SharedCustomSave;
 
 extern SharedCustomSave gSharedCustomSave;
+
+#define SF_OWL          0x01
+#define SF_NOCOMMIT     0x02
+#define SF_PASSIVE      0x04
+
+void Save_ReadOwn(void);
+void Save_ReadForeign(void);
+void Save_Write(void);
+void Save_CreateMM(void);
+void Save_CopyMM(int dst, int src);
+void Save_OnLoad(void);
+void Save_DoSave(GameState_Play* play, int saveFlags);
+
+void Flash_ReadWrite(u32 devAddr, void* dramAddr, u32 size, s32 direction);
 
 # if defined(GAME_OOT)
 #  define gCustomSave gSharedCustomSave.oot
@@ -56,8 +85,9 @@ typedef struct
     u32 erSpring:1;
     u32 erSwampClear:1;
     u32 erCoastClear:1;
+    u32 erValleyClear:1;
     u32 erWaterBeaten:1;
-    u32 unused:28;
+    u32 unused:27;
 }
 MiscFlags;
 #endif

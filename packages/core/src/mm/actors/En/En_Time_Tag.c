@@ -1,5 +1,7 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/config.h>
+#include <combo/actor.h>
 
 #define SET_HANDLER(a, h) do { *(void**)(((char*)(a)) + 0x144) = (h); } while (0)
 
@@ -9,7 +11,7 @@ void EnTimeTag_HandlerNull(Actor* this, GameState_Play* play)
 
 void EnTimeTag_GiveItemSoaring(Actor* this, GameState_Play* play)
 {
-    if (Actor_HasParent(this))
+    if (Actor_HasParentZ(this))
     {
         gMmExtraFlags.songSoaring = 1;
         SET_HANDLER(this, EnTimeTag_HandlerNull);
@@ -45,7 +47,7 @@ PATCH_FUNC(0x80aca268, EnTimeTag_HandlerSoaring);
 
 void EnTimeTag_MoonCutscene(Actor* this, GameState_Play* play)
 {
-    if (comboSpecialCond(SPECIAL_MOON))
+    if (Config_SpecialCond(SPECIAL_MOON))
     {
         /* Skip to Moon */
         gSave.day = 3;

@@ -1,6 +1,8 @@
 #include <combo.h>
 #include <combo/dma.h>
 #include <combo/item.h>
+#include <combo/config.h>
+#include <combo/hint.h>
 
 #if defined(GAME_OOT)
 # define HINTS_ADDR 0x03ff1000
@@ -21,30 +23,36 @@ typedef struct PACKED ALIGNED(2)
 Hint;
 
 static const char* kJunkHints[] = {
-    "THEW ORLD ISSQ UARE",                                      /* Final Fantasy 6 */
-    "SWITCH targeting is the superior option",                  /* Blatant truth */
-    "getting 100 coins gives you a star",                       /* Mario 64 */
-    "the main character is not actually called Zelda",          /* ... */
-    "nothing is forever",                                       /* Useful life advice */
-    "the yes needs the no, to win against the no",              /* French politics */
-    "a winner is you",                                          /* Meme */
-    "your princess is in another castle",                       /* Mario 1 */
-    "it's a secret to everybody",                               /* Zelda 1 */
-    "Ocarina of Time is the better game",                       /* OoTMM */
-    "Majora's Mask is the better game",                         /* OoTMM */
-    "the cake is a lie",                                        /* Portal */
-    "I am Error",                                               /* Zelda 2 */
-    "plundering Area 51 is a foolish choice",                   /* Useful life advice */
-    "there are 118 known elements",                             /* Chemistry */
-    "Nax's House is on the Way of the Hero",                    /* OoTMM */
-    "this is not the hint you are looking for",                 /* OoTMM */
-    "you can find Luigi in Super Mario 64",                     /* Mario 64 */
-    "using the Fishing Pole in Twilight Princess is WoTH",      /* Twilight Princess */
-    "23 is number 1",                                           /* Deku Tree */
-    "keys are always in the last place you look in",            /* Facts */
-    "a famous code is UUDD LRLR BAS",                           /* Konami Code */
-    "there's only 151 Pokemons",                                /* Pokemon Gen 1 */
-    "you can unlock Sonic and Tails in Super Smash Bros Melee", /* SSBM */
+    "THEW ORLD ISSQ UARE",                                       /* Final Fantasy 6 */
+    "SWITCH targeting is the superior option",                   /* Blatant truth */
+    "getting 100 coins gives you a star",                        /* Mario 64 */
+    "the main character is not actually called Zelda",           /* ... */
+    "nothing is forever",                                        /* Useful life advice */
+    "the yes needs the no, to win against the no",               /* French politics */
+    "a winner is you",                                           /* Meme */
+    "your princess is in another castle",                        /* Mario 1 */
+    "it's a secret to everybody",                                /* Zelda 1 */
+    "Ocarina of Time is the better game",                        /* OoTMM */
+    "Majora's Mask is the better game",                          /* OoTMM */
+    "the cake is a lie",                                         /* Portal */
+    "I am Error",                                                /* Zelda 2 */
+    "plundering Area 51 is a foolish choice",                    /* Useful life advice */
+    "there are 118 known elements",                              /* Chemistry */
+    "Nax's House is on the Way of the Hero",                     /* OoTMM */
+    "this is not the hint you are looking for",                  /* OoTMM */
+    "you can find Luigi in Super Mario 64",                      /* Mario 64 */
+    "using the Fishing Pole in Twilight Princess is WoTH",       /* Twilight Princess */
+    "23 is number 1",                                            /* Deku Tree */
+    "keys are always in the last place you look in",             /* Facts */
+    "a famous code is UUDD LRLR BAS",                            /* Konami Code */
+    "there's only 151 Pokemons",                                 /* Pokemon Gen 1 */
+    "you can unlock Sonic and Tails in Super Smash Bros Melee",  /* SSBM */
+    "one should not forget to check the chests in Mido's House", /* OoTMM */
+    "Gossip Stones tell lies",                                   /* OoTMM */
+    "it's dangerous to go alone!",                               /* Zelda 2 */
+    "they're never gonna give you up, never gonna let you down", /* Rickroll */
+    "your seed got 10 percents better",                          /* DK64R inspired */
+    "your seed got 10 percents worse",                           /* DK64R inspired */
 };
 
 static Hint* gHints;
@@ -65,7 +73,7 @@ static const Hint* findHint(u8 key)
     }
 }
 
-void comboInitHints(void)
+void Hint_Init(void)
 {
     size_t size;
 
@@ -80,7 +88,7 @@ static void appendCorrectItemName(char** b, s16 gi, u8 player, u8 importance)
 
     comboTextAppendItemImportance(b, gi, importance);
 
-    if (player != 0 && player != 0xff && player != gComboData.playerId)
+    if (player != 0 && player != 0xff && player != gComboConfig.playerId)
     {
         comboTextAppendStr(b, " for " TEXT_COLOR_YELLOW "Player ");
         comboTextAppendNum(b, player);
@@ -95,11 +103,10 @@ static const char* kPathNames[] = {
     TEXT_COLOR_BLUE   "Path of Wisdom",
 };
 
-void comboHintGossip(u8 key, GameState_Play* play)
+static void Hint_DisplayRaw(GameState_Play* play, const Hint* hint)
 {
     char* b;
     char* start;
-    const Hint* hint;
     int itemIndex;
     int tmp;
 
@@ -114,56 +121,76 @@ void comboHintGossip(u8 key, GameState_Play* play)
     comboTextAppendStr(&b, "They say that ");
 
     /* Fetch the hint and check */
-    hint = findHint(key);
-    if (hint == NULL)
+    itemIndex = 0;
+    switch (hint->type)
     {
-        /* (Fake) junk hint */
-        comboTextAppendStr(&b, kJunkHints[key % ARRAY_SIZE(kJunkHints)]);
-    }
-    else
-    {
-        itemIndex = 0;
-        switch (hint->type)
+    case HINT_TYPE_PATH:
+        comboTextAppendRegionName(&b, hint->region, hint->world, 0);
+        comboTextAppendStr(&b, " is on the ");
+        comboTextAppendStr(&b, kPathNames[hint->items[0]]);
+        comboTextAppendClearColor(&b);
+        break;
+    case HINT_TYPE_FOOLISH:
+        comboTextAppendStr(&b, "plundering ");
+        comboTextAppendRegionName(&b, hint->region, hint->world, 0);
+        comboTextAppendStr(&b, " is a " TEXT_COLOR_PINK "foolish choice");
+        comboTextAppendClearColor(&b);
+        break;
+    case HINT_TYPE_ITEM_EXACT:
+        tmp = comboTextAppendCheckName(&b, hint->region, hint->world);
+        comboTextAppendStr(&b, (tmp & TF_PLURAL) ? " give " : " gives ");
+        appendCorrectItemName(&b, hint->items[itemIndex], hint->players[itemIndex], hint->itemImportances[itemIndex]);
+        if (hint->items[2] != -1)
         {
-        case HINT_TYPE_PATH:
-            comboTextAppendRegionName(&b, hint->region, hint->world, 0);
-            comboTextAppendStr(&b, " is on the ");
-            comboTextAppendStr(&b, kPathNames[hint->items[0]]);
-            comboTextAppendClearColor(&b);
-            break;
-        case HINT_TYPE_FOOLISH:
-            comboTextAppendStr(&b, "plundering ");
-            comboTextAppendRegionName(&b, hint->region, hint->world, 0);
-            comboTextAppendStr(&b, " is a " TEXT_COLOR_PINK "foolish choice");
-            comboTextAppendClearColor(&b);
-            break;
-        case HINT_TYPE_ITEM_EXACT:
-            tmp = comboTextAppendCheckName(&b, hint->region, hint->world);
-            comboTextAppendStr(&b, (tmp & TF_PLURAL) ? " give " : " gives ");
+            itemIndex++;
+            comboTextAppendStr(&b, ", ");
             appendCorrectItemName(&b, hint->items[itemIndex], hint->players[itemIndex], hint->itemImportances[itemIndex]);
-            if (hint->items[2] != -1)
-            {
-                itemIndex++;
-                comboTextAppendStr(&b, ", ");
-                appendCorrectItemName(&b, hint->items[itemIndex], hint->players[itemIndex], hint->itemImportances[itemIndex]);
-            }
-            if (hint->items[1] != -1)
-            {
-                itemIndex++;
-                comboTextAppendStr(&b, " and ");
-                appendCorrectItemName(&b, hint->items[itemIndex], hint->players[itemIndex], hint->itemImportances[itemIndex]);
-            }
-            break;
-        case HINT_TYPE_ITEM_REGION:
-            appendCorrectItemName(&b, hint->items[0], hint->players[0], hint->itemImportances[0]);
-            comboTextAppendStr(&b, " can be found ");
-            comboTextAppendRegionName(&b, hint->region, hint->world, TF_PREPOS);
-            break;
-        case HINT_TYPE_JUNK:
-            comboTextAppendStr(&b, kJunkHints[((u16)hint->items[0]) % ARRAY_SIZE(kJunkHints)]);
-            break;
         }
+        if (hint->items[1] != -1)
+        {
+            itemIndex++;
+            comboTextAppendStr(&b, " and ");
+            appendCorrectItemName(&b, hint->items[itemIndex], hint->players[itemIndex], hint->itemImportances[itemIndex]);
+        }
+        break;
+    case HINT_TYPE_ITEM_REGION:
+        appendCorrectItemName(&b, hint->items[0], hint->players[0], hint->itemImportances[0]);
+        comboTextAppendStr(&b, " can be found ");
+        comboTextAppendRegionName(&b, hint->region, hint->world, TF_PREPOS);
+        break;
+    case HINT_TYPE_JUNK:
+        comboTextAppendStr(&b, kJunkHints[((u16)hint->items[0]) % ARRAY_SIZE(kJunkHints)]);
+        break;
     }
     comboTextAppendStr(&b, "." TEXT_END);
     comboTextAutoLineBreaks(start);
+}
+
+void Hint_DisplayJunk(GameState_Play* play, u32 index)
+{
+    Hint h;
+
+    memset(&h, 0, sizeof(h));
+    h.type = HINT_TYPE_JUNK;
+    h.items[0] = (index % ARRAY_SIZE(kJunkHints));
+    Hint_DisplayRaw(play, &h);
+}
+
+void Hint_Display(GameState_Play* play, u8 key)
+{
+    const Hint* hint;
+
+    hint = findHint(key);
+    if (hint != NULL)
+        Hint_DisplayRaw(play, hint);
+    else
+        Hint_DisplayJunk(play, key);
+}
+
+void Hint_DisplayJunkRandom(GameState_Play* play)
+{
+    int key;
+
+    key = Rand_S16Offset(0, 0x7fff);
+    Hint_DisplayJunk(play, key);
 }

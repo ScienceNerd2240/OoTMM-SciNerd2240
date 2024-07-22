@@ -2,7 +2,7 @@
 #define COMBO_ACTORS_EN_ITEM00_H
 
 #include <combo/xflags.h>
-#include <combo/common/actor.h>
+#include <combo/actor.h>
 
 #if defined(GAME_OOT)
 # define ITEM00_RUPEE_GREEN     0x00
@@ -31,6 +31,7 @@
 # define ITEM00_TUNIC_ZORA      0x17
 # define ITEM00_TUNIC_GORON     0x18
 # define ITEM00_BOMBS_5_ALT     0x19
+# define ITEM00_MAX             0x1a
 #else
 # define ITEM00_RUPEE_GREEN     0x00
 # define ITEM00_RUPEE_BLUE      0x01
@@ -48,10 +49,21 @@
 # define ITEM00_STICK           0x0d
 # define ITEM00_MAGIC_LARGE     0x0e
 # define ITEM00_MAGIC_SMALL     0x0f
+# define ITEM00_MASK            0x10
 # define ITEM00_KEY             0x11
+# define ITEM00_FLEXIBLE        0x12
 # define ITEM00_RUPEE_ORANGE    0x13
 # define ITEM00_RUPEE_PURPLE    0x14
+# define ITEM00_3_HEARTS        0x15
+# define ITEM00_SHIELD_HERO     0x16
+# define ITEM00_NUTS_10         0x17
+# define ITEM00_NOTHING         0x18
 # define ITEM00_BOMBCHU         0x19
+# define ITEM00_BIG_FAIRY       0x1a
+# define ITEM00_MAP             0x1b
+# define ITEM00_COMPASS         0x1c
+# define ITEM00_MUSHROOM_CLOUD  0x1d
+# define ITEM00_NO_DROP         (-1)
 #endif
 
 typedef struct ALIGNED(4) Actor_EnItem00
@@ -69,7 +81,6 @@ typedef struct ALIGNED(4) Actor_EnItem00
     u8      isExtended:1;
     u8      isExtendedCollected:1;
     u8      isExtendedMajor:1;
-    u8      isDecoy:1;
     s16     xflagGi;
 }
 Actor_EnItem00;
@@ -91,6 +102,5 @@ s16  EnItem00_FixDrop(s16 dropType);
 void            EnItem00_XflagInit(Actor_EnItem00* this, const Xflag* xflag);
 void            EnItem00_XflagInitFreestanding(Actor_EnItem00* this, GameState_Play* play, u8 actorIndex, u8 slice);
 Actor_EnItem00* EnItem00_DropCustom(GameState_Play* play, const Vec3f* pos, const Xflag* xflag);
-Actor_EnItem00* EnItem00_SpawnDecoy(GameState_Play* play, s16 gi);
 
 #endif

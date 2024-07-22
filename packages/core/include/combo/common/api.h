@@ -2,103 +2,106 @@
 #define COMBO_COMMON_API_H
 
 #include <combo/types.h>
+#include <combo/math/vec.h>
 #include <combo/gi.h>
 
-#define PLAYER_ACTOR_STATE_TRANSITION           0x00000001
-#define PLAYER_ACTOR_STATE_TRANSFORM            0x00000002
-#define PLAYER_ACTOR_STATE_CLIMB                0x00000004
-#define PLAYER_ACTOR_STATE_DEATH                0x00000080
-#define PLAYER_ACTOR_STATE_FROZEN               0x00000200
-#define PLAYER_ACTOR_STATE_GET_ITEM             0x00000400
-#define PLAYER_ACTOR_STATE_HOLD_ITEM            0x00000800
-#define PLAYER_ACTOR_STATE_CLIMB2               0x00200000
-#define PLAYER_ACTOR_STATE_EPONA                0x00800000
-#define PLAYER_ACTOR_STATE_WATER                0x08000000
-#define PLAYER_ACTOR_STATE_USE_ITEM             0x10000000
-#define PLAYER_ACTOR_STATE_CUTSCENE_FROZEN      0x20000000
-
-#if defined(GAME_OOT)
-# define PLAYER_MASK_NONE               0x00
-# define PLAYER_MASK_KEATON             0x01
-# define PLAYER_MASK_SKULL              0x02
-# define PLAYER_MASK_SPOOKY             0x03
-# define PLAYER_MASK_BUNNY              0x04
-# define PLAYER_MASK_GORON              0x05
-# define PLAYER_MASK_ZORA               0x06
-# define PLAYER_MASK_GERUDO             0x07
-# define PLAYER_MASK_TRUTH              0x08
-# define PLAYER_MASK_BLAST              0x09
-# define PLAYER_MASK_STONE              0x0a
-#endif
-
-#if defined(GAME_MM)
-# define PLAYER_MASK_NONE               0x00
-# define PLAYER_MASK_TRUTH              0x01
-# define PLAYER_MASK_KAFEI              0x02
-# define PLAYER_MASK_ALL_NIGHT          0x03
-# define PLAYER_MASK_BUNNY              0x04
-# define PLAYER_MASK_KEATON             0x05
-# define PLAYER_MASK_GARO               0x06
-# define PLAYER_MASK_ROMANI             0x07
-# define PLAYER_MASK_TROUPE_LEADER      0x08
-# define PLAYER_MASK_POSTMAN            0x09
-# define PLAYER_MASK_COUPLE             0x0a
-# define PLAYER_MASK_GREAT_FAIRY        0x0b
-# define PLAYER_MASK_GIBDO              0x0c
-# define PLAYER_MASK_DON_GERO           0x0d
-# define PLAYER_MASK_KAMARO             0x0e
-# define PLAYER_MASK_CAPTAIN            0x0f
-# define PLAYER_MASK_STONE              0x10
-# define PLAYER_MASK_BREMEN             0x11
-# define PLAYER_MASK_BLAST              0x12
-# define PLAYER_MASK_SCENTS             0x13
-# define PLAYER_MASK_GIANT              0x14
-# define PLAYER_MASK_FIERCE_DEITY       0x15
-# define PLAYER_MASK_GORON              0x16
-# define PLAYER_MASK_ZORA               0x17
-# define PLAYER_MASK_DEKU               0x18
-#endif
-
+typedef struct Font Font;
 typedef struct GameState_Play GameState_Play;
 typedef struct ActorContext ActorContext;
+typedef struct TitleCardContext TitleCardContext;
 typedef struct Actor Actor;
+typedef struct Actor_Player Actor_Player;
+typedef struct DynaCollisionContext DynaCollisionContext;
+typedef struct AnimationHeader AnimationHeader;
+typedef enum PlayerItemAction PlayerItemAction;
+#if defined(GAME_MM)
+typedef enum BombersNotebookPerson BombersNotebookPerson;
+typedef enum BombersNotebookEvent BombersNotebookEvent;
+typedef void (*ActorShadowFunc)(struct Actor* actor, struct Lights* mapper, GameState_Play* play);
+#endif
+
+int TitleCard_Clear(GameState_Play* play, TitleCardContext* titleCtx);
 
 float Actor_WorldDistXZToActor(Actor* a, Actor* b);
 float Actor_HeightDiff(Actor* a, Actor* b);
 u16   Actor_Angle(Actor* a, Actor* b);
 
-void Interface_UpdateButtonsPart2(GameState_Play* play);
+Gfx* Gfx_Open(Gfx* gfx);
+void Gfx_Close(Gfx* gfxRef, Gfx* gfx);
+
+void Gfx_SetupDL_39Ptr(Gfx** gfxPtr);
+void Gfx_SetupDL_56Ptr(Gfx** gfxPtr);
+
+/* Unknown */
+void* UnkFuncActorCollision(GameState_Play* play, Actor* actor);
+
+int CutsceneFlags_Get(GameState_Play* play, int flag);
+
+s32             DynaPoly_IsBgIdBgActor(s32 bgId);
+void            DynaPoly_DisableCollision(GameState_Play* play, DynaCollisionContext* dyna, s32 bgId);
+void            DynaPoly_EnableCollision(GameState_Play* play, DynaCollisionContext* dyna, s32 bgId);
+void            DynaPoly_DisableCeilingCollision(GameState_Play* play, DynaCollisionContext* dyna, s32 bgId);
+s32             DynaPoly_SetBgActor(GameState_Play* play, DynaCollisionContext* dyna, Actor* actor, CollisionHeader* colHeader);
+DynaPolyActor*  DynaPoly_GetActor(CollisionContext* colCtx, s32 bgId);
+void            DynaPoly_DeleteBgActor(GameState_Play* play, DynaCollisionContext* dyna, s32 bgId);
+void            DynaPoly_InvalidateLookup(GameState_Play* play, DynaCollisionContext* dyna);
+void            DynaPoly_UnsetAllInteractFlags(GameState_Play* play, DynaCollisionContext* dyna, Actor* actor);
+void            DynaPoly_UpdateContext(GameState_Play* play, DynaCollisionContext* dyna);
+void            DynaPoly_UpdateBgActorTransforms(GameState_Play* play, DynaCollisionContext* dyna);
+
+void    CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+void    Interface_UpdateButtonsPart2(GameState_Play* play);
 
 int    LoadFile(void* dst, u32 vromAddr, u32 size);
 
-Actor*  SpawnActor(ActorContext* actorCtx, GameState_Play* play, s16 actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable);
-#if defined(GAME_MM)
-Actor*  SpawnActorEx(ActorContext* actorCtx, GameState_Play* play, s16 actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3);
+Actor*  Actor_Spawn(ActorContext* actorCtx, GameState_Play* play, s16 actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable);
 
+#if defined(GAME_OOT)
+Actor*  _Actor_Spawn(ActorContext* actorCtx, GameState_Play* play, s16 actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable);
+#endif
+
+#if defined(GAME_MM)
+Actor*  Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, GameState_Play* play, s16 actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3);
+Actor*  _Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, GameState_Play* play, s16 actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3);
 int Schedule_CheckMiscS(GameState_Play* play, void* unk);
 #endif
+
+void Fault_AddHungupAndCrashImpl(const char* str1, const char* str2);
 
 void    SkelAnime_DrawFlexOpa(GameState_Play* play, void** skeleton, Vec3s* jointTable, s32 dListCount,
                            void* overrideLimbDraw, void* postLimbDraw, void* arg);
 
 void    AudioSeq_QueueSeqCmd(u32 unk);
 
-void    ActorDestroy(Actor* actor);
-int     Actor_HasParent(Actor* actor);
-void    ActorSetScale(Actor* actor, float scale);
+#define SEQCMD_PLAY_SEQUENCE(seqPlayerIndex, fadeInDuration, seqId)                             \
+    AudioSeq_QueueSeqCmd((0 << 28) | ((seqPlayerIndex) << 24) | ((u32)(fadeInDuration) << 16) | \
+                         (u32)(seqId))
+
+#define SEQCMD_STOP_SEQUENCE(seqPlayerIndex, fadeOutDuration)              \
+    AudioSeq_QueueSeqCmd((1 << 28) | 0xFF | ((u8)(seqPlayerIndex) << 24) | \
+                         ((fadeOutDuration) << 16))
+
+void    ActorShadow_DrawCircle(Actor* actor, Lights* lights, GameState_Play* play);
+void    ActorShadow_DrawSquare(Actor* actor, Lights* lights, GameState_Play* play);
+
+void    Actor_Kill(Actor* actor);
+int     Actor_HasParent(Actor* actor, GameState_Play* play);
+int     Actor_HasParentZ(Actor* actor);
+int     Actor_HasNoParent(Actor* actor, GameState_Play* play);
+int     Actor_HasNoParentZ(Actor* actor);
+void    Actor_SetScale(Actor* actor, float scale);
 void    ActorSetUnk(Actor* actor, float unk);
-void    ActorEnableGrab(Actor* actor, GameState_Play* play);
+void    Actor_OfferCarry(Actor* actor, GameState_Play* play);
 void    ActorEnableTalk(Actor* actor, GameState_Play* play, float range);
 void    ActorEnableTalkEx(Actor* actor, GameState_Play* play, float range, u32 unk);
-/* AKA  Actor_UpdateBgCheckInfo */
-void    Actor_SetCollisionCylinder(GameState_Play* play, Actor* actor, float unk_3, float unk_4, float unk_5, u32 unk_6);
-/* AKA  Actor_MoveXZGravity AKA Actor_MoveWithGravity */
-void    ActorUpdateVelocity(Actor* actor);
+void    Actor_UpdateBgCheckInfo(GameState_Play* play, Actor* actor, float unk_3, float unk_4, float unk_5, u32 unk_6);
+void    Actor_MoveWithGravity(Actor* actor);
 int     ActorTalkedTo(Actor* actor);
+u8      CollisionCheck_GetSwordDamage(u32 dmgFlags);
 
 void    EnableOwl(u8 owlId);
 
-u32     GetChestFlag(GameState_Play* play, int flag);
+u32     Flags_GetTreasure(GameState_Play* play, int flag);
 void    SetChestFlag(GameState_Play* play, int flag);
 u32     GetCollectibleFlag(GameState_Play* play, int flag);
 void    SetCollectibleFlag(GameState_Play* play, int flag);
@@ -119,6 +122,7 @@ void DmaCompressed(u32 pstart, void* dst, u32 size);
 #if defined(GAME_OOT)
 void _DmaCompressed(u32 pstart, void* dst, u32 size);
 #endif
+s32 RequestDma(DmaRequest* request, void* vramStart, u32 vromStart, size_t size, u32 unused, OSMesgQueue* queue, OSMesg msg);
 
 void ConvertMatrix(const float* in, u16* out);
 void MatrixRotation(u16 angle, int unk_1);
@@ -129,7 +133,7 @@ void DisplayTextBox3(GameState_Play* play, Actor* actor, u16 textId);
 
 void DrawLink(GameState_Play* play, void** skeleton, Vec3s* jointTable, s32 dListCount, s32 lod, s32 tunic, s32 boots, s32 face, void* overrideLimbDraw, void* postLimbDraw, void* data);
 
-int GiveItem(Actor* actor, GameState_Play* play, s16 itemId, float a, float b);
+int Actor_OfferGetItem(Actor* actor, GameState_Play* play, s16 itemId, float a, float b);
 void GiveItemDefaultRange(Actor* actor, GameState_Play* play, s16 itemId);
 
 void PlayerDisplayTextBox(GameState_Play* play, u16 messageId, void* unk);
@@ -173,18 +177,12 @@ void ModelViewScale(float sx, float sy, float sz, int mode);
 void ModelViewMult(MtxF* mf, s32 mode);
 void Matrix_SetTranslateRotateYXZ(f32 translateX, f32 translateY, f32 translateZ, Vec3s* rot);
 
-f32 Math_CosS(s16 angle);
-f32 Math_SinS(s16 angle);
-s32 Math_StepToF(f32* pValue, f32 target, f32 step);
-s32 Math_StepToS(s16* pValue, s16 target, s16 step);
-f32 Math_SmoothStepToF(f32* pValue, f32 target, f32 fraction, f32 step, f32 minStep);
-f32 sqrtf(f32 value);
-
 void MatrixStackDup(void);
 void MatrixStackPop(void);
 void Matrix_MultVec3f(Vec3f* src, Vec3f* dest);
 
-float RandFloat(void);
+void SpawnSomeDust(GameState_Play* play, Vec3f* pos, float unk1, int unk2, int unk3, int unk4, int unk5);
+
 f32 Rand_CenteredFloat(f32 scale);
 
 int GetActiveItem(GameState_Play* play);
@@ -201,16 +199,16 @@ void Interface_LoadActionLabelB(GameState_Play* play, u16 action);
 
 #if defined(GAME_MM)
 void PrepareSave(SramContext* sram);
+void _Sram_SaveEndOfCycle(GameState_Play* play);
 void Sram_SaveEndOfCycle(GameState_Play* play);
 void Sram_SaveNewDay(GameState_Play* play);
 #endif
 
 void Grayscale(void* buffer, u16 size);
-s16 RandIntRange(s16 base, s16 amplitude);
 
 extern u32 gSegments[16];
 
-#define GET_LINK(play) ((Actor_Player*)(play->actorCtx.actors[2].first))
+#define GET_PLAYER(play) ((Actor_Player*)(play->actorCtx.actors[2].first))
 
 int  ActorCutscene_GetCanPlayNext(int cutscene);
 s16  ActorCutscene_GetCurrentIndex(void);
@@ -233,7 +231,6 @@ void Sram_CopySave(void*, void*);
 void Play_Init(GameState_Play*);
 void Play_Update(GameState_Play*);
 
-s32 Player_InCsMode(GameState_Play*);
 void Interface_LoadItemIconImpl(GameState_Play* play, int slot);
 void UpdateEquipment(GameState_Play* play, Actor_Player* link);
 
@@ -241,31 +238,42 @@ void PlayStoreFlags(GameState_Play* play);
 Camera* Play_GetCamera(GameState_Play* this, s16 camId);
 s32 Play_CamIsNotFixed(GameState_Play* play);
 
-void Player_Update(Actor_Player* this, GameState_Play* play);
-void Play_SetupRespawnPoint(GameState_Play* this, s32 respawnMode, s32 playerParams);
+void Play_SetupRespawnPoint(GameState_Play* this, int respawnMode, int playerParams);
+void Play_SetupRespawnPointRaw(GameState_Play* this, int respawnMode, int playerParams);
+void Play_SetRespawnData(GameState_Play *play, s32 respawnMode, u16 entrance, s32 roomIndex, s32 playerParams, const Vec3f* pos, s16 yaw);
 
 void* OverlayAddr(u32 addr);
+void KaleidoManager_LoadOvl(void* ovl);
 
 void LoadIcon(u32 vaddr, int iconId, void* buffer, int size);
 void CmpDma_LoadAllFiles(u32 vrom, void* dst, size_t size);
 
-s32 Player_ActionToModelGroup(Actor_Player* link, s32 itemAction);
-void Player_SetModels(Actor_Player* link, s32 modelGroup);
-int Player_UsingItem(Actor_Player* link);
-int Player_GetEnvironmentalHazard(GameState_Play* play);
-
 void PlaySound(u16 soundId);
 void PlayMusic(int arg0, int arg1, int arg2, int arg3, int arg4);
-void Player_PlaySfx(Actor_Player* player, u16 sfxId);
 void Actor_PlaySfx(Actor* actor, u32 id);
 void PlayLoopingSfxAtActor(Actor* actor, u32 id);
 void Actor_PlaySfx_FlaggedCentered1(Actor* actor, u16 sfxId);
 void Audio_PlaySfx_AtPos(Vec3f* pos, u16 sfxId);
 void Audio_PlaySfx_MessageDecide(void);
+void AudioSfx_PlaySfx(u16 sfxId, Vec3f* pos, u8 token, f32* freqScale, f32* volume, s8* reverbAdd);
+
+void* Lib_SegmentedToVirtual(void* ptr);
 
 #if defined(GAME_MM)
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId);
-void Player_DrawHookshotReticle(GameState_Play* play, Actor_Player* player, f32 distance);
+void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+void ActorShape_Init(ActorShape* actorShape, f32 yOffset, ActorShadowFunc shadowDraw, f32 shadowScale);
+s32 Collider_InitAndSetCylinder(GameState_Play* play, ColliderCylinder* collider, struct Actor* actor, ColliderCylinderInit* src);
+void Message_BombersNotebookQueueEvent(GameState_Play* play, u8 event);
+s32 Player_IsFacingActor(Actor* actor, s16 maxAngleDiff, GameState_Play* play);
+s32 Actor_TrackPlayer(GameState_Play* play, Actor* actor, Vec3s* headRot, Vec3s* torsoRot, Vec3f focusPos);
+s16 Animation_GetLastFrame(void* animation);
+s8 Play_InCsMode(GameState_Play* this);
+
+s32 Player_SetCsActionWithHaltedActors(GameState_Play* play, Actor* csActor, u8 csAction);
+s32 Actor_TalkOfferAccepted(Actor* actor, GameState* gameState);
+s32 Actor_OfferTalkExchange(Actor* actor, GameState_Play* play, f32 xzRange, f32 yRange, PlayerItemAction exchangeItemAction);
+s32 Actor_OfferTalk(Actor* actor, GameState_Play* play, f32 radius);
 #endif
 
 int Actor_RunByteCode(Actor* this, GameState_Play* play, void* bytecode, void* unk1, void* unk2);
@@ -279,54 +287,20 @@ void DrawDungeonUnk2(void* unk);
 
 void ActorRemove(ActorContext* ctx, Actor* actor, GameState_Play* play);
 
-void DrawSimpleOpa(GameState_Play* play, u32 segAddr);
-
+s16 RupeeValueOot(s16 count);
+s16 RupeeValueMm(s16 count);
+void AddRupeesRaw(s16 delta);
 void AddRupees(s16 delta);
+void _AddRupees(s16 delta);
 
 void AudioLoad_InitTable(void* unk1, u32 unk2, u32 unk3);
 
 void ParseSceneRoomHeaders_SoundSettings(GameState_Play* play, void* cmd);
 
-/* DrawGi */
-void DrawGi_Opa0_Xlu1(GameState_Play*, s16);
-void DrawGi_Opa0_Xlu12(GameState_Play*, s16);
-void DrawGi_Opa0(GameState_Play*, s16);
-void DrawGi_Opa01(GameState_Play*, s16);
-void DrawGi_Opa1023(GameState_Play*, s16);
-void DrawGi_Opa10_Xlu2(GameState_Play*, s16);
-void DrawGi_Opa10_Xlu234(GameState_Play*, s16);
-void DrawGi_Opa10_Xlu32(GameState_Play*, s16);
-void DrawGi_Opa10234567(GameState_Play*, s16);
-void DrawGi_Xlu01(GameState_Play*, s16);
-void DrawGi_BlueFire(GameState_Play*, s16);
-void DrawGi_BombchuMask(GameState_Play*, s16);
-void DrawGi_Compass(GameState_Play*, s16);
-void DrawGi_DekuNut(GameState_Play*, s16);
-void DrawGi_Fairy(GameState_Play*, s16);
-void DrawGi_Fish(GameState_Play*, s16);
-void DrawGi_GiantKnife(GameState_Play*, s16);
-void DrawGi_GS(GameState_Play*, s16);
-void DrawGi_Heart(GameState_Play*, s16);
-void DrawGi_Medallion(GameState_Play*, s16);
-void DrawGi_MirrorShield(GameState_Play*, s16);
-void DrawGi_Poe(GameState_Play*, s16);
-void DrawGi_Potion(GameState_Play*, s16);
-void DrawGi_Scale(GameState_Play*, s16);
-void DrawGi_SoldOut(GameState_Play*, s16);
-void DrawGi_Spell(GameState_Play*, s16);
-void DrawGi_MoonTear(GameState_Play*, s16);
-void DrawGi_BottleFairy(GameState_Play*, s16);
-void DrawGi_BottleBlueFire(GameState_Play*, s16);
-void DrawGi_VanillaRupee(GameState_Play*, s16);
-
 void Interface_StartMoonCrash(GameState_Play* play);
 
-/* GFX */
-Gfx* Gfx_TexScroll(GfxContext* ctx, u32 x, u32 y, s32 width, s32 height);
-void Gfx_DrawDListOpa(GameState_Play* play, Gfx* dlist);
-void Gfx_DrawDListXlu(GameState_Play* play, Gfx* dlist);
-
 void SpawnRoomActors(GameState_Play* play, int id);
+void SpawnTransitionActors(GameState_Play* play, int id);
 
 extern u8 gPlayedOcarinaSong;
 extern u8 gIsOcarinaEnabled;
@@ -356,7 +330,14 @@ void Inventory_SetWorldMapCloudVisibility(s16 tingleId);
 
 #endif
 
+void Font_LoadOrderedFont(Font* font);
+
+void Horse_ForceUnmount(GameState_Play* play);
+void Horse_Spawn(GameState_Play* play, Actor_Player* link);
+void Horse_SpawnOverworld(GameState_Play* play, Actor_Player* link);
+
 #if defined(GAME_MM)
+extern int gHorseIsMounted;
 s16 ActorCutscene_StartAndSetFlag(s16 index, Actor* actor);
 #endif
 
@@ -364,71 +345,16 @@ void DrawHUD(GameState_Play* play);
 
 int IsSceneValidEpona(int sceneId);
 
-#if defined(GAME_OOT)
-typedef enum {
-    /* 0x0 */ MAGIC_STATE_IDLE, /* Regular gameplay */
-    /* 0x1 */ MAGIC_STATE_CONSUME_SETUP, /* Sets the speed at which magic border flashes */
-    /* 0x2 */ MAGIC_STATE_CONSUME, /* Consume magic until target is reached or no more magic is available */
-    /* 0x3 */ MAGIC_STATE_METER_FLASH_1, /* Flashes border and freezes Dark Link */
-    /* 0x4 */ MAGIC_STATE_METER_FLASH_2, /* Flashes border and draws yellow magic to preview target consumption */
-    /* 0x5 */ MAGIC_STATE_RESET, /* Reset colors and return to idle */
-    /* 0x6 */ MAGIC_STATE_METER_FLASH_3, /* Flashes border with no additional behaviour */
-    /* 0x7 */ MAGIC_STATE_CONSUME_LENS, /* Magic slowly consumed by lens. */
-    /* 0x8 */ MAGIC_STATE_STEP_CAPACITY, /* Step `magicCapacity` to full capacity */
-    /* 0x9 */ MAGIC_STATE_FILL, /* Add magic until magicFillTarget is reached. */
-    /* 0xA */ MAGIC_STATE_ADD /* Add requested magic */
-} MagicState;
-
-typedef enum {
-    /* 0 */ MAGIC_CONSUME_NOW, /* Consume Magic immediately without preview */
-    /* 1 */ MAGIC_CONSUME_WAIT_NO_PREVIEW, /* Sets consume target but waits to consume. No yellow magic preview to target consumption. Unused */
-    /* 2 */ MAGIC_CONSUME_NOW_ALT, /* Identical behaviour to MAGIC_CONSUME_NOW. Unused */
-    /* 3 */ MAGIC_CONSUME_LENS, /* Lens consumption */
-    /* 4 */ MAGIC_CONSUME_WAIT_PREVIEW, /* Sets consume target but waits to consume. Draws yellow magic to target consumption */
-    /* 5 */ MAGIC_ADD /* Sets a target to add magic */
-} MagicChangeType;
-#else
-typedef enum {
-    /* 0  */ MAGIC_STATE_IDLE, /* Regular gameplay */
-    /* 1  */ MAGIC_STATE_CONSUME_SETUP, /* Sets the speed at which the magic border flashes */
-    /* 2  */ MAGIC_STATE_CONSUME, /* Consume magic until target is reached or no more magic is available */
-    /* 3  */ MAGIC_STATE_METER_FLASH_1, /* Flashes border */
-    /* 4  */ MAGIC_STATE_METER_FLASH_2, /* Flashes border and draws yellow magic to preview target consumption */
-    /* 5  */ MAGIC_STATE_RESET, /* Reset colors and return to idle */
-    /* 6  */ MAGIC_STATE_METER_FLASH_3, /* Flashes border with no additional behaviour */
-    /* 7  */ MAGIC_STATE_CONSUME_LENS, /* Magic slowly consumed by Lens of Truth */
-    /* 8  */ MAGIC_STATE_STEP_CAPACITY, /* Step `magicCapacity` to full capacity */
-    /* 9  */ MAGIC_STATE_FILL, /* Add magic until magicFillTarget is reached */
-    /* 10 */ MAGIC_STATE_CONSUME_GORON_ZORA_SETUP,
-    /* 11 */ MAGIC_STATE_CONSUME_GORON_ZORA, /* Magic slowly consumed by Goron spiked rolling or Zora electric barrier. */
-    /* 12 */ MAGIC_STATE_CONSUME_GIANTS_MASK /* Magic slowly consumed by Giant's Mask */
-} MagicState;
-
-typedef enum {
-    /* 0 */ MAGIC_CONSUME_NOW, /* Consume magic immediately without preview */
-    /* 1 */ MAGIC_CONSUME_WAIT_NO_PREVIEW, /* Sets consume target but waits to consume. No yellow magic preview to target consumption. Unused */
-    /* 2 */ MAGIC_CONSUME_NOW_ALT, /* Identical behaviour to MAGIC_CONSUME_NOW. Unused */
-    /* 3 */ MAGIC_CONSUME_LENS, /* Lens of Truth consumption */
-    /* 4 */ MAGIC_CONSUME_WAIT_PREVIEW, /* Sets consume target but waits to consume. Show magic to be consumed in yellow. */
-    /* 5 */ MAGIC_CONSUME_GORON_ZORA, /* Goron spiked rolling or Zora electric barrier slow consumption */
-    /* 6 */ MAGIC_CONSUME_GIANTS_MASK, /* Giant's Mask slow consumption */
-    /* 7 */ MAGIC_CONSUME_DEITY_BEAM /* Fierce Deity Beam consumption, consumed magic now and not via request */
-} MagicChangeType;
-#endif
-
 s32 Health_ChangeBy(GameState_Play* play, s16 amount);
-s32 Magic_RequestChange(GameState_Play* play, s16 amount, s16 type);
-void Magic_Reset(GameState_Play* play);
-void Magic_Update(GameState_Play* play);
-void Magic_Refill(GameState_Play*);
 
 typedef struct ObjectContext ObjectContext;
-int GetObjectSlot(ObjectContext* ctx, int objectId);
-int IsObjectSlotLoaded(ObjectContext* ctx, int slot);
+int Object_SpawnPersistent(ObjectContext* objectCtx, s16 id);
+int Object_GetSlot(ObjectContext* objectCtx, s16 id);
+int _Object_GetSlot(ObjectContext* objectCtx, s16 id);
+int Object_IsLoaded(ObjectContext* ctx, int slot);
+int _Object_IsLoaded(ObjectContext* ctx, int slot);
 
 typedef struct Actor_EnItem00 Actor_EnItem00;
-
-Actor_EnItem00* Item_DropCollectible(GameState_Play* play, Vec3f* pos, s16 params);
 
 void PreDraw1(Actor* actor, GameState_Play* play, int unk);
 void PreDraw2(Actor* actor, GameState_Play* play, int unk);
@@ -439,14 +365,30 @@ void Play_InitEnvironment(GameState_Play *play, u16 skyboxId);
 extern u8 gFogState;
 #endif
 
-Actor* SpawnCollectible(GameState_Play* play, const Vec3f* pos, u16 param);
+#if defined(GAME_MM)
+int Item_CollectibleDropTable(u32 index);
+int Item_CollectibleDropTable2(u32 index);
+#endif
+
+Actor_EnItem00* Item_DropCollectible(GameState_Play* play, const Vec3f* pos, s16 params);
+void Item_DropCollectibleRandom(GameState_Play* play, Actor* from, const Vec3f* pos, s16 params);
+int Item_CanDropBigFairy(GameState_Play* play, s32 index, s32 collectibleFlag);
 
 #if defined(GAME_MM)
-void SpawnCollectible2(GameState_Play* play, int unk, void* unk2, u16 unk3);
 f32 VectDist(Vec3f* vec1, Vec3f* vec2);
 f32 Math_Vec3f_DistXYZAndStoreDiff(Vec3f* a, Vec3f* b, Vec3f* dest);
+void Audio_PlaySfx_AtPosWithAllChannelsIO(Vec3f* pos, u16 sfxId, u8 ioData);
+
+s16 Math_Vec3f_Yaw(Vec3f* origin, Vec3f* point);
+s16 Math_Vec3f_Pitch(Vec3f* origin, Vec3f* point);
+s16 Math_SmoothStepToS(s16* pValue, s16 target, s16 scale, s16 step, s16 minStep);
+void EffectSsDust_Spawn_2_Normal(GameState_Play* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, Color_RGBA8* primColor, Color_RGBA8* envColor, s16 scale, s16 scaleStep, s16 life);
+
+s32 SkelAnime_Update(SkelAnime* skelAnime);
+void SkelAnime_InitFlex(GameState_Play* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg, AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame, u8 mode, f32 morphFrames);
+void Matrix_MultVec3f(Vec3f* src, Vec3f* dest);
 #endif
-void Math_Vec3f_Copy(Vec3f* dest, Vec3f* src);
 
 void EffectSsIceSmoke_Spawn(GameState_Play* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale);
 void EffectSsKiraKira_SpawnDispersed(GameState_Play* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, Color_RGBA8* primColor, Color_RGBA8* envColor, s16 scale, s32 life);
@@ -482,7 +424,7 @@ void SkelCurve_SetAnim(SkelCurve* skelCurve, CurveAnimationHeader* animation, f3
 s32 SkelCurve_Update(struct GameState_Play* play, SkelCurve* skelCurve);
 void SkelCurve_Draw(Actor* actor, struct GameState_Play* play, SkelCurve* skelCurve, OverrideCurveLimbDraw overrideLimbDraw, PostCurveLimbDraw postLimbDraw, s32 lod, Actor* thisx);
 
-typedef s32 (*OverrideLimbDrawOpa)(struct GameState_Play* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void*);
+typedef int (*OverrideLimbDrawOpa)(struct GameState_Play* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void*);
 typedef void (*PostLimbDrawOpa)(struct GameState_Play* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
 
 void SkelAnime_DrawFlexLod(GameState_Play* play, void** skeleton, Vec3s* jointTable, s32 dListCount,
@@ -492,15 +434,9 @@ void Lights_PointNoGlowSetInfo(LightInfo* info, s16 x, s16 y, s16 z, u8 r, u8 g,
 LightNode* LightContext_InsertLight(GameState_Play* play, LightContext* lightCtx, LightInfo* info);
 
 void Actor_DrawLensActors(GameState_Play* play, s32 numLensActors, Actor** lensActors);
-
-f32 Player_GetHeight(Actor_Player* player);
+ActorInit* Actor_LoadOverlay(ActorContext* actorCtx, s16 index);
 
 s32 Entrance_GetSceneIdAbsolute(u16 entrance);
-
-s32 Player_OverrideLimbDrawGameplayFirstPerson(struct GameState_Play* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void*);
-
-void Player_SetBootData(GameState_Play* play, Actor_Player* player);
-u8 Player_GetStrength(void);
 
 /* SysFlashrom */
 s32 SysFlashrom_IsInit(void);
@@ -510,4 +446,97 @@ s32 SysFlashrom_ExecWrite(void* addr, u32 pageNum, u32 pageCount);
 
 EntranceTableEntry* Entrance_GetTableEntry(u16 entrance);
 
-extern OSPiHandle* gCartHandle;
+void Environment_Init(GameState_Play* play, EnvironmentContext* envCtx, int unused);
+
+extern u8 gWeatherMode;
+
+#if defined(GAME_MM)
+extern u8 gSceneSeqState;
+extern s16 gSkyboxNumStars;
+extern Vec3f gZeroVec3f;
+
+Actor* SubS_FindActor(GameState_Play* play, Actor* actorListStart, u8 actorCategory, s16 actorId);
+void SubS_TimePathing_FillKnots(f32 knots[], s32 order, s32 numPoints);
+s32 SubS_TimePathing_Update(Path* path, f32* progress, s32* elapsedTime, s32 waypointTime, s32 totalTime, s32* waypoint, f32 knots[], Vec3f* targetPos, s32 timeSpeed);
+s16 CutsceneManager_GetCurrentCsId(void);
+void Environment_StartTime(void);
+void Environment_StopTime(void);
+void Audio_PlaySfx_MessageCancel(void);
+void Audio_PlaySfx_MessageDecide(void);
+void DynaPolyActor_LoadMesh(GameState_Play* play, DynaPolyActor* dynaActor, CollisionHeader* meshHeader);
+Path* SubS_GetAdditionalPath(GameState_Play* play, u8 pathIndex, s32 limit);
+void Math_Vec3s_ToVec3f(Vec3f* dest, Vec3s* src);
+void Interface_InitMinigame(GameState_Play* play);
+
+s32 DynaPolyActor_IsPlayerOnTop(DynaPolyActor* dynaActor);
+void DynaPolyActor_Init(DynaPolyActor* dynaActor, s32 transformFlags);
+
+void AudioSeq_QueueSeqCmd(u32 cmd);
+void DayTelop_Init(GameState_Play* play);
+void Audio_PlaySfx(u16 sfxId);
+void Audio_PlaySfx_2(u16 sfxId);
+
+void Message_DisplaySceneTitleCard(GameState_Play* play, u16 textId);
+void Sram_IncrementDay(void);
+s32 Play_IsDebugCamEnabled(void);
+u16 Entrance_CreateFromSpawn(s32 spawn);
+void Audio_PlaySfx_BigBells(Vec3f* pos, u8 volumeIndex);
+s16 CutsceneManager_IsNext(s16 csId);
+void CutsceneManager_Queue(s16 csId);
+s16 CutsceneManager_Start(s16 csId, Actor* actor);
+s16 CutsceneManager_Stop(s16 csId);
+CutsceneEntry* CutsceneManager_GetCutsceneEntry(s16 csId);
+
+void Actor_ChangeCategory(GameState_Play* play, ActorContext* actorCtx, Actor* actor, u8 actorCategory);
+Actor* Actor_SpawnAsChild(ActorContext* actorCtx, Actor* parent, GameState_Play* play, s16 actorId, f32 posX, f32 posY, f32 posZ, s16 rotX, s16 rotY, s16 rotZ, s32 params);
+void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+s32 Animation_OnFrame(SkelAnime* skelAnime, f32 frame);
+
+s32 Collider_InitAndSetJntSph(GameState_Play* play, ColliderJntSph* sphereGroup, Actor* actor, ColliderJntSphInit* src, ColliderJntSphElement* elements);
+void Cutscene_StartManual(GameState_Play* play, CutsceneContext* csCtx);
+void Cutscene_StopManual(GameState_Play* play, CutsceneContext* csCtx);
+
+void Matrix_MultVecZ(f32 z, Vec3f* dest);
+void Matrix_RotateXS(s16 x, int mode);
+void Matrix_RotateXF(f32 x, int mode);
+void Matrix_RotateYS(s16 y, int mode);
+void Matrix_RotateYF(f32 y, int mode);
+void Matrix_RotateZS(s16 z, int mode);
+void Matrix_RotateZF(f32 z, int mode);
+void Matrix_MultZero(Vec3f* dest);
+void Matrix_RotateXFApply(f32 x);
+void Matrix_ReplaceRotation(MtxF* mf);
+void Matrix_RotateXFNew(f32 x);
+
+s16 Play_CreateSubCamera(GameState_Play* this);
+s32 Play_ChangeCameraStatus(GameState_Play* this, s16 camId, s16 status);
+s32 Play_SetCameraAtEye(GameState_Play* this, s16 camId, Vec3f* at, Vec3f* eye);
+s32 Play_SetCameraAtEyeUp(GameState_Play* this, s16 camId, Vec3f* at, Vec3f* eye, Vec3f* up);
+Gfx* Play_SetFog(GameState_Play* this, Gfx* gfx);
+
+void Rumble_Override(f32 distSq, u8 sourceIntensity, u8 decayTimer, u8 decayStep);
+
+void TitleCard_InitBossName(GameState* gameState, TitleCardContext* titleCtx, void* texture, s16 x, s16 y, u8 width, u8 height);
+void ShrinkWindow_Letterbox_SetSizeTarget(s32 target);
+
+void EffectSsKFire_Spawn(GameState_Play* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scaleMax, u8 type);
+void EffectSsEnIce_Spawn(GameState_Play* play, Vec3f* pos, f32 scale, Vec3f* velocity, Vec3f* accel, Color_RGBA8* primColor, Color_RGBA8* envColor, s32 life);
+
+void SoundSource_InitAll(GameState_Play* play);
+void SoundSource_UpdateAll(GameState_Play* play);
+void SoundSource_PlaySfxAtFixedWorldPos(GameState_Play* play, Vec3f* worldPos, u32 duration, u16 sfxId);
+void SoundSource_PlaySfxEachFrameAtFixedWorldPos(GameState_Play* play, Vec3f* worldPos, u32 duration, u16 sfxId);
+
+Gfx* Gfx_TwoTexScroll(GfxContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 width1, s32 height1, s32 tile2, u32 x2, u32 y2, s32 width2, s32 height2);
+Gfx* Gfx_SetFog(Gfx* gfx, s32 r, s32 g, s32 b, s32 a, s32 n, s32 f);
+void Gfx_SetupDL25_Xlu(GfxContext* gfxCtx);
+void Gfx_SetupDL44_Xlu(GfxContext* gfxCtx);
+
+// TODO: rename
+void func_80169EFC(GameState_Play* play);
+void func_800B0EB0(GameState_Play* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, Color_RGBA8* primColor, Color_RGBA8* envColor, s16 scale, s16 scaleStep, s16 life);
+void func_80169AFC(GameState_Play* play, s16 camId, s16 timer);
+void func_800B8D50(GameState_Play* play, Actor* actor, f32 arg2, s16 yaw, f32 arg4, u32 arg5);
+
+#endif

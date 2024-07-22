@@ -1,6 +1,8 @@
 #include <combo.h>
 #include <combo/dungeon.h>
 #include <combo/entrance.h>
+#include <combo/config.h>
+#include <combo/actor.h>
 
 typedef struct
 {
@@ -12,11 +14,7 @@ static void CustomWarp_Reload(void)
 {
     Play_SetupRespawnPoint(gPlay, 1, 0xdff);
     gSaveContext.respawnFlag = 2;
-#if defined(GAME_OOT)
     comboTransition(gPlay, gSave.entrance);
-#else
-    comboTransition(gPlay, gSave.entranceIndex);
-#endif
 }
 
 #if defined(GAME_OOT)
@@ -31,7 +29,7 @@ static void CustomWarp_OnTrigger(Actor_CustomWarp* this, GameState_Play* play)
         CustomWarp_Reload();
         if(BITMAP16_GET(gOotSave.eventsChk, EV_OOT_CHK_LAKE_HYLIA_WATER))
             BITMAP16_CLEAR(gOotSave.eventsChk, EV_OOT_CHK_LAKE_HYLIA_WATER);
-        else 
+        else
             BITMAP16_SET(gOotSave.eventsChk, EV_OOT_CHK_LAKE_HYLIA_WATER);
         break;
     }
@@ -43,9 +41,10 @@ static void CustomWarp_OnTrigger(Actor_CustomWarp* this, GameState_Play* play)
 #define SWITCH_SPRING           0
 #define SWITCH_SWAMP_CLEAR      1
 #define SWITCH_COAST_CLEAR      2
-#define SWITCH_OPEN_MOON        3
-#define SWITCH_OPEN_ST_NORMAL   4
-#define SWITCH_OPEN_ST_INVERTED 5
+#define SWITCH_VALLEY_CLEAR     3
+#define SWITCH_OPEN_MOON        4
+#define SWITCH_OPEN_ST_NORMAL   5
+#define SWITCH_OPEN_ST_INVERTED 6
 
 static void CustomWarp_OnTrigger(Actor_CustomWarp* this, GameState_Play* play)
 {
@@ -60,14 +59,18 @@ static void CustomWarp_OnTrigger(Actor_CustomWarp* this, GameState_Play* play)
         break;
     case SWITCH_SWAMP_CLEAR:
         MM_SET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_WF);
-        if (comboConfig(CFG_MM_CLEAR_OPEN_WF))
+        if (Config_Flag(CFG_MM_CLEAR_OPEN_WF))
             MM_SET_EVENT_WEEK(EV_MM_WEEK_WOODFALL_TEMPLE_RISE);
         CustomWarp_Reload();
         break;
     case SWITCH_COAST_CLEAR:
         MM_SET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_GB);
-        if (comboConfig(CFG_MM_CLEAR_OPEN_GB))
+        if (Config_Flag(CFG_MM_CLEAR_OPEN_GB))
             MM_SET_EVENT_WEEK(EV_MM_WEEK_GREAT_BAY_TURTLE);
+        CustomWarp_Reload();
+        break;
+    case SWITCH_VALLEY_CLEAR:
+        MM_SET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_ST);
         CustomWarp_Reload();
         break;
     case SWITCH_OPEN_MOON:
@@ -88,7 +91,7 @@ static void CustomWarp_OnTrigger(Actor_CustomWarp* this, GameState_Play* play)
 
 static void CustomWarp_Init(Actor_CustomWarp* this, GameState_Play* play)
 {
-
+    this->base.room = 0xff;
 }
 
 static void CustomWarp_Update(Actor_CustomWarp* this, GameState_Play* play)
@@ -159,7 +162,7 @@ void comboSpawnCustomWarps(GameState_Play* play)
     variable = -1;
 
 #if defined(GAME_MM)
-    if ((comboConfig(CFG_ER_MAJOR_DUNGEONS) || gComboData.preCompleted & (1 << DUNGEONID_TEMPLE_SNOWHEAD)) && play->sceneId == SCE_MM_MOUNTAIN_VILLAGE_WINTER && gMiscFlags.erSpring)
+    if ((Config_Flag(CFG_ER_MAJOR_DUNGEONS) || gComboConfig.preCompleted & (1 << DUNGEONID_TEMPLE_SNOWHEAD)) && play->sceneId == SCE_MM_MOUNTAIN_VILLAGE_WINTER && gMiscFlags.erSpring)
     {
         variable = SWITCH_SPRING;
         x = -1200.f;
@@ -167,7 +170,7 @@ void comboSpawnCustomWarps(GameState_Play* play)
         z = 600.f;
     }
 
-    if ((comboConfig(CFG_ER_MAJOR_DUNGEONS) || gComboData.preCompleted & (1 << DUNGEONID_TEMPLE_WOODFALL)) && play->sceneId == SCE_MM_SOUTHERN_SWAMP && !MM_GET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_WF) && gMiscFlags.erSwampClear)
+    if ((Config_Flag(CFG_ER_MAJOR_DUNGEONS) || gComboConfig.preCompleted & (1 << DUNGEONID_TEMPLE_WOODFALL)) && play->sceneId == SCE_MM_SOUTHERN_SWAMP && !MM_GET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_WF) && gMiscFlags.erSwampClear)
     {
         variable = SWITCH_SWAMP_CLEAR;
         x = -910.f;
@@ -175,7 +178,7 @@ void comboSpawnCustomWarps(GameState_Play* play)
         z = -550.f;
     }
 
-    if ((comboConfig(CFG_ER_MAJOR_DUNGEONS) || gComboData.preCompleted & (1 << DUNGEONID_TEMPLE_GREAT_BAY)) && play->sceneId == SCE_MM_GREAT_BAY_COAST && !MM_GET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_GB) && gMiscFlags.erCoastClear)
+    if ((Config_Flag(CFG_ER_MAJOR_DUNGEONS) || gComboConfig.preCompleted & (1 << DUNGEONID_TEMPLE_GREAT_BAY)) && play->sceneId == SCE_MM_GREAT_BAY_COAST && !MM_GET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_GB) && gMiscFlags.erCoastClear)
     {
         variable = SWITCH_COAST_CLEAR;
         x = -3020.f;
@@ -183,7 +186,15 @@ void comboSpawnCustomWarps(GameState_Play* play)
         z = 3921.f;
     }
 
-    if (comboConfig(CFG_MM_OPEN_MOON) && comboSpecialCond(SPECIAL_MOON) && play->sceneId == SCE_MM_CLOCK_TOWER_ROOFTOP)
+    if ((Config_Flag(CFG_ER_MAJOR_DUNGEONS) || gComboConfig.preCompleted & (1 << DUNGEONID_TEMPLE_STONE_TOWER)) && play->sceneId == SCE_MM_IKANA_CANYON && !MM_GET_EVENT_WEEK(EV_MM_WEEK_DUNGEON_ST) && gMiscFlags.erValleyClear)
+    {
+        variable = SWITCH_VALLEY_CLEAR;
+        x = -700.f;
+        y = 200.f;
+        z = 2500.f;
+    }
+
+    if (Config_Flag(CFG_MM_OPEN_MOON) && Config_SpecialCond(SPECIAL_MOON) && play->sceneId == SCE_MM_CLOCK_TOWER_ROOFTOP)
     {
         variable = SWITCH_OPEN_MOON;
         x = 212.f;
@@ -191,7 +202,7 @@ void comboSpawnCustomWarps(GameState_Play* play)
         z = 0.f;
     }
 
-    if (comboConfig(CFG_MM_OPEN_ST) && play->sceneId == SCE_MM_STONE_TOWER)
+    if (Config_Flag(CFG_MM_OPEN_ST) && play->sceneId == SCE_MM_STONE_TOWER)
     {
         variable = SWITCH_OPEN_ST_NORMAL;
         x = 560.f;
@@ -199,7 +210,7 @@ void comboSpawnCustomWarps(GameState_Play* play)
         z = 3000.f;
     }
 
-    if (comboConfig(CFG_MM_OPEN_ST) && play->sceneId == SCE_MM_STONE_TOWER_INVERTED)
+    if (Config_Flag(CFG_MM_OPEN_ST) && play->sceneId == SCE_MM_STONE_TOWER_INVERTED)
     {
         variable = SWITCH_OPEN_ST_INVERTED;
         x = 242.f;
@@ -221,7 +232,7 @@ void comboSpawnCustomWarps(GameState_Play* play)
     if (variable == -1)
         return;
 
-    SpawnActor(
+    Actor_Spawn(
         &play->actorCtx,
         play,
         AC_CUSTOM_WARP,

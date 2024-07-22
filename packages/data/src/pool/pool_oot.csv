@@ -48,10 +48,6 @@ Kokiri Forest Storms Grotto Grass 1,                        grass,          NONE
 Kokiri Forest Storms Grotto Grass 2,                        grass,          NONE,                 GROTTOS,                        0x02c03,                    RANDOM
 Kokiri Forest Storms Grotto Grass 3,                        grass,          NONE,                 GROTTOS,                        0x02c04,                    RANDOM
 Kokiri Forest Storms Grotto Grass 4,                        grass,          NONE,                 GROTTOS,                        0x02c05,                    RANDOM
-Kokiri Forest Invisible Rupee 1,                            rupee,          NONE,                 KOKIRI_FOREST,                  0x00001,                    RUPEE_GREEN
-Kokiri Forest Invisible Rupee 2,                            rupee,          NONE,                 KOKIRI_FOREST,                  0x00002,                    RUPEE_GREEN
-Kokiri Forest Invisible Rupee 3,                            rupee,          NONE,                 KOKIRI_FOREST,                  0x00003,                    RUPEE_GREEN
-Kokiri Forest Invisible Rupee 4,                            rupee,          NONE,                 KOKIRI_FOREST,                  0x00004,                    RUPEE_GREEN
 Kokiri Forest Rupee Child 1,                                rupee,          NONE,                 KOKIRI_FOREST,                  0x00005,                    RUPEE_BLUE
 Kokiri Forest Rupee Child 2,                                rupee,          NONE,                 KOKIRI_FOREST,                  0x00006,                    RUPEE_BLUE
 Kokiri Forest Rupee Crawl 1,                                rupee,          NONE,                 KOKIRI_FOREST,                  0x00200,                    RUPEE_BLUE
@@ -66,14 +62,27 @@ Kokiri Forest Rupee Adult 7,                                rupee,          NONE
 Kokiri Forest Heart 1,                                      heart,          NONE,                 KOKIRI_FOREST,                  0x00013,                    RECOVERY_HEART
 Kokiri Forest Heart 2,                                      heart,          NONE,                 KOKIRI_FOREST,                  0x00014,                    RECOVERY_HEART
 Kokiri Forest Heart 3,                                      heart,          NONE,                 KOKIRI_FOREST,                  0x00015,                    RECOVERY_HEART
-Kokiri Shop Item 1,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x00,                       RECOVERY_HEART
-Kokiri Shop Item 2,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x01,                       ARROWS_10
-Kokiri Shop Item 3,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x02,                       ARROWS_30
-Kokiri Shop Item 4,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x03,                       DEKU_SEEDS_30
-Kokiri Shop Item 5,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x04,                       NUTS_5
-Kokiri Shop Item 6,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x05,                       NUTS_10
-Kokiri Shop Item 7,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x06,                       STICK
-Kokiri Shop Item 8,                                         shop,           NONE,                 KOKIRI_FOREST,                  0x07,                       SHIELD_DEKU
+Kokiri Forest Wonder Item Invisible Rupee 1,                wonder,         NONE,                 KOKIRI_FOREST,                  0x00001,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Invisible Rupee 2,                wonder,         NONE,                 KOKIRI_FOREST,                  0x00002,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Invisible Rupee 3,                wonder,         NONE,                 KOKIRI_FOREST,                  0x00003,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Invisible Rupee 4,                wonder,         NONE,                 KOKIRI_FOREST,                  0x00004,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Sign,                             wonder,         NONE,                 KOKIRI_FOREST,                  0x00020,                    RUPEE_BLUE
+Kokiri Forest Wonder Item Midair 1,                         wonder,         NONE,                 KOKIRI_FOREST,                  0x00027,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Midair 2,                         wonder,         NONE,                 KOKIRI_FOREST,                  0x00028,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Midair 3,                         wonder,         NONE,                 KOKIRI_FOREST,                  0x00029,                    RUPEE_BLUE
+Kokiri Forest Wonder Item Crawl 1,                          wonder,         NONE,                 KOKIRI_FOREST,                  0x00205,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Crawl 2,                          wonder,         NONE,                 KOKIRI_FOREST,                  0x00206,                    RUPEE_GREEN
+Kokiri Forest Wonder Item Platforms 1,                      wonder,         NONE,                 KOKIRI_FOREST,                  0x00021,                    RUPEE_BLUE
+Kokiri Forest Wonder Item Platforms 2,                      wonder,         NONE,                 KOKIRI_FOREST,                  0x00026,                    RUPEE_BLUE
+Kokiri Shop Item 1,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x00,                       RECOVERY_HEART
+Kokiri Shop Item 2,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x01,                       ARROWS_10
+Kokiri Shop Item 3,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x02,                       ARROWS_30
+Kokiri Shop Item 4,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x03,                       DEKU_SEEDS_30
+Kokiri Shop Item 5,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x04,                       NUTS_5
+Kokiri Shop Item 6,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x05,                       NUTS_10
+Kokiri Shop Item 7,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x06,                       STICK
+Kokiri Shop Item 8,                                         shop,           NONE,                 KOKIRI_SHOP,                    0x07,                       SHIELD_DEKU
+Kokiri Shop Wonder Item,                                    wonder,         NONE,                 KOKIRI_SHOP,                    0x00004,                    RUPEE_BLUE
 Know It All House Pot 1,                                    pot,            NONE,                 KOKIRI_KNOW_IT_ALL,             0x0006,                     RUPEE_GREEN
 Know It All House Pot 2,                                    pot,            NONE,                 KOKIRI_KNOW_IT_ALL,             0x0007,                     RUPEE_GREEN
 Twins House Pot 1,                                          pot,            NONE,                 KOKIRI_TWINS,                   0x0002,                     RUPEE_GREEN
@@ -81,9 +90,11 @@ Twins House Pot 2,                                          pot,            NONE
 Malon Egg,                                                  npc,            NONE,                 HYRULE_CASTLE,                  MALON_EGG,                  CHICKEN
 Zelda's Letter,                                             npc,            NONE,                 CASTLE_COURTYARD,               ZELDA_LETTER,               ZELDA_LETTER
 Zelda's Song,                                               npc,            NONE,                 CASTLE_COURTYARD,               ZELDA_SONG,                 SONG_ZELDA
+Castle Courtyard Wonder Item,                               wonder,         NONE,                 CASTLE_COURTYARD,               0x00005,                    RUPEE_RED
 Lost Woods Gift from Saria,                                 npc,            NONE,                 LOST_WOODS,                     SARIA_OCARINA,              OCARINA
 Lost Woods Target,                                          npc,            NONE,                 LOST_WOODS,                     LOST_WOODS_TARGET,          SLINGSHOT
 Lost Woods Skull Kid,                                       npc,            NONE,                 LOST_WOODS,                     LOST_WOODS_SKULL_KID,       HEART_PIECE
+Lost Woods Sell Skull Mask,                                 npc,            NONE,                 LOST_WOODS,                     MASK_SELL_SKULL,            RUPEE_RED
 Lost Woods Memory Game,                                     npc,            NONE,                 LOST_WOODS,                     LOST_WOODS_MEMORY,          HEART_PIECE
 Lost Woods Scrub Sticks Upgrade,                            scrub,          NONE,                 LOST_WOODS,                     0x00,                       STICK_UPGRADE
 Lost Woods Scrub Near Theater Left,                         scrub,          NONE,                 LOST_WOODS,                     0x01,                       STICK
@@ -120,6 +131,9 @@ Lost Woods Rupee Arrow 7,                                   rupee,          NONE
 Lost Woods Rupee Arrow 8,                                   rupee,          NONE,                 LOST_WOODS,                     0x0030b,                    RUPEE_GREEN
 Lost Woods Rupee Boulder,                                   rupee,          NONE,                 LOST_WOODS,                     0x00704,                    RUPEE_BLUE
 Lost Woods Pool Big Fairy,                                  fairy_spot,     NONE,                 LOST_WOODS,                     0x00303,                    FAIRY_BIG
+Lost Woods Wonder Item 1,                                   wonder,         NONE,                 LOST_WOODS,                     0x00105,                    RUPEE_GREEN
+Lost Woods Wonder Item 2,                                   wonder,         NONE,                 LOST_WOODS,                     0x00106,                    RUPEE_GREEN
+Lost Woods Wonder Item 3,                                   wonder,         NONE,                 LOST_WOODS,                     0x00107,                    RUPEE_BLUE
 Deku Theater Sticks Upgrade,                                npc,            NONE,                 GROTTOS,                        THEATER_STICKS,             STICK_UPGRADE
 Deku Theater Nuts Upgrade,                                  npc,            NONE,                 GROTTOS,                        THEATER_NUTS,               NUT_UPGRADE
 Saria's Song,                                               npc,            NONE,                 SACRED_FOREST_MEADOW,           SARIA_SONG,                 SONG_SARIA
@@ -136,12 +150,20 @@ Sacred Meadow Fairy Fountain Fairy 5,                       fairy,          NONE
 Sacred Meadow Fairy Fountain Fairy 6,                       fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x52200,                    FAIRY
 Sacred Meadow Fairy Fountain Fairy 7,                       fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x62200,                    FAIRY
 Sacred Meadow Fairy Fountain Fairy 8,                       fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x72200,                    FAIRY
+Sacred Meadow Wonder Item Entrance,                         wonder,         NONE,                 SACRED_FOREST_MEADOW,           0x0000f,                    RUPEE_BLUE
+Sacred Meadow Wonder Item Maze 1,                           wonder,         NONE,                 SACRED_FOREST_MEADOW,           0x0000c,                    RUPEE_GREEN
+Sacred Meadow Wonder Item Maze 2,                           wonder,         NONE,                 SACRED_FOREST_MEADOW,           0x0000d,                    RUPEE_GREEN
+Sacred Meadow Wonder Item Maze 3,                           wonder,         NONE,                 SACRED_FOREST_MEADOW,           0x0000e,                    RUPEE_GREEN
+Sacred Meadow Wonder Item Maze 4,                           wonder,         NONE,                 SACRED_FOREST_MEADOW,           0x00010,                    RUPEE_BLUE
+Sacred Meadow Wonder Item Maze 5,                           wonder,         NONE,                 SACRED_FOREST_MEADOW,           0x00011,                    RUPEE_BLUE
 Kakariko Anju Bottle,                                       npc,            NONE,                 KAKARIKO_VILLAGE,               ANJU_BOTTLE,                BOTTLE_EMPTY
 Kakariko Anju Egg,                                          npc,            NONE,                 KAKARIKO_VILLAGE,               TRADE_POCKET_EGG,           POCKET_CUCCO
 Kakariko Anju Cojiro,                                       npc,            NONE,                 KAKARIKO_VILLAGE,               TRADE_COJIRO,               COJIRO
 Kakariko Song Shadow,                                       npc,            RAVAGED_VILLAGE,      KAKARIKO_VILLAGE,               SHEIK_SHADOW,               SONG_TP_SHADOW
 Kakariko Man on Roof,                                       npc,            NONE,                 KAKARIKO_VILLAGE,               KAKARIKO_ROOF_MAN,          HEART_PIECE
+Kakariko Sell Keaton Mask,                                  npc,            NONE,                 KAKARIKO_VILLAGE,               MASK_SELL_KEATON,           RUPEE_RED
 Kakariko Impa House HP,                                     collectible,    NONE,                 IMPA_HOUSE,                     0x01,                       HEART_PIECE
+Kakariko Impa House Wonder Item,                            wonder,         NONE,                 IMPA_HOUSE,                     0x00006,                    RUPEE_RED
 Kakariko Grotto Front,                                      chest,          NONE,                 GROTTOS,                        0x0a,                       RUPEE_HUGE
 Kakariko Grotto Back,                                       chest,          NONE,                 GROTTOS,                        0x08,                       RUPEE_RED
 Kakariko Grotto Back Grass 1,                               grass,          NONE,                 GROTTOS,                        0x02802,                    RANDOM
@@ -166,6 +188,24 @@ Kakariko Pot 08,                                            pot,            NONE
 Kakariko Pot 09,                                            pot,            NONE,                 KAKARIKO_VILLAGE,               0x0010,                     RECOVERY_HEART
 Kakariko Pot 10,                                            pot,            NONE,                 KAKARIKO_VILLAGE,               0x0011,                     RECOVERY_HEART
 Kakariko Pot 11,                                            pot,            NONE,                 KAKARIKO_VILLAGE,               0x0012,                     RECOVERY_HEART
+Kakariko Crate Child Near Trail,                            crate,          NONE,                 KAKARIKO_VILLAGE,               0x00031,                    NOTHING
+Kakariko Crate Child Near House,                            crate,          NONE,                 KAKARIKO_VILLAGE,               0x00032,                    NOTHING
+Kakariko Crate Child Near Windmill Bottom,                  crate,          NONE,                 KAKARIKO_VILLAGE,               0x00033,                    NOTHING
+Kakariko Crate Child Near Windmill Top,                     crate,          NONE,                 KAKARIKO_VILLAGE,               0x00034,                    NOTHING
+Kakariko Crate Child Near Graveyard,                        crate,          NONE,                 KAKARIKO_VILLAGE,               0x00035,                    NOTHING
+Kakariko Crate Adult Near First House,                      crate,          NONE,                 KAKARIKO_VILLAGE,               0x08022,                    NOTHING
+Kakariko Crate Adult Near Trail 1,                          crate,          NONE,                 KAKARIKO_VILLAGE,               0x08023,                    NOTHING
+Kakariko Crate Adult Near Trail 2,                          crate,          NONE,                 KAKARIKO_VILLAGE,               0x08024,                    ARROWS_5
+Kakariko Crate Adult Near Impa 1,                           crate,          NONE,                 KAKARIKO_VILLAGE,               0x08025,                    NOTHING
+Kakariko Crate Adult Near Impa 2,                           crate,          NONE,                 KAKARIKO_VILLAGE,               0x08026,                    NOTHING
+Kakariko Crate Adult Center 1,                              crate,          NONE,                 KAKARIKO_VILLAGE,               0x08027,                    NOTHING
+Kakariko Crate Adult Center 2,                              crate,          NONE,                 KAKARIKO_VILLAGE,               0x08028,                    NOTHING
+Kakariko Crate Adult Near Archery,                          crate,          NONE,                 KAKARIKO_VILLAGE,               0x08029,                    NOTHING
+Kakariko Crate Adult Near Potion Shop,                      crate,          NONE,                 KAKARIKO_VILLAGE,               0x0802a,                    NOTHING
+Kakariko Crate Adult Back 1,                                crate,          NONE,                 KAKARIKO_VILLAGE,               0x0802b,                    NOTHING
+Kakariko Crate Adult Back 2,                                crate,          NONE,                 KAKARIKO_VILLAGE,               0x0802c,                    NOTHING
+Kakariko Crate Adult Back 3,                                crate,          NONE,                 KAKARIKO_VILLAGE,               0x0802d,                    RUPEE_RED
+Kakariko Crate Adult Back 4,                                crate,          NONE,                 KAKARIKO_VILLAGE,               0x0802e,                    NOTHING
 Kakariko Grass 1,                                           grass,          NONE,                 KAKARIKO_VILLAGE,               0x00024,                    RANDOM
 Kakariko Grass 2,                                           grass,          NONE,                 KAKARIKO_VILLAGE,               0x00025,                    RANDOM
 Kakariko Grass 3,                                           grass,          NONE,                 KAKARIKO_VILLAGE,               0x00026,                    RANDOM
@@ -174,6 +214,7 @@ Kakariko Grass 5,                                           grass,          NONE
 Kakariko Grass 6,                                           grass,          NONE,                 KAKARIKO_VILLAGE,               0x00029,                    RANDOM
 Kakariko Grass 7,                                           grass,          NONE,                 KAKARIKO_VILLAGE,               0x0002a,                    RANDOM
 Kakariko Grass 8,                                           grass,          NONE,                 KAKARIKO_VILLAGE,               0x0002b,                    RANDOM
+Kakariko Wonder Item,                                       wonder,         NONE,                 KAKARIKO_VILLAGE,               0x00037,                    RUPEE_RED
 Kakariko Potion Shop Odd Potion,                            npc,            NONE,                 KAKARIKO_POTION_SHOP,           TRADE_ODD_POTION,           ODD_POTION
 Kakariko Bazaar Item 1,                                     shop,           NONE,                 BAZAAR,                         0x30,                       ARROWS_5
 Kakariko Bazaar Item 2,                                     shop,           NONE,                 BAZAAR,                         0x31,                       ARROWS_10
@@ -192,6 +233,7 @@ Kakariko Potion Shop Item 6,                                shop,           NONE
 Kakariko Potion Shop Item 7,                                shop,           NONE,                 KAKARIKO_POTION_SHOP,           0x3e,                       POTION_GREEN
 Kakariko Potion Shop Item 8,                                shop,           NONE,                 KAKARIKO_POTION_SHOP,           0x3f,                       POTION_RED
 Graveyard Dampe Game,                                       collectible,    NONE,                 GRAVEYARD,                      0x1f,                       HEART_PIECE
+Graveyard Sell Spooky Mask,                                 npc,            NONE,                 GRAVEYARD,                      MASK_SELL_SPOOKY,           RUPEE_RED
 Graveyard ReDead Tomb,                                      chest,          NONE,                 TOMB_REDEAD,                    0x00,                       HEART_PIECE
 Graveyard Royal Tomb Song,                                  npc,            NONE,                 TOMB_ROYAL,                     ROYAL_TOMB_SONG,            SONG_SUN
 Graveyard Royal Tomb Chest,                                 chest,          NONE,                 TOMB_ROYAL,                     0x00,                       BOMBS_5
@@ -221,9 +263,25 @@ Graveyard Dampe Tomb Rupee 5,                               rupee,          NONE
 Graveyard Dampe Tomb Rupee 6,                               rupee,          NONE,                 TOMB_DAMPE_WINDMILL,            0x00202,                    RUPEE_GREEN
 Graveyard Dampe Tomb Rupee 7,                               rupee,          NONE,                 TOMB_DAMPE_WINDMILL,            0x00300,                    RUPEE_GREEN
 Graveyard Dampe Tomb Rupee 8,                               rupee,          NONE,                 TOMB_DAMPE_WINDMILL,            0x00301,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 01,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00105,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 02,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00106,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 03,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00107,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 04,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00108,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 05,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00109,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 06,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00207,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 07,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00208,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 08,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00209,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 09,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x0020a,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 10,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x0020b,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 11,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00308,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 12,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x00309,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 13,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x0030a,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 14,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x0030b,                    RUPEE_GREEN
+Graveyard Dampe Tomb Wonder Item 15,                        wonder,         NONE,                 TOMB_DAMPE_WINDMILL,            0x0030c,                    RUPEE_GREEN
 Graveyard Crate HP,                                         collectible,    NONE,                 GRAVEYARD,                      0x04,                       HEART_PIECE
 Graveyard GS Soil,                                          gs,             NONE,                 GRAVEYARD,                      0x88,                       GS_TOKEN
 Graveyard GS Wall,                                          gs,             NONE,                 GRAVEYARD,                      0x8f,                       GS_TOKEN
+Graveyard Crate,                                            crate,          NONE,                 GRAVEYARD,                      0x00115,                    NOTHING
 Graveyard Grass 01,                                         grass,          NONE,                 GRAVEYARD,                      0x00110,                    RANDOM
 Graveyard Grass 02,                                         grass,          NONE,                 GRAVEYARD,                      0x10110,                    RANDOM
 Graveyard Grass 03,                                         grass,          NONE,                 GRAVEYARD,                      0x20110,                    RANDOM
@@ -236,38 +294,38 @@ Graveyard Grass 09,                                         grass,          NONE
 Graveyard Grass 10,                                         grass,          NONE,                 GRAVEYARD,                      0x90110,                    RANDOM
 Graveyard Grass 11,                                         grass,          NONE,                 GRAVEYARD,                      0xa0110,                    RANDOM
 Graveyard Grass 12,                                         grass,          NONE,                 GRAVEYARD,                      0xb0110,                    RANDOM
-Death Mountain Chest,                                       chest,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x01,                       RUPEE_PURPLE
-Death Mountain HP,                                          collectible,    NONE,                 DEATH_MOUNTAIN_TRAIL,           0x1e,                       HEART_PIECE
-Death Mountain Prescription,                                npc,            BIGGORON,             DEATH_MOUNTAIN_TRAIL,           TRADE_PRESCRIPTION,         PRESCRIPTION
-Death Mountain Claim Check,                                 npc,            BIGGORON,             DEATH_MOUNTAIN_TRAIL,           TRADE_CLAIM_CHECK,          CLAIM_CHECK
-Death Mountain Biggoron Sword,                              npc,            BIGGORON,             DEATH_MOUNTAIN_TRAIL,           TRADE_BIGGORON_SWORD,       SWORD_BIGGORON
-Death Mountain Grotto,                                      chest,          NONE,                 GROTTOS,                        0x17,                       RUPEE_HUGE
-Death Mountain Grotto Grass 1,                              grass,          NONE,                 GROTTOS,                        0x03702,                    RANDOM
-Death Mountain Grotto Grass 2,                              grass,          NONE,                 GROTTOS,                        0x03703,                    RANDOM
-Death Mountain Grotto Grass 3,                              grass,          NONE,                 GROTTOS,                        0x03704,                    RANDOM
-Death Mountain Grotto Grass 4,                              grass,          NONE,                 GROTTOS,                        0x03705,                    RANDOM
-Death Mountain GS Entrance,                                 gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x82,                       GS_TOKEN
-Death Mountain GS Soil,                                     gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x81,                       GS_TOKEN
-Death Mountain GS Above Dodongo,                            gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x83,                       GS_TOKEN
-Death Mountain GS Before Climb,                             gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x84,                       GS_TOKEN
-Death Mountain Cow,                                         cow,            NONE,                 DEATH_MOUNTAIN_TRAIL,           0x07,                       MILK
-Death Mountain Cow Grotto Grass 1,                          grass,          NONE,                 GROTTOS,                        0x00301,                    RANDOM
-Death Mountain Cow Grotto Grass 2,                          grass,          NONE,                 GROTTOS,                        0x00302,                    RANDOM
-Death Mountain Cow Grotto Rupee 1,                          rupee,          NONE,                 GROTTOS,                        0x00305,                    RUPEE_GREEN
-Death Mountain Cow Grotto Rupee 2,                          rupee,          NONE,                 GROTTOS,                        0x10305,                    RUPEE_GREEN
-Death Mountain Cow Grotto Rupee 3,                          rupee,          NONE,                 GROTTOS,                        0x20305,                    RUPEE_GREEN
-Death Mountain Cow Grotto Rupee 4,                          rupee,          NONE,                 GROTTOS,                        0x30305,                    RUPEE_GREEN
-Death Mountain Cow Grotto Rupee 5,                          rupee,          NONE,                 GROTTOS,                        0x40305,                    RUPEE_GREEN
-Death Mountain Cow Grotto Rupee 6,                          rupee,          NONE,                 GROTTOS,                        0x50305,                    RUPEE_GREEN
-Death Mountain Cow Grotto Rupee 7,                          rupee,          NONE,                 GROTTOS,                        0x60305,                    RUPEE_RED
-Death Mountain Cow Grotto Heart 1,                          heart,          NONE,                 GROTTOS,                        0x00306,                    RECOVERY_HEART
-Death Mountain Cow Grotto Heart 2,                          heart,          NONE,                 GROTTOS,                        0x00307,                    RECOVERY_HEART
-Death Mountain Cow Grotto Heart 3,                          heart,          NONE,                 GROTTOS,                        0x00308,                    RECOVERY_HEART
-Death Mountain Cow Grotto Heart 4,                          heart,          NONE,                 GROTTOS,                        0x00309,                    RECOVERY_HEART
-Death Mountain Cow Grotto Big Fairy,                        fairy_spot,     NONE,                 GROTTOS,                        0x00304,                    FAIRY_BIG
-Death Mountain Rupee Upper,                                 rupee,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00001,                    RUPEE_RED
-Death Mountain Rupee Lower,                                 rupee,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00002,                    RUPEE_BLUE
-Death Mountain Big Fairy,                                   fairy_spot,     NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00026,                    FAIRY_BIG
+Death Mountain Trail Chest,                                 chest,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x01,                       RUPEE_PURPLE
+Death Mountain Trail HP,                                    collectible,    NONE,                 DEATH_MOUNTAIN_TRAIL,           0x1e,                       HEART_PIECE
+Death Mountain Trail Prescription,                          npc,            BIGGORON,             DEATH_MOUNTAIN_TRAIL,           TRADE_PRESCRIPTION,         PRESCRIPTION
+Death Mountain Trail Claim Check,                           npc,            BIGGORON,             DEATH_MOUNTAIN_TRAIL,           TRADE_CLAIM_CHECK,          CLAIM_CHECK
+Death Mountain Trail Biggoron Sword,                        npc,            BIGGORON,             DEATH_MOUNTAIN_TRAIL,           TRADE_BIGGORON_SWORD,       SWORD_BIGGORON
+Death Mountain Trail Grotto,                                chest,          NONE,                 GROTTOS,                        0x17,                       RUPEE_HUGE
+Death Mountain Trail Grotto Grass 1,                        grass,          NONE,                 GROTTOS,                        0x03702,                    RANDOM
+Death Mountain Trail Grotto Grass 2,                        grass,          NONE,                 GROTTOS,                        0x03703,                    RANDOM
+Death Mountain Trail Grotto Grass 3,                        grass,          NONE,                 GROTTOS,                        0x03704,                    RANDOM
+Death Mountain Trail Grotto Grass 4,                        grass,          NONE,                 GROTTOS,                        0x03705,                    RANDOM
+Death Mountain Trail GS Entrance,                           gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x82,                       GS_TOKEN
+Death Mountain Trail GS Soil,                               gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x81,                       GS_TOKEN
+Death Mountain Trail GS Above Dodongo,                      gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x83,                       GS_TOKEN
+Death Mountain Trail GS Before Climb,                       gs,             NONE,                 DEATH_MOUNTAIN_TRAIL,           0x84,                       GS_TOKEN
+Death Mountain Trail Cow,                                   cow,            NONE,                 DEATH_MOUNTAIN_TRAIL,           0x07,                       MILK
+Death Mountain Trail Cow Grotto Grass 1,                    grass,          NONE,                 GROTTOS,                        0x00301,                    RANDOM
+Death Mountain Trail Cow Grotto Grass 2,                    grass,          NONE,                 GROTTOS,                        0x00302,                    RANDOM
+Death Mountain Trail Cow Grotto Rupee 1,                    rupee,          NONE,                 GROTTOS,                        0x00305,                    RUPEE_GREEN
+Death Mountain Trail Cow Grotto Rupee 2,                    rupee,          NONE,                 GROTTOS,                        0x10305,                    RUPEE_GREEN
+Death Mountain Trail Cow Grotto Rupee 3,                    rupee,          NONE,                 GROTTOS,                        0x20305,                    RUPEE_GREEN
+Death Mountain Trail Cow Grotto Rupee 4,                    rupee,          NONE,                 GROTTOS,                        0x30305,                    RUPEE_GREEN
+Death Mountain Trail Cow Grotto Rupee 5,                    rupee,          NONE,                 GROTTOS,                        0x40305,                    RUPEE_GREEN
+Death Mountain Trail Cow Grotto Rupee 6,                    rupee,          NONE,                 GROTTOS,                        0x50305,                    RUPEE_GREEN
+Death Mountain Trail Cow Grotto Rupee 7,                    rupee,          NONE,                 GROTTOS,                        0x60305,                    RUPEE_RED
+Death Mountain Trail Cow Grotto Heart 1,                    heart,          NONE,                 GROTTOS,                        0x00306,                    RECOVERY_HEART
+Death Mountain Trail Cow Grotto Heart 2,                    heart,          NONE,                 GROTTOS,                        0x00307,                    RECOVERY_HEART
+Death Mountain Trail Cow Grotto Heart 3,                    heart,          NONE,                 GROTTOS,                        0x00308,                    RECOVERY_HEART
+Death Mountain Trail Cow Grotto Heart 4,                    heart,          NONE,                 GROTTOS,                        0x00309,                    RECOVERY_HEART
+Death Mountain Trail Cow Grotto Big Fairy,                  fairy_spot,     NONE,                 GROTTOS,                        0x00304,                    FAIRY_BIG
+Death Mountain Trail Rupee Upper,                           rupee,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00001,                    RUPEE_RED
+Death Mountain Trail Rupee Lower,                           rupee,          NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00002,                    RUPEE_BLUE
+Death Mountain Trail Big Fairy,                             fairy_spot,     NONE,                 DEATH_MOUNTAIN_TRAIL,           0x00026,                    FAIRY_BIG
 Darunia,                                                    npc,            NONE,                 GORON_CITY,                     DARUNIA_BRACELET,           STRENGTH
 Goron City Maze Center 1,                                   chest,          NONE,                 GORON_CITY,                     0x02,                       RUPEE_PURPLE
 Goron City Maze Center 2,                                   chest,          NONE,                 GORON_CITY,                     0x01,                       RUPEE_PURPLE
@@ -372,13 +430,44 @@ Zora River Rupee 1,                                         rupee,          NONE
 Zora River Rupee 2,                                         rupee,          NONE,                 ZORA_RIVER,                     0x08102,                    RUPEE_RED
 Zora River Rupee 3,                                         rupee,          NONE,                 ZORA_RIVER,                     0x08103,                    RUPEE_RED
 Zora River Rupee 4,                                         rupee,          NONE,                 ZORA_RIVER,                     0x08104,                    RUPEE_RED
+Zora River Wonder Item Front 1,                             wonder,         NONE,                 ZORA_RIVER,                     0x00010,                    RUPEE_GREEN
+Zora River Wonder Item Front 2,                             wonder,         NONE,                 ZORA_RIVER,                     0x00011,                    RUPEE_GREEN
+Zora River Wonder Item Front 3,                             wonder,         NONE,                 ZORA_RIVER,                     0x00012,                    RUPEE_GREEN
+Zora River Wonder Item Front 4,                             wonder,         NONE,                 ZORA_RIVER,                     0x00013,                    RUPEE_GREEN
+Zora River Wonder Item Back 01,                             wonder,         NONE,                 ZORA_RIVER,                     0x0000f,                    RUPEE_GREEN
+Zora River Wonder Item Back 02,                             wonder,         NONE,                 ZORA_RIVER,                     0x00014,                    RUPEE_GREEN
+Zora River Wonder Item Back 03,                             wonder,         NONE,                 ZORA_RIVER,                     0x00015,                    RUPEE_GREEN
+Zora River Wonder Item Back 04,                             wonder,         NONE,                 ZORA_RIVER,                     0x00016,                    RUPEE_GREEN
+Zora River Wonder Item Back 05,                             wonder,         NONE,                 ZORA_RIVER,                     0x00017,                    RUPEE_GREEN
+Zora River Wonder Item Back 06,                             wonder,         NONE,                 ZORA_RIVER,                     0x00018,                    RUPEE_GREEN
+Zora River Wonder Item Back 07,                             wonder,         NONE,                 ZORA_RIVER,                     0x00019,                    RUPEE_GREEN
+Zora River Wonder Item Back 08,                             wonder,         NONE,                 ZORA_RIVER,                     0x0001a,                    RUPEE_GREEN
+Zora River Wonder Item Back 09,                             wonder,         NONE,                 ZORA_RIVER,                     0x0001b,                    RUPEE_GREEN
+Zora River Wonder Item Back 10,                             wonder,         NONE,                 ZORA_RIVER,                     0x0001c,                    RUPEE_GREEN
+Zora River Wonder Item Back 11,                             wonder,         NONE,                 ZORA_RIVER,                     0x0001d,                    RUPEE_GREEN
+Zora River Wonder Item Back 12,                             wonder,         NONE,                 ZORA_RIVER,                     0x0001e,                    RUPEE_GREEN
+Zora River Wonder Item Back 13,                             wonder,         NONE,                 ZORA_RIVER,                     0x0001f,                    RUPEE_GREEN
+Zora River Wonder Item Back 14,                             wonder,         NONE,                 ZORA_RIVER,                     0x00020,                    RUPEE_GREEN
+Zora River Wonder Item Back 15,                             wonder,         NONE,                 ZORA_RIVER,                     0x00021,                    RUPEE_GREEN
+Zora River Wonder Item Back 16,                             wonder,         NONE,                 ZORA_RIVER,                     0x00022,                    RUPEE_GREEN
+Zora River Wonder Item Back 17,                             wonder,         NONE,                 ZORA_RIVER,                     0x00023,                    RUPEE_GREEN
+Zora River Wonder Item Back 18,                             wonder,         NONE,                 ZORA_RIVER,                     0x00024,                    RUPEE_GREEN
+Zora River Wonder Item Back 19,                             wonder,         NONE,                 ZORA_RIVER,                     0x00025,                    RUPEE_GREEN
+Zora River Wonder Item Back 20,                             wonder,         NONE,                 ZORA_RIVER,                     0x00026,                    RUPEE_GREEN
+Zora River Wonder Item Back 21,                             wonder,         NONE,                 ZORA_RIVER,                     0x00027,                    RUPEE_BLUE
+Zora River Wonder Item Back 22,                             wonder,         NONE,                 ZORA_RIVER,                     0x00028,                    RUPEE_BLUE
+Zora River Wonder Item Back 23,                             wonder,         NONE,                 ZORA_RIVER,                     0x00029,                    RUPEE_RED
+Zora River Wonder Item Back 24,                             wonder,         NONE,                 ZORA_RIVER,                     0x00105,                    RUPEE_GREEN
+Zora River Wonder Item Back 25,                             wonder,         NONE,                 ZORA_RIVER,                     0x00106,                    RUPEE_GREEN
+Zora River Wonder Item Back 26,                             wonder,         NONE,                 ZORA_RIVER,                     0x00107,                    RUPEE_GREEN
+Zora River Wonder Item Back 27,                             wonder,         NONE,                 ZORA_RIVER,                     0x00108,                    RUPEE_GREEN
 Zora Domain Waterfall Chest,                                chest,          NONE,                 ZORA_DOMAIN,                    0x00,                       HEART_PIECE
 Zora Domain Diving Game,                                    npc,            NONE,                 ZORA_DOMAIN,                    ZORA_DIVING_GAME,           SCALE
 Zora Domain Diving Game Green Rupee,                        collectible,    NONE,                 ZORA_DOMAIN,                    0x1,                        RUPEE_GREEN
 Zora Domain Diving Game Blue Rupee,                         collectible,    NONE,                 ZORA_DOMAIN,                    0x2,                        RUPEE_BLUE
 Zora Domain Diving Game Red Rupee,                          collectible,    NONE,                 ZORA_DOMAIN,                    0x3,                        RUPEE_RED
-Zora Domain Diving Game Purple Rupee,                       collectible,    NONE,                 ZORA_DOMAIN,                    0x4,                        RUPEE_PURPLE
-Zora Domain Diving Game Huge Rupee,                         collectible,    NONE,                 ZORA_DOMAIN,                    0x5,                        RUPEE_HUGE
+Zora Domain Diving Game Purple Rupee,                       collectible,    NONE,                 ZORA_DOMAIN,                    0x5,                        RUPEE_PURPLE
+Zora Domain Diving Game Huge Rupee,                         collectible,    NONE,                 ZORA_DOMAIN,                    0x4,                        RUPEE_HUGE
 Zora Domain Tunic,                                          npc,            ZORA_KING,            ZORA_DOMAIN,                    ZORA_KING_TUNIC,            TUNIC_ZORA
 Zora Domain Eyeball Frog,                                   npc,            ZORA_KING,            ZORA_DOMAIN,                    TRADE_EYEBALL_FROG,         EYEBALL_FROG
 Zora Domain GS Waterfall,                                   gs,             NONE,                 ZORA_DOMAIN,                    0x96,                       GS_TOKEN
@@ -510,12 +599,12 @@ Fishing Pond Child Fish 7,                                  fish,           NONE
 Fishing Pond Child Fish 8,                                  fish,           NONE,                 FISHING_POND,                   0x07,                       FISHING_POND_CHILD_FISH
 Fishing Pond Child Fish 9,                                  fish,           NONE,                 FISHING_POND,                   0x08,                       FISHING_POND_CHILD_FISH
 Fishing Pond Child Fish 10,                                 fish,           NONE,                 FISHING_POND,                   0x09,                       FISHING_POND_CHILD_FISH
-Fishing Pond Child Fish 11,                                 fish,           NONE,                 FISHING_POND,                   0x0A,                       FISHING_POND_CHILD_FISH
-Fishing Pond Child Fish 12,                                 fish,           NONE,                 FISHING_POND,                   0x0B,                       FISHING_POND_CHILD_FISH
-Fishing Pond Child Fish 13,                                 fish,           NONE,                 FISHING_POND,                   0x0C,                       FISHING_POND_CHILD_FISH
-Fishing Pond Child Fish 14,                                 fish,           NONE,                 FISHING_POND,                   0x0D,                       FISHING_POND_CHILD_FISH
-Fishing Pond Child Fish 15,                                 fish,           NONE,                 FISHING_POND,                   0x0E,                       FISHING_POND_CHILD_FISH
-Fishing Pond Child Loach 1,                                 fish,           NONE,                 FISHING_POND,                   0x0F,                       FISHING_POND_CHILD_LOACH
+Fishing Pond Child Fish 11,                                 fish,           NONE,                 FISHING_POND,                   0x0a,                       FISHING_POND_CHILD_FISH
+Fishing Pond Child Fish 12,                                 fish,           NONE,                 FISHING_POND,                   0x0b,                       FISHING_POND_CHILD_FISH
+Fishing Pond Child Fish 13,                                 fish,           NONE,                 FISHING_POND,                   0x0c,                       FISHING_POND_CHILD_FISH
+Fishing Pond Child Fish 14,                                 fish,           NONE,                 FISHING_POND,                   0x0d,                       FISHING_POND_CHILD_FISH
+Fishing Pond Child Fish 15,                                 fish,           NONE,                 FISHING_POND,                   0x0e,                       FISHING_POND_CHILD_FISH
+Fishing Pond Child Loach 1,                                 fish,           NONE,                 FISHING_POND,                   0x0f,                       FISHING_POND_CHILD_LOACH
 Fishing Pond Child Loach 2,                                 fish,           NONE,                 FISHING_POND,                   0x10,                       FISHING_POND_CHILD_LOACH
 Fishing Pond Adult Fish 1,                                  fish,           NONE,                 FISHING_POND,                   0x11,                       FISHING_POND_ADULT_FISH
 Fishing Pond Adult Fish 2,                                  fish,           NONE,                 FISHING_POND,                   0x12,                       FISHING_POND_ADULT_FISH
@@ -526,12 +615,12 @@ Fishing Pond Adult Fish 6,                                  fish,           NONE
 Fishing Pond Adult Fish 7,                                  fish,           NONE,                 FISHING_POND,                   0x17,                       FISHING_POND_ADULT_FISH
 Fishing Pond Adult Fish 8,                                  fish,           NONE,                 FISHING_POND,                   0x18,                       FISHING_POND_ADULT_FISH
 Fishing Pond Adult Fish 9,                                  fish,           NONE,                 FISHING_POND,                   0x19,                       FISHING_POND_ADULT_FISH
-Fishing Pond Adult Fish 10,                                 fish,           NONE,                 FISHING_POND,                   0x1A,                       FISHING_POND_ADULT_FISH
-Fishing Pond Adult Fish 11,                                 fish,           NONE,                 FISHING_POND,                   0x1B,                       FISHING_POND_ADULT_FISH
-Fishing Pond Adult Fish 12,                                 fish,           NONE,                 FISHING_POND,                   0x1C,                       FISHING_POND_ADULT_FISH
-Fishing Pond Adult Fish 13,                                 fish,           NONE,                 FISHING_POND,                   0x1D,                       FISHING_POND_ADULT_FISH
-Fishing Pond Adult Fish 14,                                 fish,           NONE,                 FISHING_POND,                   0x1E,                       FISHING_POND_ADULT_FISH
-Fishing Pond Adult Fish 15,                                 fish,           NONE,                 FISHING_POND,                   0x1F,                       FISHING_POND_ADULT_FISH
+Fishing Pond Adult Fish 10,                                 fish,           NONE,                 FISHING_POND,                   0x1a,                       FISHING_POND_ADULT_FISH
+Fishing Pond Adult Fish 11,                                 fish,           NONE,                 FISHING_POND,                   0x1b,                       FISHING_POND_ADULT_FISH
+Fishing Pond Adult Fish 12,                                 fish,           NONE,                 FISHING_POND,                   0x1c,                       FISHING_POND_ADULT_FISH
+Fishing Pond Adult Fish 13,                                 fish,           NONE,                 FISHING_POND,                   0x1d,                       FISHING_POND_ADULT_FISH
+Fishing Pond Adult Fish 14,                                 fish,           NONE,                 FISHING_POND,                   0x1e,                       FISHING_POND_ADULT_FISH
+Fishing Pond Adult Fish 15,                                 fish,           NONE,                 FISHING_POND,                   0x1f,                       FISHING_POND_ADULT_FISH
 Fishing Pond Adult Loach,                                   fish,           NONE,                 FISHING_POND,                   0x20,                       FISHING_POND_ADULT_LOACH
 Lon Lon Ranch Malon Song,                                   npc,            NONE,                 LON_LON_RANCH,                  MALON_SONG,                 SONG_EPONA
 Lon Lon Ranch Silo HP,                                      collectible,    NONE,                 RANCH_HOUSE_SILO,               0x01,                       HEART_PIECE
@@ -557,8 +646,12 @@ Lon Lon Ranch Pot 4,                                        pot,            NONE
 Lon Lon Ranch Pot 5,                                        pot,            NONE,                 LON_LON_RANCH,                  0x0007,                     RECOVERY_HEART
 Lon Lon Ranch Pot 6,                                        pot,            NONE,                 LON_LON_RANCH,                  0x0008,                     RECOVERY_HEART
 Lon Lon Ranch Pot 7,                                        pot,            NONE,                 LON_LON_RANCH,                  0x0009,                     RECOVERY_HEART
+Lon Lon Ranch Crate,                                        crate,          NONE,                 LON_LON_RANCH,                  0x00018,                    RUPEE_GREEN
+Lon Lon Ranch Wonder Item 1,                                wonder,         NONE,                 LON_LON_RANCH,                  0x08018,                    RUPEE_BLUE
+Lon Lon Ranch Wonder Item 2,                                wonder,         NONE,                 LON_LON_RANCH,                  0x08019,                    RUPEE_BLUE
 Hyrule Field Ocarina of Time,                               npc,            NONE,                 HYRULE_FIELD,                   OCARINA_TIME_ITEM,          OCARINA
 Hyrule Field Song of Time,                                  npc,            NONE,                 HYRULE_FIELD,                   OCARINA_TIME_SONG,          SONG_TIME
+Hyrule Field Sell Bunny Mask,                               npc,            NONE,                 HYRULE_FIELD,                   MASK_SELL_BUNNY,            RUPEE_RAINBOW
 Hyrule Field Grotto Scrub HP,                               scrub,          NONE,                 GROTTOS,                        0x07,                       HEART_PIECE
 Hyrule Field Grotto Scrub Big Fairy,                        fairy_spot,     NONE,                 GROTTOS,                        0x00102,                    FAIRY_BIG
 Hyrule Field Grotto Southeast,                              chest,          NONE,                 GROTTOS,                        0x02,                       RUPEE_RED
@@ -633,6 +726,9 @@ Hyrule Field Grass Pack 4 Bush 10,                          grass,          NONE
 Hyrule Field Grass Pack 4 Bush 11,                          grass,          NONE,                 HYRULE_FIELD,                   0xa003d,                    RANDOM
 Hyrule Field Grass Pack 4 Bush 12,                          grass,          NONE,                 HYRULE_FIELD,                   0xb003d,                    RANDOM
 Hyrule Field River Big Fairy,                               fairy_spot,     NONE,                 HYRULE_FIELD,                   0x00048,                    FAIRY_BIG
+Hyrule Field Wonder Item 1,                                 wonder,         NONE,                 HYRULE_FIELD,                   0x00034,                    RUPEE_RED
+Hyrule Field Wonder Item 2,                                 wonder,         NONE,                 HYRULE_FIELD,                   0x00035,                    RUPEE_RED
+Hyrule Field Wonder Item 3,                                 wonder,         NONE,                 HYRULE_FIELD,                   0x00036,                    RUPEE_RED
 Hyrule Field Fairy Fountain Fairy 1,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x02000,                    FAIRY
 Hyrule Field Fairy Fountain Fairy 2,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x12000,                    FAIRY
 Hyrule Field Fairy Fountain Fairy 3,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x22000,                    FAIRY
@@ -642,6 +738,7 @@ Hyrule Field Fairy Fountain Fairy 6,                        fairy,          NONE
 Hyrule Field Fairy Fountain Fairy 7,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x62000,                    FAIRY
 Hyrule Field Fairy Fountain Fairy 8,                        fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x72000,                    FAIRY
 Market Dog Lady HP,                                         npc,            NONE,                 BACK_ALLEY_HOUSE2,              DOG_LADY,                   HEART_PIECE
+Market Dog Lady Crate,                                      crate,          NONE,                 BACK_ALLEY_HOUSE2,              0x00002,                    RUPEE_BLUE
 Market Back Alley East House Pot 1,                         pot,            NONE,                 BACK_ALLEY_HOUSE,               0x0002,                     RECOVERY_HEART
 Market Back Alley East House Pot 2,                         pot,            NONE,                 BACK_ALLEY_HOUSE,               0x0003,                     RECOVERY_HEART
 Market Back Alley East House Pot 3,                         pot,            NONE,                 BACK_ALLEY_HOUSE,               0x0004,                     MAGIC_JAR_SMALL
@@ -702,6 +799,10 @@ Market Pot House Adult Pot 8,                               pot,            NONE
 Market Pot House Adult Pot 9,                               pot,            NONE,                 GUARD_HOUSE,                    0x8009,                     RECOVERY_HEART
 Market Pot House Adult Pot 10,                              pot,            NONE,                 GUARD_HOUSE,                    0x800a,                     NOTHING
 Market Pot House Adult Pot 11,                              pot,            NONE,                 GUARD_HOUSE,                    0x800b,                     RUPEE_GREEN
+Market Pot House Crate 1,                                   crate,          NONE,                 GUARD_HOUSE,                    0x00003,                    NOTHING
+Market Pot House Crate 2,                                   crate,          NONE,                 GUARD_HOUSE,                    0x00004,                    NOTHING
+Market Pot House Crate 3,                                   crate,          NONE,                 GUARD_HOUSE,                    0x00005,                    RUPEE_GREEN
+Market Pot House Crate 4,                                   crate,          NONE,                 GUARD_HOUSE,                    0x00006,                    NOTHING
 Market Bazaar Item 1,                                       shop,           NONE,                 BAZAAR,                         0x20,                       ARROWS_5
 Market Bazaar Item 2,                                       shop,           NONE,                 BAZAAR,                         0x21,                       ARROWS_10
 Market Bazaar Item 3,                                       shop,           NONE,                 BAZAAR,                         0x22,                       ARROWS_30
@@ -726,6 +827,10 @@ Market Bombchu Shop Item 5,                                 shop,           NONE
 Market Bombchu Shop Item 6,                                 shop,           NONE,                 BOMBCHU_SHOP,                   0x0d,                       BOMBCHU_10
 Market Bombchu Shop Item 7,                                 shop,           NONE,                 BOMBCHU_SHOP,                   0x0e,                       BOMBCHU_10
 Market Bombchu Shop Item 8,                                 shop,           NONE,                 BOMBCHU_SHOP,                   0x0f,                       BOMBCHU_10
+Market Crate 1,                                             crate,          NONE,                 MARKET_CHILD_DAY,               0x00021,                    RUPEE_RED
+Market Crate 2,                                             crate,          NONE,                 MARKET_CHILD_DAY,               0x00022,                    RUPEE_GREEN
+Market Crate 3,                                             crate,          NONE,                 MARKET_CHILD_DAY,               0x00023,                    RUPEE_GREEN
+Market Crate 4,                                             crate,          NONE,                 MARKET_CHILD_DAY,               0x00024,                    RUPEE_GREEN
 Market Grass 1,                                             grass,          NONE,                 MARKET_CHILD_DAY,               0x00017,                    RANDOM
 Market Grass 2,                                             grass,          NONE,                 MARKET_CHILD_DAY,               0x00018,                    RANDOM
 Market Grass 3,                                             grass,          NONE,                 MARKET_CHILD_DAY,               0x00019,                    RANDOM
@@ -734,6 +839,13 @@ Market Grass 5,                                             grass,          NONE
 Market Grass 6,                                             grass,          NONE,                 MARKET_CHILD_DAY,               0x0001c,                    RANDOM
 Market Grass 7,                                             grass,          NONE,                 MARKET_CHILD_DAY,               0x0001d,                    RANDOM
 Market Grass 8,                                             grass,          NONE,                 MARKET_CHILD_DAY,               0x0001e,                    RANDOM
+Market Wonder Item Day 1,                                   wonder,         NONE,                 MARKET_CHILD_DAY,               0x0000f,                    RUPEE_GREEN
+Market Wonder Item Day 2,                                   wonder,         NONE,                 MARKET_CHILD_DAY,               0x00010,                    RUPEE_GREEN
+Market Wonder Item Day 3,                                   wonder,         NONE,                 MARKET_CHILD_DAY,               0x00011,                    RUPEE_GREEN
+Market Wonder Item Day 4,                                   wonder,         NONE,                 MARKET_CHILD_DAY,               0x00012,                    RUPEE_GREEN
+Market Wonder Item Day 5,                                   wonder,         NONE,                 MARKET_CHILD_DAY,               0x00013,                    RUPEE_GREEN
+Market Wonder Item Night 1,                                 wonder,         NONE,                 MARKET_CHILD_NIGHT,             0x00005,                    RUPEE_BLUE
+Market Wonder Item Night 2,                                 wonder,         NONE,                 MARKET_CHILD_NIGHT,             0x00006,                    RUPEE_BLUE
 Bombchu Bowling Reward 1,                                   npc,            NONE,                 BOMBCHU_BOWLING_ALLEY,          BOMBCHU_BOWLING_1,          BOMB_BAG
 Bombchu Bowling Reward 2,                                   npc,            NONE,                 BOMBCHU_BOWLING_ALLEY,          BOMBCHU_BOWLING_2,          HEART_PIECE
 Treasure Chest Game Buy Key,                                npc,            NONE,                 TREASURE_SHOP,                  CHEST_GAME_KEY,             SMALL_KEY_TCG
@@ -760,6 +872,18 @@ Hyrule Castle Pot 1,                                        pot,            NONE
 Hyrule Castle Pot 2,                                        pot,            NONE,                 HYRULE_CASTLE,                  0x0009,                     RUPEE_BLUE
 Hyrule Castle Grass 1,                                      grass,          NONE,                 HYRULE_CASTLE,                  0x0002e,                    NOTHING
 Hyrule Castle Grass 2,                                      grass,          NONE,                 HYRULE_CASTLE,                  0x0002f,                    NOTHING
+Hyrule Castle Wonder Item Torch 1,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x0000c,                    MAGIC_JAR_LARGE
+Hyrule Castle Wonder Item Torch 2,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x0000d,                    RUPEE_RED
+Hyrule Castle Wonder Item Moat 01,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00020,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 02,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00021,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 03,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00022,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 04,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00023,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 05,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00024,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 06,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00025,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 07,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00026,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 08,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00027,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 09,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00028,                    RUPEE_GREEN
+Hyrule Castle Wonder Item Moat 10,                          wonder,         NONE,                 HYRULE_CASTLE,                  0x00029,                    RUPEE_BLUE
 Ganon Castle Exterior GS,                                   gs,             NONE,                 GANON_CASTLE_EXTERIOR,          0x78,                       GS_TOKEN
 Temple of Time Master Sword,                                npc,            NONE,                 TEMPLE_OF_TIME,                 MASTER_SWORD,               SWORD_MASTER
 Temple of Time Medallion,                                   npc,            NONE,                 TEMPLE_OF_TIME,                 LIGHT_MEDALLION,            MEDALLION_LIGHT
@@ -778,6 +902,14 @@ Gerudo Valley GS Wall,                                      gs,             NONE
 Gerudo Valley GS Tent,                                      gs,             NONE,                 GERUDO_VALLEY,                  0xa3,                       GS_TOKEN
 Gerudo Valley GS Pillar,                                    gs,             NONE,                 GERUDO_VALLEY,                  0xa2,                       GS_TOKEN
 Gerudo Valley Cow,                                          cow,            NONE,                 GERUDO_VALLEY,                  0x08,                       MILK
+Gerudo Valley Crate Child Unreachable 1,                    crate,          NONE,                 GERUDO_VALLEY,                  0x00021,                    RUPEE_GREEN
+Gerudo Valley Crate Child Unreachable 2,                    crate,          NONE,                 GERUDO_VALLEY,                  0x00022,                    RUPEE_GREEN
+Gerudo Valley Crate Child Unreachable 3,                    crate,          NONE,                 GERUDO_VALLEY,                  0x00023,                    RUPEE_GREEN
+Gerudo Valley Crate Child Unreachable 4,                    crate,          NONE,                 GERUDO_VALLEY,                  0x00024,                    RUPEE_GREEN
+Gerudo Valley Crate Child Bottom,                           crate,          NONE,                 GERUDO_VALLEY,                  0x00025,                    RUPEE_GREEN
+Gerudo Valley Crate Ledge,                                  crate,          NONE,                 GERUDO_VALLEY,                  0x00026,                    RUPEE_GREEN
+Gerudo Valley Wonder Item Lower,                            wonder,         NONE,                 GERUDO_VALLEY,                  0x08028,                    RUPEE_RED
+Gerudo Valley Wonder Item Upper,                            wonder,         NONE,                 GERUDO_VALLEY,                  0x08029,                    RUPEE_RED
 Gerudo Valley Octorok Grotto Rupee 1,                       rupee,          NONE,                 GROTTOS,                        0x00501,                    RUPEE_BLUE
 Gerudo Valley Octorok Grotto Rupee 2,                       rupee,          NONE,                 GROTTOS,                        0x00502,                    RUPEE_BLUE
 Gerudo Valley Octorok Grotto Rupee 3,                       rupee,          NONE,                 GROTTOS,                        0x00503,                    RUPEE_BLUE
@@ -791,6 +923,29 @@ Gerudo Fortress Archery Reward 1,                           npc,            GERU
 Gerudo Fortress Archery Reward 2,                           npc,            GERUDO_ARCHERY,       GERUDO_FORTRESS,                GERUDO_ARCHERY_2,           BOW
 Gerudo Fortress GS Wall,                                    gs,             NONE,                 GERUDO_FORTRESS,                0xa9,                       GS_TOKEN
 Gerudo Fortress GS Target,                                  gs,             NONE,                 GERUDO_FORTRESS,                0xa8,                       GS_TOKEN
+Gerudo Fortress Crate Main 1,                               crate,          NONE,                 GERUDO_FORTRESS,                0x0800c,                    RUPEE_GREEN
+Gerudo Fortress Crate Main 2,                               crate,          NONE,                 GERUDO_FORTRESS,                0x0800d,                    RUPEE_GREEN
+Gerudo Fortress Crate Main 3,                               crate,          NONE,                 GERUDO_FORTRESS,                0x0800e,                    RUPEE_GREEN
+Gerudo Fortress Crate Main 4,                               crate,          NONE,                 GERUDO_FORTRESS,                0x0800f,                    RUPEE_GREEN
+Gerudo Fortress Crate Main 5,                               crate,          NONE,                 GERUDO_FORTRESS,                0x08010,                    RUPEE_GREEN
+Gerudo Fortress Crate Main 6,                               crate,          NONE,                 GERUDO_FORTRESS,                0x08011,                    RUPEE_GREEN
+Gerudo Fortress Crate Jail Top,                             crate,          NONE,                 GERUDO_FORTRESS,                0x08012,                    RUPEE_PURPLE
+Gerudo Fortress Crate Archery Child,                        crate,          NONE,                 GERUDO_FORTRESS,                0x00103,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 01,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00100,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 02,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00101,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 03,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00102,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 04,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00104,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 05,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00105,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 06,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00106,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 07,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00107,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 08,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00108,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 09,                           crate,          NONE,                 GERUDO_FORTRESS,                0x00109,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 10,                           crate,          NONE,                 GERUDO_FORTRESS,                0x0010a,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 11,                           crate,          NONE,                 GERUDO_FORTRESS,                0x0010b,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 12,                           crate,          NONE,                 GERUDO_FORTRESS,                0x0010c,                    RUPEE_GREEN
+Gerudo Fortress Crate Archery 13,                           crate,          NONE,                 GERUDO_FORTRESS,                0x0010d,                    RUPEE_GREEN
+Gerudo Fortress Wonder Item Sign Archery,                   wonder,         NONE,                 GERUDO_FORTRESS,                0x00007,                    RUPEE_RED
+Gerudo Fortress Wonder Item Sign Entrance,                  wonder,         NONE,                 GERUDO_FORTRESS,                0x00008,                    RUPEE_RED
 Gerudo Fortress Fairy Fountain Fairy 1,                     fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x02400,                    FAIRY
 Gerudo Fortress Fairy Fountain Fairy 2,                     fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x12400,                    FAIRY
 Gerudo Fortress Fairy Fountain Fairy 3,                     fairy,          NONE,                 FAIRY_FOUNTAIN,                 0x22400,                    FAIRY
@@ -805,6 +960,11 @@ Haunted Wasteland Pot 1,                                    pot,            NONE
 Haunted Wasteland Pot 2,                                    pot,            NONE,                 HAUNTED_WASTELAND,              0x0001,                     NUTS_5
 Haunted Wasteland Pot 3,                                    pot,            NONE,                 HAUNTED_WASTELAND,              0x0002,                     FAIRY
 Haunted Wasteland Pot 4,                                    pot,            NONE,                 HAUNTED_WASTELAND,              0x0003,                     MAGIC_JAR_SMALL
+Haunted Wasteland Crate Entrance,                           crate,          NONE,                 HAUNTED_WASTELAND,              0x00125,                    RUPEE_GREEN
+Haunted Wasteland Crate After Pit 1,                        crate,          NONE,                 HAUNTED_WASTELAND,              0x00122,                    RUPEE_GREEN
+Haunted Wasteland Crate After Pit 2,                        crate,          NONE,                 HAUNTED_WASTELAND,              0x00123,                    RUPEE_GREEN
+Haunted Wasteland Crate After Pit 3,                        crate,          NONE,                 HAUNTED_WASTELAND,              0x00124,                    RUPEE_GREEN
+Haunted Wasteland Crate Deep,                               crate,          NONE,                 HAUNTED_WASTELAND,              0x00121,                    RUPEE_GREEN
 Desert Colossus HP,                                         collectible,    NONE,                 DESERT_COLOSSUS,                0x0d,                       HEART_PIECE
 Desert Colossus Song Spirit,                                npc,            NONE,                 DESERT_COLOSSUS,                SHEIK_SPIRIT,               SONG_TP_SPIRIT
 Desert Colossus Grotto Front Scrub,                         scrub,          NONE,                 GROTTOS,                        0x19,                       POTION_GREEN
@@ -820,6 +980,11 @@ Desert Colossus Oasis Fairy 5,                              fairy,          NONE
 Desert Colossus Oasis Fairy 6,                              fairy,          NONE,                 DESERT_COLOSSUS,                0x50001,                    FAIRY
 Desert Colossus Oasis Fairy 7,                              fairy,          NONE,                 DESERT_COLOSSUS,                0x60001,                    FAIRY
 Desert Colossus Oasis Fairy 8,                              fairy,          NONE,                 DESERT_COLOSSUS,                0x70001,                    FAIRY
+Desert Colossus Wonder Item Oasis 1,                        wonder,         NONE,                 DESERT_COLOSSUS,                0x00013,                    MAGIC_JAR_SMALL
+Desert Colossus Wonder Item Oasis 2,                        wonder,         NONE,                 DESERT_COLOSSUS,                0x00015,                    RUPEE_BLUE
+Desert Colossus Wonder Item Oasis Child,                    wonder,         NONE,                 DESERT_COLOSSUS,                0x00016,                    RUPEE_BLUE
+Desert Colossus Wonder Item Fountain 1,                     wonder,         NONE,                 DESERT_COLOSSUS,                0x00014,                    RUPEE_BLUE
+Desert Colossus Wonder Item Fountain 2,                     wonder,         NONE,                 DESERT_COLOSSUS,                0x00017,                    RUPEE_RED
 Skulltula House 10 Tokens,                                  npc,            NONE,                 HOUSE_OF_SKULLTULA,             GS_10,                      WALLET
 Skulltula House 20 Tokens,                                  npc,            NONE,                 HOUSE_OF_SKULLTULA,             GS_20,                      STONE_OF_AGONY
 Skulltula House 30 Tokens,                                  npc,            NONE,                 HOUSE_OF_SKULLTULA,             GS_30,                      WALLET
@@ -955,6 +1120,8 @@ Jabu-Jabu Pot Muscle Block Room 5,                          pot,            NONE
 Jabu-Jabu Pot Alcove 1,                                     pot,            NONE,                 INSIDE_JABU_JABU,               0x0e07,                     DEKU_SEEDS_5
 Jabu-Jabu Pot Alcove 2,                                     pot,            NONE,                 INSIDE_JABU_JABU,               0x0e08,                     FAIRY
 Jabu-Jabu Pot Alcove 3,                                     pot,            NONE,                 INSIDE_JABU_JABU,               0x0e09,                     DEKU_SEEDS_5
+Jabu-Jabu Small Crate 1,                                    crate,          NONE,                 INSIDE_JABU_JABU,               0x00106,                    NOTHING
+Jabu-Jabu Small Crate 2,                                    crate,          NONE,                 INSIDE_JABU_JABU,               0x00107,                    RECOVERY_HEART
 Jabu-Jabu Boss Container,                                   collectible,    NONE,                 LAIR_BARINADE,                  0x1f,                       HEART_CONTAINER
 Jabu-Jabu Boss,                                             npc,            NONE,                 LAIR_BARINADE,                  BLUE_WARP_BARINADE,         STONE_SAPPHIRE
 Jabu-Jabu Boss Pot 1,                                       pot,            NONE,                 LAIR_BARINADE,                  0x0101,                     RECOVERY_HEART
@@ -1040,6 +1207,8 @@ Fire Temple Pot Ring 1,                                     pot,            NONE
 Fire Temple Pot Ring 2,                                     pot,            NONE,                 TEMPLE_FIRE,                    0x0a38,                     RECOVERY_HEART
 Fire Temple Pot Ring 3,                                     pot,            NONE,                 TEMPLE_FIRE,                    0x0a39,                     RECOVERY_HEART
 Fire Temple Pot Ring 4,                                     pot,            NONE,                 TEMPLE_FIRE,                    0x0a3a,                     RECOVERY_HEART
+Fire Temple Crate 1,                                        crate,          NONE,                 TEMPLE_FIRE,                    0x00e02,                    NOTHING
+Fire Temple Crate 2,                                        crate,          NONE,                 TEMPLE_FIRE,                    0x00e03,                    NOTHING
 Fire Temple Heart Ledge Above Main 1,                       heart,          NONE,                 TEMPLE_FIRE,                    0x00600,                    RECOVERY_HEART
 Fire Temple Heart Ledge Above Main 2,                       heart,          NONE,                 TEMPLE_FIRE,                    0x00601,                    RECOVERY_HEART
 Fire Temple Heart Ledge Above Main 3,                       heart,          NONE,                 TEMPLE_FIRE,                    0x00602,                    RECOVERY_HEART
@@ -1265,6 +1434,7 @@ Shadow Temple Heart Pre-Boss 3,                             heart,          NONE
 Shadow Temple Beamos Big Fairy,                             fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x00503,                    FAIRY_BIG
 Shadow Temple Stalfos Big Fairy,                            fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x00915,                    FAIRY_BIG
 Shadow Temple Big Fairy After Wind,                         fairy_spot,     NONE,                 TEMPLE_SHADOW,                  0x01302,                    FAIRY_BIG
+Shadow Temple Wonder Item,                                  wonder,         NONE,                 TEMPLE_SHADOW,                  0x00c01,                    ARROWS_30
 Shadow Temple Boss HC,                                      collectible,    NONE,                 LAIR_BONGO_BONGO,               0x1f,                       HEART_CONTAINER
 Shadow Temple Boss,                                         npc,            NONE,                 LAIR_BONGO_BONGO,               BLUE_WARP_BONGO_BONGO,      MEDALLION_SHADOW
 Gerudo Fortress Jail 1,                                     collectible,    NONE,                 THIEVES_HIDEOUT,                0x0c,                       SMALL_KEY_GF
@@ -1288,7 +1458,32 @@ Gerudo Fortress Pot Jail 2 4,                               pot,            NONE
 Gerudo Fortress Pot Jail 2 5,                               pot,            NONE,                 THIEVES_HIDEOUT,                0x050b,                     RECOVERY_HEART
 Gerudo Fortress Pot Jail 2 6,                               pot,            NONE,                 THIEVES_HIDEOUT,                0x050c,                     RECOVERY_HEART
 Gerudo Fortress Pot Jail 2 7,                               pot,            NONE,                 THIEVES_HIDEOUT,                0x050d,                     RECOVERY_HEART
+Thieves Hideout Crate Break Room 1,                         crate,          NONE,                 THIEVES_HIDEOUT,                0x00006,                    RUPEE_GREEN
+Thieves Hideout Crate Break Room 2,                         crate,          NONE,                 THIEVES_HIDEOUT,                0x00007,                    RUPEE_GREEN
+Thieves Hideout Crate Break Room 3,                         crate,          NONE,                 THIEVES_HIDEOUT,                0x00008,                    RUPEE_GREEN
+Thieves Hideout Crate Break Room 4,                         crate,          NONE,                 THIEVES_HIDEOUT,                0x00009,                    RUPEE_GREEN
+Thieves Hideout Crate Jail 3,                               crate,          NONE,                 THIEVES_HIDEOUT,                0x0010a,                    RUPEE_GREEN
+Thieves Hideout Crate Jail 1,                               crate,          NONE,                 THIEVES_HIDEOUT,                0x0020a,                    RUPEE_GREEN
+Thieves Hideout Crate Kitchen,                              crate,          NONE,                 THIEVES_HIDEOUT,                0x00307,                    RUPEE_GREEN
+Thieves Hideout Crate Kitchen Corridor 1,                   crate,          NONE,                 THIEVES_HIDEOUT,                0x0030a,                    RUPEE_GREEN
+Thieves Hideout Crate Kitchen Corridor 2,                   crate,          NONE,                 THIEVES_HIDEOUT,                0x0030b,                    RUPEE_GREEN
+Thieves Hideout Crate Kitchen Corridor 3,                   crate,          NONE,                 THIEVES_HIDEOUT,                0x0030c,                    RUPEE_GREEN
+Thieves Hideout Crate Kitchen Corridor 4,                   crate,          NONE,                 THIEVES_HIDEOUT,                0x0030d,                    RUPEE_GREEN
+Thieves Hideout Crate Jail 2 1,                             crate,          NONE,                 THIEVES_HIDEOUT,                0x0050f,                    RUPEE_GREEN
+Thieves Hideout Crate Jail 2 2,                             crate,          NONE,                 THIEVES_HIDEOUT,                0x00510,                    RUPEE_GREEN
 Gerudo Fortress Kitchen Big Fairy,                          fairy_spot,     NONE,                 THIEVES_HIDEOUT,                0x00309,                    FAIRY_BIG
+Gerudo Fortress Wonder Item Jail 1 1,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00202,                    RANDOM
+Gerudo Fortress Wonder Item Jail 1 2,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00203,                    RANDOM
+Gerudo Fortress Wonder Item Jail 2 1,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00502,                    RANDOM
+Gerudo Fortress Wonder Item Jail 2 2,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00503,                    RANDOM
+Gerudo Fortress Wonder Item Jail 3 1,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00103,                    RANDOM
+Gerudo Fortress Wonder Item Jail 3 2,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00104,                    RANDOM
+Gerudo Fortress Wonder Item Jail 4 1,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00402,                    RANDOM
+Gerudo Fortress Wonder Item Jail 4 2,                       wonder,         NONE,                 THIEVES_HIDEOUT,                0x00403,                    RANDOM
+Gerudo Fortress Wonder Item Break Room Bottom,              wonder,         NONE,                 THIEVES_HIDEOUT,                0x00002,                    RANDOM
+Gerudo Fortress Wonder Item Break Room Top,                 wonder,         NONE,                 THIEVES_HIDEOUT,                0x00003,                    RANDOM
+Gerudo Fortress Wonder Item Kitchen Skull,                  wonder,         NONE,                 THIEVES_HIDEOUT,                0x00303,                    RANDOM
+Gerudo Fortress Wonder Item Kitchen Soup,                   wonder,         NONE,                 THIEVES_HIDEOUT,                0x00304,                    RUPEE_RED
 Spirit Temple Child First Chest,                            chest,          NONE,                 TEMPLE_SPIRIT,                  0x08,                       SHIELD_DEKU
 Spirit Temple Child Second Chest,                           chest,          NONE,                 TEMPLE_SPIRIT,                  0x00,                       SMALL_KEY_SPIRIT
 Spirit Temple Child Climb 1,                                chest,          NONE,                 TEMPLE_SPIRIT,                  0x0c,                       SHIELD_DEKU
@@ -1360,6 +1555,8 @@ Spirit Temple Flying Pot Topmost 3,                         pot,            NONE
 Spirit Temple Flying Pot Topmost 4,                         pot,            NONE,                 TEMPLE_SPIRIT,                  0x1907,                     RECOVERY_HEART
 Spirit Temple Flying Pot Topmost 5,                         pot,            NONE,                 TEMPLE_SPIRIT,                  0x1908,                     NUTS_5
 Spirit Temple Flying Pot Topmost 6,                         pot,            NONE,                 TEMPLE_SPIRIT,                  0x1909,                     NUTS_5
+Spirit Temple Crate 1,                                      crate,          NONE,                 TEMPLE_SPIRIT,                  0x00109,                    NUTS_5
+Spirit Temple Crate 2,                                      crate,          NONE,                 TEMPLE_SPIRIT,                  0x0010a,                    BOMB
 Spirit Temple Heart 1,                                      heart,          NONE,                 TEMPLE_SPIRIT,                  0x01702,                    RECOVERY_HEART
 Spirit Temple Heart 2,                                      heart,          NONE,                 TEMPLE_SPIRIT,                  0x01703,                    RECOVERY_HEART
 Spirit Temple Adult Silver Rupees Big Fairy,                fairy_spot,     NONE,                 TEMPLE_SPIRIT,                  0x00c01,                    FAIRY_BIG
@@ -1404,6 +1601,9 @@ Gerudo Training Grounds SR Water 5,                         sr,             NONE
 Gerudo Training Grounds Heart 1,                            heart,          NONE,                 GERUDO_TRAINING_GROUND,         0x0070a,                    RECOVERY_HEART
 Gerudo Training Grounds Heart 2,                            heart,          NONE,                 GERUDO_TRAINING_GROUND,         0x0070b,                    RECOVERY_HEART
 Gerudo Training Grounds Entrance Big Fairy,                 fairy_spot,     NONE,                 GERUDO_TRAINING_GROUND,         0x00008,                    FAIRY_BIG
+Gerudo Training Grounds Wonder Item Eye Statue Room,        wonder,         NONE,                 GERUDO_TRAINING_GROUND,         0x00402,                    MAGIC_JAR_LARGE
+Gerudo Training Grounds Wonder Item Torch Slugs Room,       wonder,         NONE,                 GERUDO_TRAINING_GROUND,         0x00510,                    RUPEE_RED
+Gerudo Training Grounds Wonder Item Beamos Room,            wonder,         NONE,                 GERUDO_TRAINING_GROUND,         0x0070c,                    FLEXIBLE
 Ganon Castle Water Chest 1,                                 chest,          NONE,                 INSIDE_GANON_CASTLE,            0x06,                       RECOVERY_HEART
 Ganon Castle Water Chest 2,                                 chest,          NONE,                 INSIDE_GANON_CASTLE,            0x07,                       ICE_TRAP
 Ganon Castle Forest Chest,                                  chest,          NONE,                 INSIDE_GANON_CASTLE,            0x09,                       RUPEE_BLUE
@@ -1562,6 +1762,10 @@ MQ Deku Tree Heart Before Boss 1,                           heart,          NONE
 MQ Deku Tree Heart Before Boss 2,                           heart,          NONE,                 INSIDE_DEKU_TREE,               0x00907,                    RECOVERY_HEART
 MQ Deku Tree Heart Before Boss 3,                           heart,          NONE,                 INSIDE_DEKU_TREE,               0x00908,                    RECOVERY_HEART
 MQ Deku Tree Heart Slingshot Room,                          heart,          NONE,                 INSIDE_DEKU_TREE,               0x00a05,                    RECOVERY_HEART
+MQ Deku Tree Wonder Item 1,                                 wonder,         NONE,                 INSIDE_DEKU_TREE,               0x00709,                    RECOVERY_HEART
+MQ Deku Tree Wonder Item 2,                                 wonder,         NONE,                 INSIDE_DEKU_TREE,               0x0070a,                    RECOVERY_HEART
+MQ Deku Tree Wonder Item 3,                                 wonder,         NONE,                 INSIDE_DEKU_TREE,               0x0070b,                    RECOVERY_HEART
+MQ Deku Tree Wonder Item 4,                                 wonder,         NONE,                 INSIDE_DEKU_TREE,               0x0070c,                    RECOVERY_HEART
 MQ Dodongo Cavern Map Chest,                                chest,          NONE,                 DODONGO_CAVERN,                 0x00,                       MAP_DC
 MQ Dodongo Cavern Compass Chest,                            chest,          NONE,                 DODONGO_CAVERN,                 0x05,                       COMPASS_DC
 MQ Dodongo Cavern Larvae Room Chest,                        chest,          NONE,                 DODONGO_CAVERN,                 0x02,                       RUPEE_BLUE
@@ -1668,6 +1872,29 @@ MQ Jabu-Jabu Rupee Middle,                                  rupee,          NONE
 MQ Jabu-Jabu Rupee Top,                                     rupee,          NONE,                 INSIDE_JABU_JABU,               0x00102,                    RUPEE_GREEN
 MQ Jabu-Jabu Heart 1,                                       heart,          NONE,                 INSIDE_JABU_JABU,               0x00108,                    RECOVERY_HEART
 MQ Jabu-Jabu Heart 2,                                       heart,          NONE,                 INSIDE_JABU_JABU,               0x00109,                    RECOVERY_HEART
+MQ Jabu-Jabu Wonder Item Entrance Left Cow,                 wonder,         NONE,                 INSIDE_JABU_JABU,               0x0000d,                    RECOVERY_HEART
+MQ Jabu-Jabu Wonder Item Entrance Right Cow,                wonder,         NONE,                 INSIDE_JABU_JABU,               0x0000e,                    RECOVERY_HEART
+MQ Jabu-Jabu Wonder Item Elevator Cow,                      wonder,         NONE,                 INSIDE_JABU_JABU,               0x00113,                    RECOVERY_HEART
+MQ Jabu-Jabu Wonder Item Basement Right Cow 1,              wonder,         NONE,                 INSIDE_JABU_JABU,               0x0030d,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Basement Right Cow 2,              wonder,         NONE,                 INSIDE_JABU_JABU,               0x0030e,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Basement Right Cow 3,              wonder,         NONE,                 INSIDE_JABU_JABU,               0x0030f,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Basement Left Cow 1,               wonder,         NONE,                 INSIDE_JABU_JABU,               0x00310,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Basement Left Cow 2,               wonder,         NONE,                 INSIDE_JABU_JABU,               0x00311,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Basement Left Cow 3,               wonder,         NONE,                 INSIDE_JABU_JABU,               0x00312,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Platforms Cow,                     wonder,         NONE,                 INSIDE_JABU_JABU,               0x0040d,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Before Boss Left Cow,              wonder,         NONE,                 INSIDE_JABU_JABU,               0x0050a,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Before Boss Right Cow 1,           wonder,         NONE,                 INSIDE_JABU_JABU,               0x00509,                    RECOVERY_HEART
+MQ Jabu-Jabu Wonder Item Before Boss Right Cow 2,           wonder,         NONE,                 INSIDE_JABU_JABU,               0x0050b,                    FLEXIBLE
+MQ Jabu-Jabu Wonder Item After Big Octo,                    wonder,         NONE,                 INSIDE_JABU_JABU,               0x00607,                    RECOVERY_HEART
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Cow Right 1,    wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b13,                    MAGIC_JAR_SMALL
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Cow Right 2,    wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b14,                    MAGIC_JAR_SMALL
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Cow Right 3,    wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b15,                    MAGIC_JAR_SMALL
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Cow Left 1,     wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b16,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Cow Left 2,     wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b17,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Cow Left 3,     wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b18,                    DEKU_SEEDS_5
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Explosion 1,    wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b1b,                    FLEXIBLE
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Explosion 2,    wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b1c,                    FLEXIBLE
+MQ Jabu-Jabu Wonder Item Falling Like-Likes Explosion 3,    wonder,         NONE,                 INSIDE_JABU_JABU,               0x00b1d,                    FLEXIBLE
 MQ Bottom of the Well Map Chest,                            chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x03,                       MAP_BOTW
 MQ Bottom of the Well Compass Chest,                        chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x02,                       COMPASS_BOTW
 MQ Bottom of the Well Lens Chest,                           chest,          NONE,                 BOTTOM_OF_THE_WELL,             0x01,                       LENS
@@ -1696,6 +1923,18 @@ MQ Bottom of the Well Heart Basement 2,                     heart,          NONE
 MQ Bottom of the Well Heart Basement 3,                     heart,          NONE,                 BOTTOM_OF_THE_WELL,             0x0011d,                    RECOVERY_HEART
 MQ Bottom of the Well Heart Coffin 1,                       heart,          NONE,                 BOTTOM_OF_THE_WELL,             0x0020a,                    RECOVERY_HEART
 MQ Bottom of the Well Heart Coffin 2,                       heart,          NONE,                 BOTTOM_OF_THE_WELL,             0x0020b,                    RECOVERY_HEART
+MQ Bottom of the Well Wonder Item Main Room Left 1,         wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00005,                    MAGIC_JAR_LARGE
+MQ Bottom of the Well Wonder Item Main Room Left 2,         wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00006,                    MAGIC_JAR_LARGE
+MQ Bottom of the Well Wonder Item Main Room Left 3,         wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00008,                    ARROWS_30
+MQ Bottom of the Well Wonder Item Main Room Left 4,         wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x0000a,                    FLEXIBLE
+MQ Bottom of the Well Wonder Item Main Room Right 1,        wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00007,                    MAGIC_JAR_LARGE
+MQ Bottom of the Well Wonder Item Main Room Right 2,        wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00009,                    ARROWS_30
+MQ Bottom of the Well Wonder Item Main Room Right 3,        wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x0000b,                    FLEXIBLE
+MQ Bottom of the Well Wonder Item Main Room Right 4,        wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x0000c,                    FLEXIBLE
+MQ Bottom of the Well Wonder Item Side Room 1,              wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00500,                    MAGIC_JAR_LARGE
+MQ Bottom of the Well Wonder Item Side Room 2,              wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00501,                    MAGIC_JAR_LARGE
+MQ Bottom of the Well Wonder Item Side Room 3,              wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00502,                    ARROWS_30
+MQ Bottom of the Well Wonder Item Side Room 4,              wonder,         NONE,                 BOTTOM_OF_THE_WELL,             0x00503,                    FLEXIBLE
 MQ Ice Cavern Map Chest,                                    chest,          NONE,                 ICE_CAVERN,                     0x01,                       MAP_IC
 MQ Ice Cavern Compass Chest,                                chest,          NONE,                 ICE_CAVERN,                     0x00,                       COMPASS_IC
 MQ Ice Cavern Iron Boots,                                   chest,          ICE_CAVERN_CHEST,     ICE_CAVERN,                     0x02,                       BOOTS_IRON
@@ -1809,6 +2048,20 @@ MQ Fire Temple Hammer Loop Iron Knuckle Big Fairy,          fairy_spot,     NONE
 MQ Fire Temple Heart 1,                                     heart,          NONE,                 TEMPLE_FIRE,                    0x01502,                    RECOVERY_HEART
 MQ Fire Temple Heart 2,                                     heart,          NONE,                 TEMPLE_FIRE,                    0x01503,                    RECOVERY_HEART
 MQ Fire Temple Heart 3,                                     heart,          NONE,                 TEMPLE_FIRE,                    0x01504,                    RECOVERY_HEART
+MQ Fire Temple Wonder Item Shortcut Room 1,                 wonder,         NONE,                 TEMPLE_FIRE,                    0x00406,                    MAGIC_JAR_LARGE
+MQ Fire Temple Wonder Item Shortcut Room 2,                 wonder,         NONE,                 TEMPLE_FIRE,                    0x00407,                    RECOVERY_HEART
+MQ Fire Temple Wonder Item Shortcut Room 3,                 wonder,         NONE,                 TEMPLE_FIRE,                    0x00408,                    ARROWS_10
+MQ Fire Temple Wonder Item East Maze,                       wonder,         NONE,                 TEMPLE_FIRE,                    0x00513,                    RUPEE_RED
+MQ Fire Temple Wonder Item East Climb First 1,              wonder,         NONE,                 TEMPLE_FIRE,                    0x00706,                    MAGIC_JAR_LARGE
+MQ Fire Temple Wonder Item East Climb First 2,              wonder,         NONE,                 TEMPLE_FIRE,                    0x00707,                    FLEXIBLE
+MQ Fire Temple Wonder Item East Climb Second 1,             wonder,         NONE,                 TEMPLE_FIRE,                    0x00704,                    MAGIC_JAR_LARGE
+MQ Fire Temple Wonder Item East Climb Second 2,             wonder,         NONE,                 TEMPLE_FIRE,                    0x00705,                    FLEXIBLE
+MQ Fire Temple Wonder Item Fire Maze,                       wonder,         NONE,                 TEMPLE_FIRE,                    0x00a2a,                    FLEXIBLE
+MQ Fire Temple Wonder Item After Flare Dancer,              wonder,         NONE,                 TEMPLE_FIRE,                    0x00c00,                    FLEXIBLE
+MQ Fire Temple Wonder Item Staircase,                       wonder,         NONE,                 TEMPLE_FIRE,                    0x00e01,                    FLEXIBLE
+MQ Fire Temple Wonder Item Torch Room,                      wonder,         NONE,                 TEMPLE_FIRE,                    0x01000,                    FLEXIBLE
+MQ Fire Temple Wonder Item Boss Key Room Hookshot,          wonder,         NONE,                 TEMPLE_FIRE,                    0x01309,                    FLEXIBLE
+MQ Fire Temple Wonder Item Boss Key Room Bow,               wonder,         NONE,                 TEMPLE_FIRE,                    0x0130a,                    FLEXIBLE
 MQ Water Temple Map Chest,                                  chest,          NONE,                 TEMPLE_WATER,                   0x02,                       MAP_WATER
 MQ Water Temple Compass Chest,                              chest,          NONE,                 TEMPLE_WATER,                   0x01,                       COMPASS_WATER
 MQ Water Temple Longshot Chest,                             chest,          NONE,                 TEMPLE_WATER,                   0x00,                       HOOKSHOT
@@ -1854,6 +2107,28 @@ MQ Water Temple Pot River 2,                                pot,            NONE
 MQ Water Temple Big Fairy Before Dark Link Ledge,           fairy_spot,     NONE,                 TEMPLE_WATER,                   0x00601,                    FAIRY_BIG
 MQ Water Temple Big Fairy Before Dark Link Near Door 1,     fairy_spot,     NONE,                 TEMPLE_WATER,                   0x00605,                    FAIRY_BIG
 MQ Water Temple Big Fairy Before Dark Link Near Door 2,     fairy_spot,     NONE,                 TEMPLE_WATER,                   0x00606,                    FAIRY_BIG
+MQ Water Temple Wonder Item Under Pillar Room,              wonder,         NONE,                 TEMPLE_WATER,                   0x00218,                    MAGIC_JAR_LARGE
+MQ Water Temple Wonder Item Triple Torches,                 wonder,         NONE,                 TEMPLE_WATER,                   0x00303,                    FLEXIBLE
+MQ Water Temple Wonder Item Hookshot Staircase Right 1,     wonder,         NONE,                 TEMPLE_WATER,                   0x00502,                    NUTS_5
+MQ Water Temple Wonder Item Hookshot Staircase Right 2,     wonder,         NONE,                 TEMPLE_WATER,                   0x00503,                    RECOVERY_HEART
+MQ Water Temple Wonder Item Hookshot Staircase Right 3,     wonder,         NONE,                 TEMPLE_WATER,                   0x00504,                    RUPEE_RED
+MQ Water Temple Wonder Item Hookshot Staircase Left 1,      wonder,         NONE,                 TEMPLE_WATER,                   0x00509,                    FLEXIBLE
+MQ Water Temple Wonder Item Hookshot Staircase Left 2,      wonder,         NONE,                 TEMPLE_WATER,                   0x0050a,                    FLEXIBLE
+MQ Water Temple Wonder Item Hookshot Staircase Left 3,      wonder,         NONE,                 TEMPLE_WATER,                   0x0050b,                    FLEXIBLE
+MQ Water Temple Wonder Item After Dark Link,                wonder,         NONE,                 TEMPLE_WATER,                   0x00700,                    MAGIC_JAR_LARGE
+MQ Water Temple Wonder Item Dragon Room Eyes 1,             wonder,         NONE,                 TEMPLE_WATER,                   0x00804,                    MAGIC_JAR_LARGE
+MQ Water Temple Wonder Item Dragon Room Eyes 2,             wonder,         NONE,                 TEMPLE_WATER,                   0x00806,                    FLEXIBLE
+MQ Water Temple Wonder Item Dragon Room Portrait,           wonder,         NONE,                 TEMPLE_WATER,                   0x00805,                    MAGIC_JAR_LARGE
+MQ Water Temple Wonder Item Above 2F West Room,             wonder,         NONE,                 TEMPLE_WATER,                   0x00a01,                    RANDOM
+MQ Water Temple Wonder Item Before Boss 1,                  wonder,         NONE,                 TEMPLE_WATER,                   0x00b00,                    MAGIC_JAR_LARGE
+MQ Water Temple Wonder Item Before Boss 2,                  wonder,         NONE,                 TEMPLE_WATER,                   0x00b01,                    FLEXIBLE
+MQ Water Temple Wonder Item Water Sprouts 1,                wonder,         NONE,                 TEMPLE_WATER,                   0x00f00,                    MAGIC_JAR_SMALL
+MQ Water Temple Wonder Item Water Sprouts 2,                wonder,         NONE,                 TEMPLE_WATER,                   0x00f01,                    ARROWS_30
+MQ Water Temple Wonder Item Freestanding Room,              wonder,         NONE,                 TEMPLE_WATER,                   0x01000,                    MAGIC_JAR_LARGE
+MQ Water Temple Wonder Item Longshot Room,                  wonder,         NONE,                 TEMPLE_WATER,                   0x01107,                    MAGIC_JAR_SMALL
+MQ Water Temple Wonder Item Lizalfos Room,                  wonder,         NONE,                 TEMPLE_WATER,                   0x01203,                    RUPEE_RED
+MQ Water Temple Wonder Item Stalfos Room,                   wonder,         NONE,                 TEMPLE_WATER,                   0x01305,                    FLEXIBLE
+MQ Water Temple Wonder Item Lizalfos Hallway,               wonder,         NONE,                 TEMPLE_WATER,                   0x01402,                    ARROWS_5
 MQ Shadow Temple Compass Chest,                             chest,          NONE,                 TEMPLE_SHADOW,                  0x01,                       COMPASS_SHADOW
 MQ Shadow Temple Hover Boots Chest,                         chest,          NONE,                 TEMPLE_SHADOW,                  0x07,                       BOOTS_HOVER
 MQ Shadow Temple First Gibdos Chest,                        chest,          NONE,                 TEMPLE_SHADOW,                  0x03,                       SMALL_KEY_SHADOW
@@ -1942,6 +2217,7 @@ MQ Shadow Temple Heart Shortcut 2,                          heart,          NONE
 MQ Shadow Temple Heart Pre-Boss Upper 1,                    heart,          NONE,                 TEMPLE_SHADOW,                  0x0150b,                    RECOVERY_HEART
 MQ Shadow Temple Heart Pre-Boss Upper 2,                    heart,          NONE,                 TEMPLE_SHADOW,                  0x0150c,                    RECOVERY_HEART
 MQ Shadow Temple Heart Pre-Boss Lower,                      heart,          NONE,                 TEMPLE_SHADOW,                  0x0150d,                    RECOVERY_HEART
+MQ Shadow Temple Wonder Item,                               wonder,         NONE,                 TEMPLE_SHADOW,                  0x00c01,                    ARROWS_30
 MQ Spirit Temple Entrance Initial Chest,                    chest,          NONE,                 TEMPLE_SPIRIT,                  0x1a,                       BOMBCHU_5
 MQ Spirit Temple Lobby Back-Left Chest,                     chest,          NONE,                 TEMPLE_SPIRIT,                  0x1e,                       SMALL_KEY_SPIRIT
 MQ Spirit Temple Lobby Back-Right Chest,                    chest,          NONE,                 TEMPLE_SPIRIT,                  0x1f,                       BOMBCHU_5
@@ -2012,6 +2288,8 @@ MQ Spirit Temple Flying Pot Statue Room Stairs,             pot,            NONE
 MQ Spirit Temple Dinolfos Room Big Fairy,                   fairy_spot,     NONE,                 TEMPLE_SPIRIT,                  0x01202,                    FAIRY_BIG
 MQ Spirit Temple Heart 1,                                   heart,          NONE,                 TEMPLE_SPIRIT,                  0x0010d,                    RECOVERY_HEART
 MQ Spirit Temple Heart 2,                                   heart,          NONE,                 TEMPLE_SPIRIT,                  0x0010e,                    RECOVERY_HEART
+MQ Spirit Temple Wonder Item Chest Hammer,                  wonder,         NONE,                 TEMPLE_SPIRIT,                  0x01208,                    RECOVERY_HEART
+MQ Spirit Temple Wonder Item Chest Slash,                   wonder,         NONE,                 TEMPLE_SPIRIT,                  0x01209,                    RECOVERY_HEART
 MQ Gerudo Training Grounds Entryway Left Chest,             chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x13,                       ARROWS_10
 MQ Gerudo Training Grounds Entryway Right Chest,            chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x07,                       BOMBCHU_10
 MQ Gerudo Training Grounds Maze First Chest,                chest,          NONE,                 GERUDO_TRAINING_GROUND,         0x0b,                       RUPEE_PURPLE
@@ -2047,6 +2325,8 @@ MQ Gerudo Training Grounds Pot 1,                           pot,            NONE
 MQ Gerudo Training Grounds Pot 2,                           pot,            NONE,                 GERUDO_TRAINING_GROUND,         0x0006,                     MAGIC_JAR_SMALL
 MQ Gerudo Training Grounds Pot 3,                           pot,            NONE,                 GERUDO_TRAINING_GROUND,         0x0007,                     MAGIC_JAR_LARGE
 MQ Gerudo Training Grounds Pot 4,                           pot,            NONE,                 GERUDO_TRAINING_GROUND,         0x0008,                     RECOVERY_HEART
+MQ Gerudo Training Grounds Wonder Item Eye Statue,          wonder,         NONE,                 GERUDO_TRAINING_GROUND,         0x00404,                    MAGIC_JAR_LARGE
+MQ Gerudo Training Grounds Wonder Item Dodongo Room Wall,   wonder,         NONE,                 GERUDO_TRAINING_GROUND,         0x00709,                    FLEXIBLE
 MQ Ganon Castle Light Trial Chest,                          chest,          NONE,                 INSIDE_GANON_CASTLE,            0x04,                       RECOVERY_HEART
 MQ Ganon Castle Forest Trial First Chest,                   chest,          NONE,                 INSIDE_GANON_CASTLE,            0x02,                       ARROWS_10
 MQ Ganon Castle Forest Trial Second Chest,                  chest,          NONE,                 INSIDE_GANON_CASTLE,            0x03,                       BOMBS_5
@@ -2103,3 +2383,4 @@ MQ Ganon Castle Fairy Fountain Fairy 8,                     fairy,          NONE
 MQ Ganon Castle Heart Water,                                heart,          NONE,                 INSIDE_GANON_CASTLE,            0x0021d,                    RECOVERY_HEART
 MQ Ganon Castle Heart Light 1,                              heart,          NONE,                 INSIDE_GANON_CASTLE,            0x00805,                    RECOVERY_HEART
 MQ Ganon Castle Heart Light 2,                              heart,          NONE,                 INSIDE_GANON_CASTLE,            0x00806,                    RECOVERY_HEART
+MQ Ganon Castle Wonder Item,                                wonder,         NONE,                 INSIDE_GANON_CASTLE,            0x00c0c,                    NUTS_5

@@ -305,7 +305,7 @@ PATCH_START 0x80861c5c
 .int 0
 PATCH_END
 
-/* Magic Spells. TODO PATCH_GROUP ? */
+/* Magic Spells. */
 
 /*
 Replaces:
@@ -857,6 +857,19 @@ PATCH_END
 
 PATCH_GROUP_END
 
+PATCH_START 0x80122ab8
+  jal     Player_AfterMaskLoaded
+   move   a0, s2
+  li      at, 0x0b
+  bne     v0, at, .+0xc0
+PATCH_END
+
+PATCH_START 0x80846c6c
+  lui     t9, %HI(Player_OverrideLimbDrawGameplayDefault_Custom)
+  bne     v0, at, .+0x4c
+   addiu  t9, t9, %LO(Player_OverrideLimbDrawGameplayDefault_Custom)
+PATCH_END
+
 /* Change child link object to use EnvColor instead of PrimColor */
 
 PATCH_VROM 0x01166390
@@ -1180,4 +1193,29 @@ PATCH_VROM 0x0108CD38
 .int 0x3C3C58FF
 .int 0x00000000
 .int 0x00000000
+PATCH_END
+
+PATCH_GROUP PG_MM_FAST_MASKS
+/* Skip mask pull out cutscene */
+PATCH_START 0x80841ebc
+  b .+0x640
+   nop
+PATCH_END
+PATCH_GROUP_END
+
+/* Use our item hook */
+PATCH_START 0x8082ff1c
+  jal Player_UseItem
+PATCH_END
+
+PATCH_START 0x8085e910
+.int 0
+PATCH_END
+
+PATCH_START 0x808302b0
+  jal Player_UseItem
+PATCH_END
+
+PATCH_START 0x8085e958
+.int 0
 PATCH_END

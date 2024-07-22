@@ -1,23 +1,46 @@
-
-import { build } from "./build";
-import { codegen } from "./codegen";
-import { custom } from "./custom";
-import { decompressGames } from "./decompress";
+import { codegen } from './codegen';
+import { custom } from './custom';
+import { decompressGames } from './decompress';
 import { logic } from './logic';
 import { Monitor, MonitorCallbacks } from './monitor';
-import { Options } from "./options";
-import { pack } from "./pack";
+import { Options } from './options';
+import { pack } from './pack';
 import { buildPatchfiles } from './patch-build';
 import { Patchfile } from './patch-build/patchfile';
 import { makeAddresses } from './addresses';
 import { applyRandomSettings } from './settings/random';
+import { makeResolver } from './resolve';
+
+export type GeneratorOutputFile = {
+  name: string;
+  data: string | Buffer;
+  mime: string;
+};
 
 export type GeneratorOutput = {
   hash: string;
-  log: string | null;
-  roms: Buffer[];
-  patches: Buffer[];
+  files: GeneratorOutputFile[];
 };
+
+function makeFile(opts: { name?: string, data: string | Buffer, mime: string, hash?: string, world?: number, ext: string }): GeneratorOutputFile {
+  let name = 'OoTMM';
+
+  if (opts.name) {
+    name = name + '-' + opts.name;
+  }
+
+  if (opts.hash) {
+    name = name + '-' + opts.hash;
+  }
+
+  if (opts.world !== undefined) {
+    name = name + '-P' + opts.world;
+  }
+
+  name = name + '.' + opts.ext;
+
+  return { name, data: opts.data, mime: opts.mime };
+}
 
 export class Generator {
   private monitor: Monitor;
@@ -38,6 +61,7 @@ export class Generator {
   }
 
   async run(): Promise<GeneratorOutput> {
+    const startTime = performance.now();
     const roms = await decompressGames(this.monitor, { oot: this.oot, mm: this.mm });
     const addresses = makeAddresses(roms);
     let patchfiles: Patchfile[];
@@ -52,37 +76,61 @@ export class Generator {
       }
       const patchfile = new Patchfile;
       await custom(this.opts, this.monitor, roms, patchfile);
-      const buildResult = await build(this.opts);
+      const resolver = await makeResolver(this.opts);
+
       /* Run logic */
       const logicResult = logic(this.monitor, this.opts);
       patchfile.setHash(logicResult.hash);
-      patchfiles = buildPatchfiles({
+      patchfiles = await buildPatchfiles({
         opts: this.opts,
         patch: patchfile,
         monitor: this.monitor,
         roms,
         addresses,
-        build: buildResult,
+        resolver,
         logic: logicResult,
         settings: this.opts.settings,
       });
       log = logicResult.log;
     } else {
-      patchfiles = [new Patchfile(Buffer.from(this.opts.patch))];
+      const patchfile = new Patchfile;
+      await patchfile.deserialize(Buffer.from(this.opts.patch));
+      patchfiles = [patchfile];
     }
 
+    const hash = patchfiles[0].hash;
+    const hashFileName = this.opts.debug ? undefined : hash;
+    const files: GeneratorOutputFile[] = [];
+    const playerNumber = (id: number) => patchfiles.length === 1 ? undefined : id + 1;
+
     /* Build ROM(s) */
-    let packedRoms: Buffer[] = [];
     if (patchfiles.length === 1 || this.opts.debug) {
-      packedRoms = await Promise.all(patchfiles.map(x => pack({ opts: this.opts, monitor: this.monitor, roms, patchfile: x, addresses })));
+      for (let i = 0; i < patchfiles.length; i++) {
+        const { rom, cosmeticLog } = await pack({ opts: this.opts, monitor: this.monitor, roms, patchfile: patchfiles[i], addresses });
+        files.push(makeFile({ hash: hashFileName, data: rom, mime: 'application/octet-stream', world: playerNumber(i), ext: 'z64' }));
+        if (cosmeticLog) {
+          files.push(makeFile({ name: 'Cosmetics', hash: hashFileName, data: cosmeticLog, mime: 'text/plain', world: playerNumber(i), ext: 'txt' }));
+        }
+      }
     }
 
     /* Build patch(es) */
-    let patches: Buffer[] = [];
     if (!this.opts.patch) {
-      patches = patchfiles.map(x => x.toBuffer());
+      for (let i = 0; i < patchfiles.length; i++) {
+        const data = await patchfiles[i].serialize();
+        files.push(makeFile({ name: 'Patch', hash: hashFileName, data, mime: 'application/octet-stream', world: playerNumber(i), ext: 'ootmm' }));
+      }
     }
 
-    return { roms: packedRoms, log, hash: patchfiles[0].hash, patches };
+    if (log) {
+      files.push(makeFile({ name: 'Spoiler', hash: hashFileName, data: Buffer.from(log), mime: 'text/plain', ext: 'txt' }));
+    }
+
+    const endTime = performance.now();
+    const durationMs = Math.round(endTime - startTime);
+    const duration = durationMs / 1000;
+    this.monitor.debug(`Generation took ${duration.toFixed(3)}s`);
+
+    return { hash, files };
   }
 };

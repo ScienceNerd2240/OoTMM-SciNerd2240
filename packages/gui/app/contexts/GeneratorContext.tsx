@@ -1,24 +1,29 @@
-import React, { createContext, useContext, useState } from 'react';
-import { GeneratorOutput, Items, Settings, itemPool, OptionsInput, mergeSettings, makeSettings, SettingsPatch, Cosmetics, OptionRandomSettings } from '@ootmm/core';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { GeneratorOutput, Items, Settings, itemPool, OptionsInput, mergeSettings, makeSettings, SettingsPatch, Cosmetics, OptionRandomSettings, COSMETICS } from '@ootmm/core';
 import { merge } from 'lodash';
 
 import * as API from '../api';
+import { loadFile, saveFile } from '../db';
+
+let settingsTicket = 0;
 
 type GeneratorState = {
   romConfig: {
     files: {
-      oot: Buffer | null;
-      mm: Buffer | null;
-      patch: Buffer | null;
+      oot: File | null;
+      mm: File | null;
+      patch: File | null;
     },
     seed: string;
   },
-  files: {[k: string]: File | null},
   generator: {
     isGenerating: boolean;
     message: string | null;
+    progress: number | null;
     error: string | null;
     result: GeneratorOutput | null;
+    archive: API.ResultFile | null;
+    warnings: string[];
   },
   isPatch: boolean;
   settings: Settings;
@@ -30,12 +35,11 @@ type GeneratorState = {
 type GeneratorContext = {
   state: GeneratorState;
   setState: React.Dispatch<React.SetStateAction<GeneratorState>>;
-  setFile: (key: string, file: File) => void;
-  setFileBuffer: (key: keyof GeneratorState['romConfig']['files'], file: ArrayBuffer) => void;
+  setRomConfigFile: (key: keyof GeneratorState['romConfig']['files'], file: File | null) => void;
   setSeed: (seed: string) => void;
   setIsPatch: (isPatch: boolean) => void;
   setSettings: (settings: SettingsPatch) => Settings;
-  setCosmetics: (cosmetics: Partial<Cosmetics>) => Cosmetics;
+  setCosmetic: (key: string, value: any) => Cosmetics;
   overrideSettings: (settings: Settings) => Settings;
   setRandomSettings: (random: Partial<OptionRandomSettings>) => OptionRandomSettings;
 }
@@ -57,7 +61,6 @@ function createState(): GeneratorState {
       },
       seed: '',
     },
-    files: {},
     isPatch: false,
     settings,
     random,
@@ -66,8 +69,11 @@ function createState(): GeneratorState {
     generator: {
       isGenerating: false,
       message: null,
+      progress: null,
       error: null,
       result: null,
+      archive: null,
+      warnings: [],
     }
   };
 }
@@ -75,12 +81,15 @@ function createState(): GeneratorState {
 export function GeneratorContextProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState(createState);
 
-  const setFileBuffer = (key: keyof GeneratorState['romConfig']['files'], file: ArrayBuffer) => {
+  const setRomConfigFileRaw = (key: keyof GeneratorState['romConfig']['files'], file: File | null) => {
     setState(state => ({ ...state, romConfig: { ...state.romConfig, files: { ...state.romConfig.files, [key]: file } }}));
-  };
+  }
 
-  const setFile = (key: string, file: File) => {
-    setState(state => ({ ...state, files: { ...state.files, [key]: file }}));
+  const setRomConfigFile = (key: keyof GeneratorState['romConfig']['files'], file: File | null) => {
+    setRomConfigFileRaw(key, file);
+    if (key !== 'patch') {
+      saveFile(key, file).catch(console.error);
+    }
   };
 
   const setSeed = (seed: string) => {
@@ -91,21 +100,55 @@ export function GeneratorContextProvider({ children }: { children: React.ReactNo
     setState(state => ({ ...state, isPatch }));
   };
 
-  const setSettings = (patch: SettingsPatch) => {
-    const newSettings = mergeSettings(state.settings, patch);
-    setState(state => ({ ...state, settings: newSettings }));
-    return newSettings;
-  };
-
   const overrideSettings = (settings: Settings) => {
+    const ticket = ++settingsTicket;
     setState(state => ({ ...state, settings }));
+    localStorage.setItem('settings', JSON.stringify(settings));
+    API.itemPoolFromSettings(settings).then((itemPool) => {
+      if (ticket !== settingsTicket) {
+        return;
+      }
+      setState((state) => {
+        const startingItems = API.restrictItemsByPool(state.settings.startingItems, itemPool);
+        const newSettings = { ...state.settings, startingItems };
+        localStorage.setItem('settings', JSON.stringify(newSettings));
+        return { ...state, settings: makeSettings(newSettings), itemPool };
+      });
+    });
     return settings;
   };
 
-  const setCosmetics = (patch: Partial<Cosmetics>) => {
-    const cosmetics = merge({}, state.cosmetics, patch);
-    setState(state => ({ ...state, cosmetics }));
-    return cosmetics;
+  const setSettings = (patch: SettingsPatch) => {
+    const newSettings = mergeSettings(state.settings, patch);
+    return overrideSettings(newSettings);
+  };
+
+  const setCosmeticRaw = (key: string, value: any) => {
+    const newCosmetics = merge({}, state.cosmetics, { [key]: value });
+    setState(state => ({ ...state, cosmetics: newCosmetics }));
+    return newCosmetics;
+  };
+
+  const setCosmetic = (key: string, value: any) => {
+    const newCosmetics = setCosmeticRaw(key, value);
+
+    /* Save to localStorage */
+    const savedCosmetics = { ...newCosmetics };
+    for (const key of Object.keys(savedCosmetics)) {
+      const v = (savedCosmetics as any)[key];
+      if (v instanceof File) {
+        delete (savedCosmetics as any)[key];
+      }
+    }
+    localStorage.setItem('cosmetics', JSON.stringify(savedCosmetics));
+
+    /* Save new file */
+    const cosmeticData = COSMETICS.find(c => c.key === key);
+    if (cosmeticData && (cosmeticData.type === 'file')) {
+      saveFile(`cosmetics:${key}`, value).catch(console.error);
+    }
+
+    return newCosmetics;
   };
 
   const setRandomSettings = (patch: Partial<OptionRandomSettings>) => {
@@ -114,23 +157,31 @@ export function GeneratorContextProvider({ children }: { children: React.ReactNo
     return random;
   };
 
+  /* Async file load */
+  useEffect(() => {
+    /* Roms */
+    loadFile('oot').then(x => setRomConfigFileRaw('oot', x)).catch(console.error);
+    loadFile('mm').then(x => setRomConfigFileRaw('mm', x)).catch(console.error);
+
+    /* Cosmetics */
+    for (const c of COSMETICS) {
+      if (c.type === 'file') {
+        loadFile(`cosmetics:${c.key}`).then(x => setCosmeticRaw(c.key, x)).catch(console.error);
+      }
+    }
+  }, []);
+
   return (
-    <GeneratorContext.Provider value={{ state, setState, setFileBuffer, setFile, setSeed, setIsPatch, setSettings, overrideSettings, setCosmetics, setRandomSettings }}>
+    <GeneratorContext.Provider value={{ state, setState, setRomConfigFile, setSeed, setIsPatch, setSettings, overrideSettings, setCosmetic, setRandomSettings }}>
       {children}
     </GeneratorContext.Provider>
   );
 }
 
-export const useRomConfig = () => {
-  const { state, setFileBuffer, setSeed } = useContext(GeneratorContext);
+export function useRomConfig() {
+  const { state, setRomConfigFile, setSeed } = useContext(GeneratorContext);
   const { romConfig } = state;
-  return { romConfig, setFileBuffer, setSeed };
-}
-
-export const useFiles = () => {
-  const { state, setFile } = useContext(GeneratorContext);
-  const { files } = state;
-  return [files, setFile] as const;
+  return { romConfig, setRomConfigFile, setSeed };
 }
 
 export function useIsPatch() {
@@ -141,41 +192,44 @@ export function useIsPatch() {
 export function useGenerator() {
   const { state, setState } = useContext(GeneratorContext);
   const { generator } = state;
-  const { isGenerating, message, error, result } = generator;
+  const { isGenerating, message, progress, error, result, archive, warnings } = generator;
 
   const generate = async () => {
-    setState((state) => ({ ...state, generator: { ...state.generator, isGenerating: true } }));
+    setState((state) => ({ ...state, generator: { ...state.generator, isGenerating: true, archive: null, result: null, error: null, warnings: [] } }));
     const { oot, mm, patch } = state.romConfig.files;
     const options: OptionsInput = { seed: state.romConfig.seed, settings: state.settings, cosmetics: state.cosmetics, random: state.random };
     try {
-      const result = await API.generate({ oot: oot!, mm: mm!, patch: patch ? patch : undefined }, options, (message) => {
+      const onMessage = (message: string) => {
         console.log(message);
-        setState((state) => ({ ...state, generator: { ...state.generator, message } }));
-      });
-      setState((state) => ({ ...state, generator: { ...state.generator, isGenerating: false, result } }));
+        setState((state) => ({ ...state, generator: { ...state.generator, message, progress: null } }));
+      };
+
+      const onProgress = (progress: number, total: number) => {
+        let newProgress: number | null;
+        if (total === 0) {
+          newProgress = null;
+        } else {
+          newProgress = Math.floor(progress * 1000 / total) * 0.1;
+        }
+
+        setState((state) => ({ ...state, generator: { ...state.generator, progress: newProgress } }));
+      };
+
+      const { data, warnings } = await API.generate({ oot: oot!, mm: mm!, patch: patch ? patch : undefined }, options, onMessage, onProgress);
+      setState((state) => ({ ...state, generator: { ...state.generator, isGenerating: false, result: data, warnings } }));
+      const archive = await API.archive(data);
+      setState((state) => ({ ...state, generator: { ...state.generator, archive } }));
     } catch (e: any) {
       setState((state) => ({ ...state, generator: { ...state.generator, isGenerating: false, error: e.toString() } }));
     }
   };
 
-  return { isGenerating, message, error, result, generate };
+  return { isGenerating, message, error, result, archive, generate, progress, warnings };
 }
 
 export function useSettings() {
   const ctx = useContext(GeneratorContext);
-  const setSettings = (patch: SettingsPatch) => {
-    const newSettings = ctx.setSettings(patch);
-    localStorage.setItem('settings', JSON.stringify(newSettings));
-    API.itemPoolFromSettings(newSettings).then((itemPool) => {
-      ctx.setState((state) => {
-        const startingItems = API.restrictItemsByPool(state.settings.startingItems, itemPool);
-        const newSettings = { ...state.settings, startingItems };
-        localStorage.setItem('settings', JSON.stringify(newSettings));
-        return { ...state, settings: makeSettings(newSettings), itemPool };
-      });
-    });
-  };
-  return [ctx.state.settings, setSettings] as const;
+  return [ctx.state.settings, ctx.setSettings] as const;
 }
 
 export function useRandomSettings() {
@@ -232,17 +286,6 @@ export function useStartingItems() {
 export function useCosmetics() {
   const ctx = useContext(GeneratorContext);
   const { cosmetics } = ctx.state;
-  const setCosmetics = (patch: Partial<Cosmetics>) => {
-    const newCosmetics = ctx.setCosmetics(patch);
-    const savedCosmetics = { ...newCosmetics };
-    for (const key of Object.keys(savedCosmetics)) {
-      const v = (savedCosmetics as any)[key];
-      if (v instanceof ArrayBuffer) {
-        delete (savedCosmetics as any)[key];
-      }
-    }
-    localStorage.setItem('cosmetics', JSON.stringify(savedCosmetics));
-    return newCosmetics;
-  }
-  return [cosmetics, setCosmetics] as const;
+  const { setCosmetic } = ctx;
+  return [cosmetics, setCosmetic] as const;
 }

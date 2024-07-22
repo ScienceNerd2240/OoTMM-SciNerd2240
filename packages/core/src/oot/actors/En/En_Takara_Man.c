@@ -1,5 +1,6 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/actor.h>
 
 #define SET_HANDLER(a, h) do { *(void**)(((char*)(a)) + 0x13c) = (h); } while (0)
 
@@ -24,7 +25,7 @@ void EnTakaraMan_GiveItem(Actor* this, GameState_Play* play, s16 gi, float a, fl
 
 int EnTakaraMan_HasGivenItem(Actor* this)
 {
-    if (!Actor_HasParent(this))
+    if (!Actor_HasParentZ(this))
         return 0;
 
     gOotExtraFlags.chestGameKey = 1;

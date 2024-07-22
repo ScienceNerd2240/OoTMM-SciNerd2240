@@ -1,6 +1,9 @@
 #include <combo.h>
 #include <combo/csmc.h>
 #include <combo/item.h>
+#include <combo/config.h>
+#include <combo/global.h>
+#include <combo/actor.h>
 
 void EnKusa_Aliases(Xflag* xflag)
 {
@@ -36,7 +39,7 @@ void EnKusa_Aliases(Xflag* xflag)
         break;
     case SCE_MM_GROTTOS:
         if (xflag->roomId == 0x04)
-            xflag->roomId = 0x20 | (GROTTO_CHEST_FLAG(gSaveContext) & 0x1f);
+            xflag->roomId = 0x20 | (gGrottoData & 0x1f);
         break;
     }
 }
@@ -82,7 +85,7 @@ void EnKusa_DrawWrapper(Actor_EnKusa* this, GameState_Play* play)
     ComboItemOverride o;
     int alt;
 
-    if (comboConfig(CFG_MM_SHUFFLE_GRASS) && !comboXflagsGet(&this->xflag))
+    if (Config_Flag(CFG_MM_SHUFFLE_GRASS) && !comboXflagsGet(&this->xflag))
         comboXflagItemOverride(&o, &this->xflag, 0);
     else
         o.gi = 0;

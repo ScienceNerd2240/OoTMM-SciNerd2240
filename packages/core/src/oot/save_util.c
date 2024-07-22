@@ -76,10 +76,10 @@ static void initCustomSave(void)
 
     bzero(buf, sizeof(buf));
     for (int i = 0; i < 0x4000 / sizeof(buf); ++i)
-        comboReadWriteFlash(0x18000 + 0x4000 * gSaveContext.fileIndex + i * sizeof(buf), buf, sizeof(buf), OS_WRITE);
+        Flash_ReadWrite(0x18000 + 0x4000 * gSaveContext.fileIndex + i * sizeof(buf), buf, sizeof(buf), OS_WRITE);
 }
 
-void comboCreateSaveMM(void)
+void Save_CreateMM(void)
 {
     int i;
     int j;
@@ -93,7 +93,7 @@ void comboCreateSaveMM(void)
     bzero(&gMmSave, sizeof(MmSave));
 
     /* Create some save data */
-    gMmSave.entranceIndex = ENTR_MM_CLOCK_TOWN;
+    gMmSave.entrance = ENTR_MM_CLOCK_TOWN;
     gMmSave.cutscene = 0;
     gMmSave.isFirstCycle = 1;
     gMmSave.hasTatl = 1;
@@ -136,7 +136,7 @@ void comboCreateSaveMM(void)
     for (i = 0; i < 3; ++i)
     {
         for (j = 0; j < 3; ++j)
-            gMmSave.lotteryCodes[i][j] = RandIntRange(0, 10);
+            gMmSave.lotteryCodes[i][j] = Rand_S16Offset(0, 10);
     }
 
     /* Set the bomber code */
@@ -148,7 +148,7 @@ void comboCreateSaveMM(void)
 
     for (i = 0; i < 5; ++i)
     {
-        j = RandIntRange(0, 5);
+        j = Rand_S16Offset(0, 5);
         tmp = gMmSave.bomberCode[i];
         gMmSave.bomberCode[i] = gMmSave.bomberCode[j];
         gMmSave.bomberCode[j] = tmp;
@@ -160,7 +160,7 @@ void comboCreateSaveMM(void)
     {
         do
         {
-            gMmSave.spiderHouseMaskOrder[i] = RandIntRange(0, 0x10) & 3;
+            gMmSave.spiderHouseMaskOrder[i] = Rand_S16Offset(0, 0x10) & 3;
         }
         while (gMmSave.spiderHouseMaskOrder[i] == tmp);
         tmp = gMmSave.spiderHouseMaskOrder[i];

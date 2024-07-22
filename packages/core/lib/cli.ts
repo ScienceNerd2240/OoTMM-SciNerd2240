@@ -8,7 +8,7 @@ import { makeSettings } from './combo';
 function parseSettings(data: any): any {
   const result = {} as any;
   for (const key in data) {
-    if (['startingItems', 'tricks', 'glitches', 'junkLocations', 'dungeon', 'specialConds', 'plando', 'hints'].includes(key)) {
+    if (['startingItems', 'tricks', 'junkLocations', 'dungeon', 'specialConds', 'plando', 'hints'].includes(key)) {
       result[key] = data[key];
       continue;
     }
@@ -93,21 +93,12 @@ const main = async () => {
     fs.readFile('../../roms/mm.z64'),
   ]);
   const gen = generate({ oot, mm, opts });
-  const { roms, log, hash, patches } = await gen.run();
+  const { files } = await gen.run();
   await fs.mkdir('out', { recursive: true });
-  const promises: Promise<unknown>[] = [];
-  const suffix =  opts.debug ? "" : `-${hash}`
-
-  promises.push(...writeFiles(roms, `out/OoTMM${suffix}`, 'z64'));
-  promises.push(...writeFiles(patches, `out/OoTMM-Patch${suffix}`, 'ootmm'));
-  if (log)
-    promises.push(...writeFiles([log], `out/OoTMM-spoiler${suffix}`, 'txt'));
-
-  return Promise.all(promises);
+  return Promise.all(files.map(x => fs.writeFile(`out/${x.name}`, x.data)));
 }
 
 main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

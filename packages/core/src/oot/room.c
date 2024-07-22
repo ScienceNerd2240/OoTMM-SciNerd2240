@@ -1,4 +1,6 @@
 #include <combo.h>
+#include <combo/global.h>
+#include <combo/actor.h>
 
 void updateSceneSetup(void)
 {
@@ -54,15 +56,6 @@ void updateSceneSetup(void)
     g.sceneSetupId = 0;
 }
 
-static void SpawnRoomActors_Wrapper(GameState_Play* play, int id)
-{
-    /* Spawn the normal room actors */
-    SpawnRoomActors(play, id);
-}
-
-PATCH_CALL(0x80080c18, SpawnRoomActors_Wrapper);
-PATCH_CALL(0x80080cd0, SpawnRoomActors_Wrapper);
-
 void OnRoomChange(void* arg1, void* arg2)
 {
     void (*OnRoomChangeOriginal)(void*, void*);
@@ -83,7 +76,7 @@ Actor* SpawnRoomActor(ActorContext* actorCtx, GameState_Play *play, short actorI
 {
     Actor* a;
 
-    a = comboSpawnActor(actorCtx, play, actorId, x, y, z, rx, ry, rz, variable);
+    a = Actor_Spawn(actorCtx, play, actorId, x, y, z, rx, ry, rz, variable);
     if (a != NULL && actorId == AC_EN_ITEM00)
         EnItem00_XflagInitFreestanding((Actor_EnItem00*)a, play, g.actorIndex, 0);
     g.actorIndex++;

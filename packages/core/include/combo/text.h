@@ -21,6 +21,7 @@
 # define TEXT_SIGNAL         "\x0b"
 # define TEXT_ICON           "\x13"
 # define TEXT_BB             "\x04"
+# define TEXT_FADE(frames)   "\x0e" frames
 #else
 # define TEXT_FAST           "\x17"
 # define TEXT_CZ             "\x00"
@@ -85,5 +86,20 @@ void comboTextAppendDungeonName(char** buffer, u8 dungeonId);
 void comboTextAppendBossName(char** buffer, u8 bossId);
 void comboTextAppendOrd(char** b, int num);
 void comboTextAppendItemImportance(char** b, s16 gi, int importance);
+
+int  comboMultibyteCharSize(u8 c);
+void comboTextExtra(char** b, GameState_Play* play, s16 gi);
+void comboTextHijackItem(GameState_Play* play, s16 gi, u8 fromPlayer, int count);
+void comboTextHijackItemEx(GameState_Play* play, const ComboItemOverride* o, int count);
+void comboTextHijackItemShop(GameState_Play* play, const ComboItemOverride* o, s16 price, int confirm);
+
+#if defined(GAME_OOT)
+void comboTextHijackDungeonRewardHints(GameState_Play* play, int base, int count);
+void comboTextHijackLightArrows(GameState_Play* play);
+void comboTextHijackFishCaught(GameState_Play* play, const ComboItemOverride* o);
+#else
+void comboTextHijackDungeonRewardHints(GameState_Play* play, int hint);
+void comboTextHijackOathToOrder(GameState_Play* play);
+#endif
 
 #endif

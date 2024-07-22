@@ -1,5 +1,6 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/draw.h>
 
 static void ItemEtcetera_ItemQuery(ComboItemQuery* q, Actor* this, s16 gi)
 {
@@ -29,7 +30,7 @@ static void ItemEtcetera_ItemQuery(ComboItemQuery* q, Actor* this, s16 gi)
 
 static int ItemEtcetera_HasGivenItem(Actor* this)
 {
-    if (!Actor_HasParent(this))
+    if (!Actor_HasParentZ(this))
         return 0;
     if ((this->variable & 0xff) == 0x7)
         gOotExtraFlags.fireArrow = 1;
@@ -57,7 +58,7 @@ void ItemEtcetera_Draw(Actor_ItemEtcetera* this, GameState_Play* play)
 
     ItemEtcetera_ItemQuery(&q, &this->base, this->gi);
     comboItemOverride(&o, &q);
-    comboDrawGI(play, &this->base, o.gi, 0);
+    Draw_Gi(play, &this->base, o.gi, 0);
 }
 
 PATCH_FUNC(0x80a5e610, ItemEtcetera_Draw);
@@ -98,7 +99,7 @@ void ItemEtcetera_DrawTreasureGame(Actor_ItemEtcetera* this, GameState_Play* pla
 
     ItemEtcetera_ItemQuery(&q, &this->base, gi);
     comboItemOverride(&o, &q);
-    comboDrawGI(play, &this->base, o.gi, 0);
+    Draw_Gi(play, &this->base, o.gi, 0);
 }
 
 PATCH_FUNC(0x80a5e5b8, ItemEtcetera_DrawTreasureGame);

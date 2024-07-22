@@ -1,5 +1,7 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/player.h>
+#include <combo/draw.h>
 
 static void DmChar02_ItemQuery(ComboItemQuery* q, int npc)
 {
@@ -20,14 +22,14 @@ static void DmChar02_ItemOverride(ComboItemOverride* o, int npc)
 void DmChar02_InitScaleHook(Actor* this, float scale)
 {
     this->world.pos.y = -1000.0f;
-    ActorSetScale(this, scale);
+    Actor_SetScale(this, scale);
 }
 
 PATCH_CALL(0x80aab008, DmChar02_InitScaleHook);
 
 int DmChar02_HasGivenItem(Actor* this)
 {
-    if (Actor_HasParent(this))
+    if (Actor_HasParentZ(this))
     {
         if (!gMmExtraFlags2.ocarina)
         {
@@ -48,7 +50,7 @@ void DmChar02_GiveItem(Actor* this, GameState_Play* play, s16 gi, float a, float
     Actor_Player* link;
     int npc;
 
-    link = GET_LINK(play);
+    link = GET_PLAYER(play);
     if (link->state & PLAYER_ACTOR_STATE_GET_ITEM)
         return;
 
@@ -70,5 +72,5 @@ void DmChar02_DrawOcarina(Actor* this, GameState_Play* play)
     DmChar02_ItemOverride(&o, NPC_MM_SKULL_KID_OCARINA);
     ModelViewScale(scale, scale, scale, MAT_MUL);
     ModelViewTranslate(0.0f, 20.0f, 0.0f, MAT_MUL);
-    comboDrawGI(play, this, o.gi, DRAW_RAW);
+    Draw_Gi(play, this, o.gi, DRAW_RAW);
 }

@@ -2,6 +2,7 @@
 #include <combo/custom.h>
 #include <combo/dungeon.h>
 #include <combo/dma.h>
+#include <combo/config.h>
 
 typedef struct
 {
@@ -129,11 +130,6 @@ static void swapMqRooms(void)
     sMqBufferRoom2Ptr = tmp;
 }
 
-static int isEnabledMq(int dungeonId)
-{
-    return gComboData.mq & (1 << dungeonId);
-}
-
 #define PATCH_POLY(ptr, index, type, flags) \
     *(s16*)((ptr) + 0x10 * (index) + 0x00) = (type); \
     *(s16*)((ptr) + 0x10 * (index) + 0x02) &= 0x1fff; \
@@ -233,7 +229,7 @@ static int findMqOverrideScene(GameState_Play* play, MqSceneHeader* dst)
     dungeonId = mqDungeonId(play);
     if (dungeonId < 0)
         return 0;
-    if (!isEnabledMq(dungeonId))
+    if (!Config_IsMq(dungeonId))
         return 0;
 
     comboDmaLoadFilePartial(buffer, CUSTOM_MQ_SCENES_ADDR, 0, sizeof(buffer));
@@ -273,7 +269,7 @@ static int findMqOverrideRoom(GameState_Play* play, MqRoomHeader* dst)
     dungeonId = mqDungeonId(play);
     if (dungeonId < 0)
         return 0;
-    if (!isEnabledMq(dungeonId))
+    if (!Config_IsMq(dungeonId))
         return 0;
 
     comboDmaLoadFilePartial(buffer, CUSTOM_MQ_ROOMS_ADDR, 0, sizeof(buffer));
@@ -400,7 +396,7 @@ static void loadMqRoomMaybe(GameState_Play* play)
     }
 
     /* Remove broken actors */
-    if (comboConfig(CFG_NO_BROKEN_ACTORS))
+    if (Config_Flag(CFG_NO_BROKEN_ACTORS))
     {
         for (int i = 0; i < ARRAY_SIZE(kMqBrokenActors); ++i)
         {
@@ -463,7 +459,7 @@ void comboMqKaleidoHook(GameState_Play* play)
     dungeonId = mqDungeonId(play);
     if (dungeonId < 0)
         return;
-    if (!isEnabledMq(dungeonId))
+    if (!Config_IsMq(dungeonId))
         return;
 
     /* Load the alternate maps */

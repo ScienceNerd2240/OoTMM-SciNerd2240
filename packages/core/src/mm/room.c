@@ -1,4 +1,6 @@
 #include <combo.h>
+#include <combo/global.h>
+#include <combo/actor.h>
 
 u8 gActorNum;
 
@@ -66,12 +68,20 @@ void OnRoomChange(GameState_Play* play, void* arg2)
     OnRoomChangeOriginal(play, arg2);
 }
 
+static void ZeroActor(Actor* this, int size)
+{
+    memset(this, 0, size);
+    this->actorIndex = g.actorIndex;
+}
+
+PATCH_CALL(0x800baf54, ZeroActor);
+
 Actor* SpawnRoomActorEx(ActorContext* actorCtx, GameState_Play *play, short actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3)
 {
     Actor* a;
 
     g.actorIndex = gActorNum;
-    a = comboSpawnActorEx(actorCtx, play, actorId, x, y, z, rx, ry, rz, variable, ex1, ex2, ex3);
+    a = Actor_SpawnAsChildAndCutscene(actorCtx, play, actorId, x, y, z, rx, ry, rz, variable, ex1, ex2, ex3);
     if (a != NULL && actorId == AC_EN_ITEM00)
         EnItem00_XflagInitFreestanding((Actor_EnItem00*)a, play, g.actorIndex, 0);
     return a;

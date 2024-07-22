@@ -2,7 +2,7 @@
   dungeon: IST
   exits:
     "Stone Tower Temple Inverted Entrance": "can_reset_time_dungeon"
-    "Stone Tower Flipping": "true"
+    "Stone Tower Top Inverted": "true"
     "WARP_SONGS": "true"
 "Stone Tower Temple Inverted Entrance":
   dungeon: IST
@@ -18,6 +18,11 @@
     "WARP_SONGS": "true"
   locations:
     "Stone Tower Temple Inverted Entrance Chest": "can_use_light_arrows"
+    "Stone Tower Temple Inverted Crate Entrance Right 1": "true"
+    "Stone Tower Temple Inverted Crate Entrance Right 2": "true"
+    "Stone Tower Temple Inverted Crate Entrance Left 1": "true"
+    "Stone Tower Temple Inverted Crate Entrance Left 2": "true"
+    "Stone Tower Temple Inverted Crate Entrance Left 3": "true"
 "Stone Tower Temple Inverted East":
   dungeon: IST
   exits:
@@ -122,6 +127,13 @@
     "Stone Tower Temple Inverted Pot Gomess 2": "true"
     "Stone Tower Temple Inverted Pot Gomess 3": "true"
     "Stone Tower Temple Inverted Pot Gomess 4": "true"
+    # Todo: Move to a corridor room
+    "Stone Tower Temple Inverted Crate Before Gomess 1": "true"
+    "Stone Tower Temple Inverted Crate Before Gomess 2": "true"
+    "Stone Tower Temple Inverted Crate Before Gomess 3": "true"
+    "Stone Tower Temple Inverted Crate Before Gomess 4": "true"
+    "Stone Tower Temple Inverted Crate Before Gomess 5": "true"
+    "Stone Tower Temple Inverted Crate Before Gomess 6": "true"
 "Stone Tower Temple Inverted Entrance Ledge":
   dungeon: IST
   exits:
@@ -188,13 +200,15 @@
   boss: true
   dungeon: IST
   exits:
-    "Stone Tower After Boss": "soul_boss(SOUL_BOSS_TWINMOLD) && (has_magic && ((has(MASK_GIANT) && has(SWORD)) || has(MASK_FIERCE_DEITY)))"
+    "Stone Tower After Boss": "soul_boss(SOUL_BOSS_TWINMOLD) && (has_magic && ((has(MASK_GIANT) && has_sword) || has(MASK_FIERCE_DEITY)))"
     "WARP_SONGS": "can_reset_time" #Only relevant when the boss is in an OOT dungeon. Must account for resetting time so that it can be repeated.
 "Stone Tower After Boss":
   boss: true
   dungeon: IST
   exits:
     "Oath to Order": "true"
+  events:
+    BOSS_STONE_TOWER: "true"
   locations:
-    "Stone Tower Boss HC": "true"
-    "Stone Tower Boss": "true"
+    "Stone Tower Temple Inverted Boss HC": "true"
+    "Stone Tower Temple Inverted Boss": "true"

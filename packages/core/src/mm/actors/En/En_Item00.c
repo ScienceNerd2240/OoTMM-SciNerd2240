@@ -1,5 +1,8 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/player.h>
+#include <combo/config.h>
+#include <combo/draw.h>
 
 static void EnItem00_ItemQuery(ComboItemQuery* q, Actor_EnItem00* this, GameState_Play* play, s16 gi)
 {
@@ -26,7 +29,7 @@ void EnItem00_GiveItem(Actor_EnItem00* this, GameState_Play* play, s16 gi, float
     s16 itemId;
 
     EnItem00_ItemQuery(&q, this, play, gi);
-    link = GET_LINK(play);
+    link = GET_PLAYER(play);
     itemId = -1;
 
     if (q.ovType == OV_NONE)
@@ -38,7 +41,7 @@ void EnItem00_GiveItem(Actor_EnItem00* this, GameState_Play* play, s16 gi, float
 
     if (itemId >= 0)
     {
-        this->base.parent = &link->base;
+        this->base.parent = &link->actor;
         AddItemWithIcon(play, link, &kExtendedGetItems[gi - 1]);
         return;
     }
@@ -51,7 +54,7 @@ PATCH_CALL(0x800a6a8c, EnItem00_GiveItem);
 
 void EnItem00_DrawHeartPiece(Actor_EnItem00* this, GameState_Play* play)
 {
-    static const float scale = 12.5f;
+    static const float scale = 17.5f;
 
     ComboItemQuery q;
     ComboItemOverride o;
@@ -59,7 +62,7 @@ void EnItem00_DrawHeartPiece(Actor_EnItem00* this, GameState_Play* play)
     EnItem00_ItemQuery(&q, this, play, GI_OOT_HEART_PIECE);
     comboItemOverride(&o, &q);
     ModelViewScale(scale, scale, scale, MAT_MUL);
-    comboDrawGI(play, &this->base, o.gi, 0);
+    Draw_Gi(play, &this->base, o.gi, 0);
 }
 
 PATCH_FUNC(0x800a75b8, EnItem00_DrawHeartPiece);
@@ -71,7 +74,7 @@ static s16 bombDrop(s16 dropId)
     u8  bombCount;
     u8  bombchuCount;
 
-    if (!comboConfig(CFG_MM_BOMBCHU_BAG))
+    if (!Config_Flag(CFG_MM_BOMBCHU_BAG))
         return dropId;
 
     hasChuBag = (gMmSave.inventory.items[ITS_MM_BOMBCHU] == ITEM_MM_BOMBCHU);
@@ -100,7 +103,7 @@ static s16 bombDrop(s16 dropId)
     }
 
     /* Not low, return at random */
-    if (RandFloat() < 0.5f)
+    if (Rand_ZeroOne() < 0.5f)
         return ITEM00_BOMBCHU;
     return dropId;
 }

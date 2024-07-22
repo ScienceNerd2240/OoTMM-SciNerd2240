@@ -1,5 +1,7 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/player.h>
+#include <combo/actor.h>
 
 #define SET_HANDLER(a, h) do { *(void**)(((char*)(a)) + 0xd94) = (h); } while (0)
 
@@ -8,10 +10,10 @@ static void EnTest3_GivePendantOfMemories(Actor* this, GameState_Play* play)
     s16 gi;
     int npc;
 
-    if (!(GET_LINK(play)->state & PLAYER_ACTOR_STATE_GET_ITEM))
+    if (!(GET_PLAYER(play)->state & PLAYER_ACTOR_STATE_GET_ITEM))
         Message_Close(play);
 
-    if (Actor_HasParent(this))
+    if (Actor_HasParentZ(this))
     {
         MM_SET_EVENT_WEEK(MM_EV(50, 7));
         MM_SET_EVENT_WEEK(MM_EV(51, 3));
@@ -58,7 +60,7 @@ void EnTest3_AfterUpdate(Actor* this, GameState_Play* play)
     if (*state == 2)
     {
         /* Anju and Kafei reunited */
-        if (Actor_HasParent(this) || gMmExtraFlags2.maskCouple)
+        if (Actor_HasParentZ(this) || gMmExtraFlags2.maskCouple)
         {
             gMmExtraFlags2.maskCouple = 1;
             return;

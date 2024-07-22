@@ -1,7 +1,7 @@
 #include <combo.h>
 
 #define AUDIO_HEAP_START  0x80600000
-#define AUDIO_HEAP_SIZE   0x80000
+#define AUDIO_HEAP_SIZE   0x100000
 
 #define FANFARE_AUDIOSEQ_SIZE   0x1000
 #define FANFARE_AUDIOBANK_SIZE  0x4800
@@ -63,4 +63,9 @@ PATCH_START 0x800B5528
   nop
   nop
   nop
+PATCH_END
+
+/* Fix a vanilla bug that can cause a crash with some custom songs */
+PATCH_START 0x800c03bc
+  move t6,t5
 PATCH_END

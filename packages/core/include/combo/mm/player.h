@@ -2,7 +2,8 @@
 #define COMBO_MM_PLAYER_H
 
 #include <ultra64.h>
-#include <combo/common/actor.h>
+#include <combo/actor.h>
+#include <combo/actor.h>
 #include <combo/dma.h>
 
 struct Actor_Player;
@@ -74,6 +75,245 @@ typedef enum PlayerBodyPart {
     /* 0x12 */ PLAYER_BODYPART_MAX
 } PlayerBodyPart;
 
+typedef enum PlayerItemAction {
+    /*   -1 */ PLAYER_IA_MINUS1 = -1, // TODO: determine usages with more player docs, possibly split into seperate values (see known usages above)
+    /* 0x00 */ PLAYER_IA_NONE,
+    /* 0x01 */ PLAYER_IA_LAST_USED,
+    /* 0x02 */ PLAYER_IA_FISHING_ROD,
+    /* 0x03 */ PLAYER_IA_SWORD_MIN,
+    /* 0x03 */ PLAYER_IA_SWORD_KOKIRI = PLAYER_IA_SWORD_MIN,
+    /* 0x04 */ PLAYER_IA_SWORD_RAZOR,
+    /* 0x05 */ PLAYER_IA_SWORD_GILDED,
+    /* 0x06 */ PLAYER_IA_SWORD_TWO_HANDED,
+    /* 0x07 */ PLAYER_IA_DEKU_STICK,
+    /* 0x08 */ PLAYER_IA_ZORA_FINS,
+    /* 0x09 */ PLAYER_IA_BOW,
+    /* 0x0A */ PLAYER_IA_BOW_FIRE,
+    /* 0x0B */ PLAYER_IA_BOW_ICE,
+    /* 0x0C */ PLAYER_IA_BOW_LIGHT,
+    /* 0x0D */ PLAYER_IA_HOOKSHOT,
+    /* 0x0E */ PLAYER_IA_EXPLOSIVE_MIN,
+    /* 0x0E */ PLAYER_IA_BOMB = PLAYER_IA_EXPLOSIVE_MIN,
+    /* 0x0F */ PLAYER_IA_POWDER_KEG,
+    /* 0x10 */ PLAYER_IA_BOMBCHU,
+    /* 0x11 */ PLAYER_IA_11,
+    /* 0x12 */ PLAYER_IA_DEKU_NUT,
+    /* 0x13 */ PLAYER_IA_PICTOGRAPH_BOX,
+    /* 0x14 */ PLAYER_IA_OCARINA,
+    /* 0x15 */ PLAYER_IA_BOTTLE_MIN,
+    /* 0x15 */ PLAYER_IA_BOTTLE_EMPTY = PLAYER_IA_BOTTLE_MIN,
+    /* 0x16 */ PLAYER_IA_BOTTLE_FISH,
+    /* 0x17 */ PLAYER_IA_BOTTLE_SPRING_WATER,
+    /* 0x18 */ PLAYER_IA_BOTTLE_HOT_SPRING_WATER,
+    /* 0x19 */ PLAYER_IA_BOTTLE_ZORA_EGG,
+    /* 0x1A */ PLAYER_IA_BOTTLE_DEKU_PRINCESS,
+    /* 0x1B */ PLAYER_IA_BOTTLE_GOLD_DUST,
+    /* 0x1C */ PLAYER_IA_BOTTLE_1C,
+    /* 0x1D */ PLAYER_IA_BOTTLE_SEAHORSE,
+    /* 0x1E */ PLAYER_IA_BOTTLE_MUSHROOM,
+    /* 0x1F */ PLAYER_IA_BOTTLE_HYLIAN_LOACH,
+    /* 0x20 */ PLAYER_IA_BOTTLE_BUG,
+    /* 0x21 */ PLAYER_IA_BOTTLE_POE,
+    /* 0x22 */ PLAYER_IA_BOTTLE_BIG_POE,
+    /* 0x23 */ PLAYER_IA_BOTTLE_POTION_RED,
+    /* 0x24 */ PLAYER_IA_BOTTLE_POTION_BLUE,
+    /* 0x25 */ PLAYER_IA_BOTTLE_POTION_GREEN,
+    /* 0x26 */ PLAYER_IA_BOTTLE_MILK,
+    /* 0x27 */ PLAYER_IA_BOTTLE_MILK_HALF,
+    /* 0x28 */ PLAYER_IA_BOTTLE_CHATEAU,
+    /* 0x29 */ PLAYER_IA_BOTTLE_FAIRY,
+    /* 0x2A */ PLAYER_IA_MOONS_TEAR,
+    /* 0x2B */ PLAYER_IA_DEED_LAND,
+    /* 0x2C */ PLAYER_IA_ROOM_KEY,
+    /* 0x2D */ PLAYER_IA_LETTER_TO_KAFEI,
+    /* 0x2E */ PLAYER_IA_MAGIC_BEANS,
+    /* 0x2F */ PLAYER_IA_DEED_SWAMP,
+    /* 0x30 */ PLAYER_IA_DEED_MOUNTAIN,
+    /* 0x31 */ PLAYER_IA_DEED_OCEAN,
+    /* 0x32 */ PLAYER_IA_32,
+    /* 0x33 */ PLAYER_IA_LETTER_MAMA,
+    /* 0x34 */ PLAYER_IA_34,
+    /* 0x35 */ PLAYER_IA_35,
+    /* 0x36 */ PLAYER_IA_PENDANT_OF_MEMORIES,
+    /* 0x37 */ PLAYER_IA_37,
+    /* 0x38 */ PLAYER_IA_38,
+    /* 0x39 */ PLAYER_IA_39,
+    /* 0x3A */ PLAYER_IA_MASK_MIN,
+    /* 0x3A */ PLAYER_IA_MASK_TRUTH = PLAYER_IA_MASK_MIN,
+    /* 0x3B */ PLAYER_IA_MASK_KAFEIS_MASK,
+    /* 0x3C */ PLAYER_IA_MASK_ALL_NIGHT,
+    /* 0x3D */ PLAYER_IA_MASK_BUNNY,
+    /* 0x3E */ PLAYER_IA_MASK_KEATON,
+    /* 0x3F */ PLAYER_IA_MASK_GARO,
+    /* 0x40 */ PLAYER_IA_MASK_ROMANI,
+    /* 0x41 */ PLAYER_IA_MASK_CIRCUS_LEADER,
+    /* 0x42 */ PLAYER_IA_MASK_POSTMAN,
+    /* 0x43 */ PLAYER_IA_MASK_COUPLE,
+    /* 0x44 */ PLAYER_IA_MASK_GREAT_FAIRY,
+    /* 0x45 */ PLAYER_IA_MASK_GIBDO,
+    /* 0x46 */ PLAYER_IA_MASK_DON_GERO,
+    /* 0x47 */ PLAYER_IA_MASK_KAMARO,
+    /* 0x48 */ PLAYER_IA_MASK_CAPTAIN,
+    /* 0x49 */ PLAYER_IA_MASK_STONE,
+    /* 0x4A */ PLAYER_IA_MASK_BREMEN,
+    /* 0x4B */ PLAYER_IA_MASK_BLAST,
+    /* 0x4C */ PLAYER_IA_MASK_SCENTS,
+    /* 0x4D */ PLAYER_IA_MASK_GIANT,
+    /* 0x4E */ PLAYER_IA_MASK_TRANSFORMATION_MIN,
+    /* 0x4E */ PLAYER_IA_MASK_FIERCE_DEITY = PLAYER_IA_MASK_TRANSFORMATION_MIN,
+    /* 0x4F */ PLAYER_IA_MASK_GORON,
+    /* 0x50 */ PLAYER_IA_MASK_ZORA,
+    /* 0x51 */ PLAYER_IA_MASK_DEKU,
+    /* 0x51 */ PLAYER_IA_MASK_MAX = PLAYER_IA_MASK_DEKU,
+    /* 0x52 */ PLAYER_IA_LENS_OF_TRUTH,
+    /* 0x53 */ PLAYER_IA_MAX
+} PlayerItemAction;
+
+typedef enum PlayerCsAction {
+    /*   -1 */ PLAYER_CSACTION_NEG1 = -1, // Specific to Kafei, any negative number works
+    /* 0x00 */ PLAYER_CSACTION_NONE,
+    /* 0x01 */ PLAYER_CSACTION_1,
+    /* 0x02 */ PLAYER_CSACTION_2,
+    /* 0x03 */ PLAYER_CSACTION_3,
+    /* 0x04 */ PLAYER_CSACTION_4,
+    /* 0x05 */ PLAYER_CSACTION_5,
+    /* 0x06 */ PLAYER_CSACTION_END,
+    /* 0x07 */ PLAYER_CSACTION_WAIT,
+    /* 0x08 */ PLAYER_CSACTION_8,
+    /* 0x09 */ PLAYER_CSACTION_9,
+    /* 0x0A */ PLAYER_CSACTION_10,
+    /* 0x0B */ PLAYER_CSACTION_11,
+    /* 0x0C */ PLAYER_CSACTION_12,
+    /* 0x0D */ PLAYER_CSACTION_13,
+    /* 0x0E */ PLAYER_CSACTION_14,
+    /* 0x0F */ PLAYER_CSACTION_15,
+    /* 0x10 */ PLAYER_CSACTION_16,
+    /* 0x11 */ PLAYER_CSACTION_17,
+    /* 0x12 */ PLAYER_CSACTION_18, // Strangled by Wallmaster
+    /* 0x13 */ PLAYER_CSACTION_19,
+    /* 0x14 */ PLAYER_CSACTION_20,
+    /* 0x15 */ PLAYER_CSACTION_21,
+    /* 0x16 */ PLAYER_CSACTION_22,
+    /* 0x17 */ PLAYER_CSACTION_23,
+    /* 0x18 */ PLAYER_CSACTION_24,
+    /* 0x19 */ PLAYER_CSACTION_25,
+    /* 0x1A */ PLAYER_CSACTION_26, // Halt!
+    /* 0x1B */ PLAYER_CSACTION_27,
+    /* 0x1C */ PLAYER_CSACTION_28,
+    /* 0x1D */ PLAYER_CSACTION_29,
+    /* 0x1E */ PLAYER_CSACTION_30,
+    /* 0x1F */ PLAYER_CSACTION_31,
+    /* 0x20 */ PLAYER_CSACTION_32,
+    /* 0x21 */ PLAYER_CSACTION_33,
+    /* 0x22 */ PLAYER_CSACTION_34,
+    /* 0x23 */ PLAYER_CSACTION_35,
+    /* 0x24 */ PLAYER_CSACTION_36,
+    /* 0x25 */ PLAYER_CSACTION_37,
+    /* 0x26 */ PLAYER_CSACTION_38,
+    /* 0x27 */ PLAYER_CSACTION_39,
+    /* 0x28 */ PLAYER_CSACTION_40,
+    /* 0x29 */ PLAYER_CSACTION_41,
+    /* 0x2A */ PLAYER_CSACTION_42,
+    /* 0x2B */ PLAYER_CSACTION_43,
+    /* 0x2C */ PLAYER_CSACTION_44,
+    /* 0x2D */ PLAYER_CSACTION_45,
+    /* 0x2E */ PLAYER_CSACTION_46,
+    /* 0x2F */ PLAYER_CSACTION_47,
+    /* 0x30 */ PLAYER_CSACTION_48,
+    /* 0x31 */ PLAYER_CSACTION_49,
+    /* 0x32 */ PLAYER_CSACTION_50,
+    /* 0x33 */ PLAYER_CSACTION_51,
+    /* 0x34 */ PLAYER_CSACTION_52,
+    /* 0x35 */ PLAYER_CSACTION_53,
+    /* 0x36 */ PLAYER_CSACTION_54,
+    /* 0x37 */ PLAYER_CSACTION_55,
+    /* 0x38 */ PLAYER_CSACTION_56,
+    /* 0x39 */ PLAYER_CSACTION_57,
+    /* 0x3A */ PLAYER_CSACTION_58,
+    /* 0x3B */ PLAYER_CSACTION_59,
+    /* 0x3C */ PLAYER_CSACTION_60,
+    /* 0x3D */ PLAYER_CSACTION_61,
+    /* 0x3E */ PLAYER_CSACTION_62,
+    /* 0x3F */ PLAYER_CSACTION_63,
+    /* 0x40 */ PLAYER_CSACTION_64,
+    /* 0x41 */ PLAYER_CSACTION_65,
+    /* 0x42 */ PLAYER_CSACTION_66, // Look side-to-side with chin down
+    /* 0x43 */ PLAYER_CSACTION_67,
+    /* 0x44 */ PLAYER_CSACTION_68,
+    /* 0x45 */ PLAYER_CSACTION_69,
+    /* 0x46 */ PLAYER_CSACTION_70,
+    /* 0x47 */ PLAYER_CSACTION_71,
+    /* 0x48 */ PLAYER_CSACTION_72,
+    /* 0x49 */ PLAYER_CSACTION_73,
+    /* 0x4A */ PLAYER_CSACTION_74, // Give a big nod of approval
+    /* 0x4B */ PLAYER_CSACTION_75,
+    /* 0x4C */ PLAYER_CSACTION_76,
+    /* 0x4D */ PLAYER_CSACTION_77,
+    /* 0x4E */ PLAYER_CSACTION_78,
+    /* 0x4F */ PLAYER_CSACTION_79,
+    /* 0x50 */ PLAYER_CSACTION_80,
+    /* 0x51 */ PLAYER_CSACTION_81, // Look side-to-side with chin up
+    /* 0x52 */ PLAYER_CSACTION_82, // Close eyes and sway body in circles
+    /* 0x53 */ PLAYER_CSACTION_83,
+    /* 0x54 */ PLAYER_CSACTION_84, // Sucked by the moon
+    /* 0x55 */ PLAYER_CSACTION_85,
+    /* 0x56 */ PLAYER_CSACTION_86,
+    /* 0x57 */ PLAYER_CSACTION_87,
+    /* 0x58 */ PLAYER_CSACTION_88,
+    /* 0x59 */ PLAYER_CSACTION_89,
+    /* 0x5A */ PLAYER_CSACTION_90,
+    /* 0x5B */ PLAYER_CSACTION_91,
+    /* 0x5C */ PLAYER_CSACTION_92,
+    /* 0x5D */ PLAYER_CSACTION_93,
+    /* 0x5E */ PLAYER_CSACTION_94,
+    /* 0x5F */ PLAYER_CSACTION_95,
+    /* 0x60 */ PLAYER_CSACTION_96,
+    /* 0x61 */ PLAYER_CSACTION_97,
+    /* 0x62 */ PLAYER_CSACTION_98,
+    /* 0x63 */ PLAYER_CSACTION_99,
+    /* 0x64 */ PLAYER_CSACTION_100,
+    /* 0x65 */ PLAYER_CSACTION_101,
+    /* 0x66 */ PLAYER_CSACTION_102,
+    /* 0x67 */ PLAYER_CSACTION_103,
+    /* 0x68 */ PLAYER_CSACTION_104,
+    /* 0x69 */ PLAYER_CSACTION_105,
+    /* 0x6A */ PLAYER_CSACTION_106,
+    /* 0x6B */ PLAYER_CSACTION_107,
+    /* 0x6C */ PLAYER_CSACTION_108,
+    /* 0x6D */ PLAYER_CSACTION_109,
+    /* 0x6E */ PLAYER_CSACTION_110,
+    /* 0x6F */ PLAYER_CSACTION_111,
+    /* 0x70 */ PLAYER_CSACTION_112,
+    /* 0x71 */ PLAYER_CSACTION_113,
+    /* 0x72 */ PLAYER_CSACTION_114,
+    /* 0x73 */ PLAYER_CSACTION_115,
+    /* 0x74 */ PLAYER_CSACTION_116,
+    /* 0x75 */ PLAYER_CSACTION_117,
+    /* 0x76 */ PLAYER_CSACTION_118,
+    /* 0x77 */ PLAYER_CSACTION_119,
+    /* 0x78 */ PLAYER_CSACTION_120,
+    /* 0x79 */ PLAYER_CSACTION_121,
+    /* 0x7A */ PLAYER_CSACTION_122,
+    /* 0x7B */ PLAYER_CSACTION_123,
+    /* 0x7C */ PLAYER_CSACTION_124,
+    /* 0x7D */ PLAYER_CSACTION_125,
+    /* 0x7E */ PLAYER_CSACTION_126,
+    /* 0x7F */ PLAYER_CSACTION_127,
+    /* 0x80 */ PLAYER_CSACTION_128,
+    /* 0x81 */ PLAYER_CSACTION_129,
+    /* 0x82 */ PLAYER_CSACTION_130,
+    /* 0x83 */ PLAYER_CSACTION_131,
+    /* 0x84 */ PLAYER_CSACTION_132,
+    /* 0x85 */ PLAYER_CSACTION_133,
+    /* 0x86 */ PLAYER_CSACTION_134,
+    /* 0x87 */ PLAYER_CSACTION_135,
+    /* 0x88 */ PLAYER_CSACTION_136,
+    /* 0x89 */ PLAYER_CSACTION_137,
+    /* 0x8A */ PLAYER_CSACTION_138,
+    /* 0x8B */ PLAYER_CSACTION_139,
+    /* 0x8C */ PLAYER_CSACTION_MAX
+} PlayerCsAction;
+
 typedef enum {
     /* 0 */ PLAYER_ENV_HAZARD_NONE,
     /* 1 */ PLAYER_ENV_HAZARD_HOTROOM,
@@ -86,6 +326,26 @@ typedef struct PlayerAnimationFrame {
     /* 0x000 */ Vec3s frameTable[PLAYER_LIMB_MAX];
     /* 0x108 */ s16 appearanceInfo; /* bitpack containing the face and hands info */
 } PlayerAnimationFrame; /* size = 0x10A */
+
+#define PLAYER_PARAMS(startBgCamIndex, initMode) ((startBgCamIndex & 0xFF) | ((initMode & 0xF) << 8))
+
+#define PLAYER_INITMODE_0 0x0
+#define PLAYER_INITMODE_1 0x1
+#define PLAYER_INITMODE_2 0x2
+#define PLAYER_INITMODE_3 0x3
+#define PLAYER_INITMODE_4 0x4
+#define PLAYER_INITMODE_5 0x5
+#define PLAYER_INITMODE_6 0x6
+#define PLAYER_INITMODE_7 0x7
+#define PLAYER_INITMODE_8 0x8
+#define PLAYER_INITMODE_9 0x9
+#define PLAYER_INITMODE_A 0xA
+#define PLAYER_INITMODE_B 0xB
+#define PLAYER_INITMODE_TELESCOPE 0xC
+#define PLAYER_INITMODE_D 0xD
+#define PLAYER_INITMODE_E 0xE
+#define PLAYER_INITMODE_F 0xF
+#define PLAYER_INITMODE_MAX 0x10
 
 typedef struct PlayerAgeProperties {
     /* 0x00 */ f32 ceilingCheckHeight;
@@ -132,7 +392,7 @@ typedef void (*PlayerFuncD58)(struct GameState_Play* play, struct Actor_Player* 
 
 typedef struct Actor_Player
 {
-    /* 0x000 */ Actor base;
+    /* 0x000 */ Actor actor;
     /* 0x144 */ s8 currentShield;
     /* 0x145 */ s8 currentBoots;
     /* 0x146 */ s8 heldItemButton;
@@ -380,6 +640,6 @@ typedef struct {
     /* 0x00 */ u32 maskDListEntry[24];
 } PlayerMaskDList; /* size = 0x60 */
 
-#define GET_PLAYER_CUSTOM_BOOTS(player) (player->base.id == AC_PLAYER && player->transformation == MM_PLAYER_FORM_HUMAN ? (player->currentBoots == 6 ? PLAYER_BOOTS_IRON : (player->currentBoots == 0 ? PLAYER_BOOTS_HOVER : -1)) : -1)
+#define GET_PLAYER_CUSTOM_BOOTS(player) (player->actor.id == AC_PLAYER && player->transformation == MM_PLAYER_FORM_HUMAN ? (player->currentBoots == 6 ? PLAYER_BOOTS_IRON : (player->currentBoots == 0 ? PLAYER_BOOTS_HOVER : -1)) : -1)
 
 #endif

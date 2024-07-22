@@ -10,9 +10,8 @@ PATCH_START 0x80080d14
 PATCH_END
 
 /* Downsize the heap by 0x40000 + 0x40000 malloc zone */
-/* DEBUG */
 PATCH_START 0x80174c4c
-  lui t8,0x8070
+  lui t8,(HEAP_BASE >> 16)
 PATCH_END
 
 /* Not sure about this
@@ -162,4 +161,9 @@ PATCH_END
 
 PATCH_START 0x80129160
     jal     Player_DrawHookshotReticleCustom
+PATCH_END
+
+/* Hook on cutscene transitions */
+PATCH_START 0x800eb424
+  jal CutsceneTransitionHook
 PATCH_END

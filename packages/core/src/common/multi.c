@@ -1,5 +1,17 @@
 #include <combo.h>
+#include <combo/multi.h>
 #include <combo/net.h>
+#include <combo/player.h>
+#include <combo/config.h>
+#include <combo/item.h>
+#include <combo/actor.h>
+#include <combo/global.h>
+
+#if defined(GAME_OOT)
+# define RECOVERY_HEART GI_OOT_RECOVERY_HEART
+#else
+# define RECOVERY_HEART GI_MM_RECOVERY_HEART
+#endif
 
 u32 gMultiMarkChests;
 u32 gMultiMarkCollectibles;
@@ -219,22 +231,6 @@ static void setStrayFairyMarkMm(GameState_Play* play, int sceneId, int id)
         setSwitch0MarkMm(play, sceneId, id & 0x1f);
 }
 
-static int getFiskMark(GameState_Play* play, int id)
-{
-    if (id >= 17)
-        return getCollectibleMarkOot(play, SCE_OOT_FISHING_POND, id & 0x1f);
-    else
-        return getChestMarkOot(play, SCE_OOT_FISHING_POND, id & 0x1f);
-}
-
-static void setFishMark(GameState_Play* play, int id)
-{
-    if (id >= 17)
-        setCollectibleMarkOot(play, SCE_OOT_FISHING_POND, id & 0x1f);
-    else
-        setChestMarkOot(play, SCE_OOT_FISHING_POND, id & 0x1f);
-}
-
 static void markXflag(Xflag* xf, int sliceId, int sceneId, int roomId, int id)
 {
     bzero(xf, sizeof(*xf));
@@ -277,9 +273,9 @@ static void setXflagsMarkMm(GameState_Play* play, int sliceId, int sceneId, int 
     comboXflagsSetMm(&xf);
 }
 
-void multiSetMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
+void Multi_SetMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
 {
-    if (!comboConfig(CFG_MULTIPLAYER))
+    if (!Config_Flag(CFG_MULTIPLAYER))
         return;
 
     switch (ovType)
@@ -313,7 +309,7 @@ void multiSetMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u
         BITMAP8_SET(gSharedCustomSave.oot.sr, id);
         break;
     case OV_FISH:
-        setFishMark(play, id);
+        BITMAP8_SET(gSharedCustomSave.caughtFishFlags, id);
         break;
     default:
         setXflagsMarkOot(play, ovType - OV_XFLAG0, sceneId, roomId, id);
@@ -321,9 +317,9 @@ void multiSetMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u
     }
 }
 
-void multiSetMarkedMm(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
+void Multi_SetMarkedMm(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
 {
-    if (!comboConfig(CFG_MULTIPLAYER))
+    if (!Config_Flag(CFG_MULTIPLAYER))
         return;
 
     switch (ovType)
@@ -362,9 +358,9 @@ void multiSetMarkedMm(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8
     }
 }
 
-int multiIsMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
+int Multi_IsMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
 {
-    if (!comboConfig(CFG_MULTIPLAYER))
+    if (!Config_Flag(CFG_MULTIPLAYER))
         return 0;
 
     switch (ovType)
@@ -390,7 +386,7 @@ int multiIsMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 
     case OV_SR:
         return BITMAP8_GET(gSharedCustomSave.oot.sr, id);
     case OV_FISH:
-        return getFiskMark(play, id);
+        return BITMAP8_GET(gSharedCustomSave.caughtFishFlags, id);
     default:
         return getXflagsMarkOot(play, ovType - OV_XFLAG0, sceneId, roomId, id);
     }
@@ -398,9 +394,9 @@ int multiIsMarkedOot(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 
     return 0;
 }
 
-int multiIsMarkedMm(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
+int Multi_IsMarkedMm(GameState_Play* play, u8 ovType, u8 sceneId, u8 roomId, u8 id)
 {
-    if (!comboConfig(CFG_MULTIPLAYER))
+    if (!Config_Flag(CFG_MULTIPLAYER))
         return 0;
 
     switch (ovType)
@@ -454,8 +450,8 @@ static void processMessagesSendPlayerPos(GameState_Play* play, NetContext* net)
         return;
 
     /* We have a suitable index, send the message */
-    link = GET_LINK(play);
-    if (!link || (link->base.id != AC_PLAYER))
+    link = GET_PLAYER(play);
+    if (!link || (link->actor.id != AC_PLAYER))
         return;
 
     msg = &net->msgBuffer[index];
@@ -465,9 +461,9 @@ static void processMessagesSendPlayerPos(GameState_Play* play, NetContext* net)
 #if defined(GAME_MM)
     msg->playerPos.sceneKey |= 0x8000;
 #endif
-    msg->playerPos.x = (s16)link->base.world.pos.x;
-    msg->playerPos.y = (s16)link->base.world.pos.y;
-    msg->playerPos.z = (s16)link->base.world.pos.z;
+    msg->playerPos.x = (s16)link->actor.world.pos.x;
+    msg->playerPos.y = (s16)link->actor.world.pos.y;
+    msg->playerPos.z = (s16)link->actor.world.pos.z;
     net->msgOutSize[index] = 0x10;
 }
 
@@ -541,7 +537,7 @@ static void processMessageIn(GameState_Play* play, NetContext* net, NetMsg* msg,
         processMessageInPlayerPos(play, net, &msg->playerPos, clientId);
 }
 
-static void processMessages(GameState_Play* play, NetContext* net)
+static void Multi_ProcessMessages(GameState_Play* play, NetContext* net)
 {
     /* Send pos */
     if ((play->gs.frameCount & 3) == 0)
@@ -570,18 +566,6 @@ static void processMessages(GameState_Play* play, NetContext* net)
     }
 }
 
-void comboMultiProcessMessages(GameState_Play* play)
-{
-    NetContext* ctx;
-
-    if (!comboConfig(CFG_MULTIPLAYER))
-        return;
-
-    ctx = netMutexLock();
-    processMessages(play, ctx);
-    netMutexUnlock();
-}
-
 static const u32 kWispColors[] = {
     0xff0000cc, 0x00ff00cc, 0x0000ffcc, 0xffff00cc,
     0xff00ffcc, 0x00ffffcc, 0x000000cc, 0xffffffcc,
@@ -593,13 +577,13 @@ static void drawSingleWisp(GameState_Play* play, const PlayerWisp* wisp)
 {
     OPEN_DISPS(play->gs.gfx);
     ModelViewTranslate(wisp->pos.x, wisp->pos.y, wisp->pos.z, MAT_SET);
-    shaderFlameEffectColor(play, kWispColors[wisp->clientId & 0xf], 0.35f, -50.0f);
+    Gfx_DrawFlameColor(play, kWispColors[wisp->clientId & 0xf], 0.35f, -50.0f);
     CLOSE_DISPS();
 }
 
-void comboMultiDrawWisps(GameState_Play* play)
+void Multi_DrawWisps(GameState_Play* play)
 {
-    if (!comboConfig(CFG_MULTIPLAYER))
+    if (!Config_Flag(CFG_MULTIPLAYER))
         return;
 
     InitListPolyXlu(play->gs.gfx);
@@ -610,9 +594,137 @@ void comboMultiDrawWisps(GameState_Play* play)
     }
 }
 
-void comboMultiResetWisps(void)
+void Multi_ResetWisps(void)
 {
-    if (!comboConfig(CFG_MULTIPLAYER))
+    if (!Config_Flag(CFG_MULTIPLAYER))
         return;
     bzero(sPlayerWisps, sizeof(sPlayerWisps));
+}
+
+static int Multi_CanReceiveItem(GameState_Play* play)
+{
+    Actor_Player* link;
+
+    if (gSaveContext.gameMode || (gSaveContext.minigameState == 1))
+        return 0;
+    if (Message_GetState(&play->msgCtx) != 0)
+        return 0;
+    link = GET_PLAYER(play);
+    if (link->state & (PLAYER_ACTOR_STATE_GET_ITEM | PLAYER_ACTOR_STATE_FROZEN | PLAYER_ACTOR_STATE_CUTSCENE_FROZEN | PLAYER_ACTOR_STATE_EPONA))
+        return 0;
+
+    return 1;
+}
+
+static void Multi_GiveItem(GameState_Play* play, s16 gi, u8 from, int flags)
+{
+    ComboItemQuery q = ITEM_QUERY_INIT;
+
+    q.gi = gi;
+    q.from = from;
+
+    if ((flags & OVF_PRECOND) && (!isItemLicensed(gi)))
+    {
+        bzero(&q, sizeof(q));
+        q.ovType = OV_NONE;
+        q.gi = RECOVERY_HEART;
+    }
+
+    Item_AddWithDecoy(play, &q);
+}
+
+static void Multi_ReceiveItem(GameState_Play* play, NetContext* net)
+{
+    s16 gi;
+    u8 ovType;
+    u8 sceneId;
+    u8 roomId;
+    u8 id;
+    u8 isMarked;
+    u8 needsMarking;
+    u8 isSamePlayer;
+
+    gi = net->cmdIn.itemRecv.gi;
+    isMarked = 0;
+    needsMarking = 0;
+    isSamePlayer = (net->cmdIn.itemRecv.playerFrom == gComboConfig.playerId);
+    if (isSamePlayer)
+    {
+        if (!(net->cmdIn.itemRecv.flags & OVF_RENEW))
+        {
+            needsMarking = 1;
+            ovType = (net->cmdIn.itemRecv.key >> 24) & 0xff;
+            sceneId = (net->cmdIn.itemRecv.key >> 16) & 0xff;
+            roomId = (net->cmdIn.itemRecv.key >> 8) & 0xff;
+            id = net->cmdIn.itemRecv.key & 0xff;
+            if (net->cmdIn.itemRecv.game)
+                isMarked = Multi_IsMarkedMm(play, ovType, sceneId, roomId, id);
+            else
+                isMarked = Multi_IsMarkedOot(play, ovType, sceneId, roomId, id);
+        }
+        else
+        {
+            for (int i = 0; i < ARRAY_SIZE(gSharedCustomSave.netGiSkip); ++i)
+            {
+                if (gSharedCustomSave.netGiSkip[i] == gi)
+                {
+                    isMarked = 1;
+                    gSharedCustomSave.netGiSkip[i] = GI_NONE;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!isMarked && gi != GI_NOTHING)
+    {
+        /* Need to actually give the item */
+        if (!Multi_CanReceiveItem(play) || g.decoysCount)
+            return;
+        Multi_GiveItem(play, gi, net->cmdIn.itemRecv.playerFrom, net->cmdIn.itemRecv.flags);
+    }
+
+    /* Triggers the side-effect */
+    if (needsMarking)
+    {
+        if (net->cmdIn.itemRecv.game)
+            Multi_SetMarkedMm(play, ovType, sceneId, roomId, id);
+        else
+            Multi_SetMarkedOot(play, ovType, sceneId, roomId, id);
+    }
+
+    /* Mark as obtained on the network */
+    bzero(&net->cmdIn, sizeof(net->cmdIn));
+    gSaveLedgerBase++;
+    net->ledgerBase = gSaveLedgerBase;
+}
+
+static void Multi_ProcessItems(GameState_Play* play, NetContext* net)
+{
+    if (net->cmdIn.op == NET_OP_ITEM_RECV)
+    {
+        if (net->cmdIn.itemRecv.playerTo != gComboConfig.playerId)
+        {
+            bzero(&net->cmdIn, sizeof(net->cmdIn));
+            gSaveLedgerBase++;
+            net->ledgerBase = gSaveLedgerBase;
+        }
+        else
+        {
+            Multi_ReceiveItem(play, net);
+        }
+    }
+}
+
+void Multi_Update(GameState_Play* play)
+{
+    NetContext* ctx;
+
+    if (!Config_Flag(CFG_MULTIPLAYER))
+        return;
+
+    ctx = netMutexLock();
+    Multi_ProcessMessages(play, ctx);
+    Multi_ProcessItems(play, ctx);
+    netMutexUnlock();
 }

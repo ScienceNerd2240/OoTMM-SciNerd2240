@@ -12,6 +12,8 @@ import { BufferPath } from './type';
 import { toU32Buffer } from '../util';
 import { enableModelOotLinkAdult, enableModelOotLinkChild } from './model';
 import { randomizeMusic } from './music';
+import { Monitor } from '../monitor';
+import { LogWriter } from '../util/log-writer';
 
 export { makeCosmetics } from './util';
 export { COSMETICS } from './data';
@@ -57,16 +59,16 @@ function resolveColor(random: Random, c: ColorArg, auto?: () => number | null): 
 
 class CosmeticsPass {
   private assetsPromise: Promise<Assets> | null;
-  private vrom: number;
+  private logWriter: LogWriter;
 
   constructor(
+    private monitor: Monitor,
     private opts: Options,
-    private addresses: GameAddresses,
     private builder: RomBuilder,
     private meta: any,
   ) {
     this.assetsPromise = null;
-    this.vrom = 0xc0000000;
+    this.logWriter = new LogWriter();
   }
 
   private asset(key: keyof Assets): Promise<Buffer> {
@@ -88,9 +90,7 @@ class CosmeticsPass {
 
   private addNewFile(data: Buffer, compressed = true) {
     const size = (data.length + 0xf) & ~0xf;
-    const vrom = this.vrom;
-    this.vrom = (this.vrom + size) >>> 0;
-    this.builder.addFile({ vaddr: vrom, data, type: compressed ? 'compressed' : 'uncompressed', game: 'custom' })
+    const vrom = this.builder.addFile({ data, type: compressed ? 'compressed' : 'uncompressed', game: 'custom' })!;
     return [vrom, (vrom + size) >>> 0];
   }
 
@@ -211,6 +211,25 @@ class CosmeticsPass {
     const envColor = colorBufferRGB(brightness(color, 0.2));
     primColor.copy(fileGi.data, 0xfc8 + 4);
     envColor.copy(fileGi.data, 0xfd0 + 4);
+
+    /* Patch the ageless shield (sheath) */
+    const fileAgeless1 = this.builder.fileByName('custom/eq_shield_mirror');
+    if (fileAgeless1) {
+      const off = 0x1b1c;
+      const original = fileAgeless1.data.readUint32BE(off);
+      if (original === 0xd70000ff) {
+        buffer.copy(fileAgeless1.data, off);
+      }
+    }
+
+    const fileAgeless2 = this.builder.fileByName('custom/eq_sheath_shield_mirror');
+    if (fileAgeless2) {
+      const off = 0x1e7c;
+      const original = fileAgeless2.data.readUint32BE(off);
+      if (original === 0xd70000ff) {
+        buffer.copy(fileAgeless2.data, off);
+      }
+    }
   }
 
   private async getPathBuffer(path: BufferPath | null): Promise<Buffer | null> {
@@ -224,6 +243,18 @@ class CosmeticsPass {
       } else {
         throw new Error(`Cannot load buffers from path`);
       }
+    } else if (path instanceof File) {
+      const reader = new FileReader();
+      return new Promise<Buffer>((resolve, reject) => {
+        reader.onload = () => {
+          const buffer = Buffer.from(reader.result as ArrayBuffer);
+          resolve(buffer);
+        };
+        reader.onerror = () => {
+          reject(new Error('Failed to read file'));
+        };
+        reader.readAsArrayBuffer(path);
+      });
     } else {
       return Buffer.from(path);
     }
@@ -281,7 +312,7 @@ class CosmeticsPass {
     }
   }
 
-  async run() {
+  async run(): Promise<string | null> {
     const c = this.opts.cosmetics;
 
     /* Create a random number generator */
@@ -299,6 +330,11 @@ class CosmeticsPass {
     const colorMmTunicFierceDeity = resolveColor(random, c.mmTunicFierceDeity);
     const colorOotShieldMirror = resolveColor(random, c.ootShieldMirror);
     const colorDpad = resolveColor(random, c.dpad);
+
+    /* Patch hold target */
+    if (c.defaultHold) {
+      this.patchSymbol('HOLD_TARGET', Buffer.from([0x01]));
+    }
 
     /* Patch human tunics */
     if (colorOotTunicKokiri !== null) {
@@ -334,19 +370,29 @@ class CosmeticsPass {
     }
 
     /* Patch models */
-    this.patchOotChildModel();
-    this.patchOotAdultModel();
+    await this.patchOotChildModel();
+    await this.patchOotAdultModel();
 
     /* Custom music */
     if (c.music) {
       const data = await this.getPathBuffer(c.music);
       if (data)
-        await randomizeMusic(this.builder, random, data);
+        await randomizeMusic(this.logWriter, this.monitor, this.builder, random, data);
+    }
+    if (c.musicNames) {
+      this.patchSymbol('MUSIC_NAMES', Buffer.from([0x01]));
+    }
+
+    const log = this.logWriter.emit();
+    if (log !== '') {
+      return log;
+    } else {
+      return null;
     }
   }
 }
 
-export async function cosmetics(opts: Options, addresses: GameAddresses, builder: RomBuilder, meta: any) {
-  const x = new CosmeticsPass(opts, addresses, builder, meta);
-  await x.run();
+export async function cosmetics(monitor: Monitor, opts: Options, builder: RomBuilder, meta: any): Promise<string | null> {
+  const x = new CosmeticsPass(monitor, opts, builder, meta);
+  return x.run();
 }

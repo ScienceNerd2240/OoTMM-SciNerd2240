@@ -1,5 +1,15 @@
 #include <combo.h>
 #include <combo/custom.h>
+#include <combo/entrance.h>
+#include <combo/player.h>
+#include <combo/mask.h>
+#include <combo/magic.h>
+#include <combo/math.h>
+#include <combo/config.h>
+#include <combo/dpad.h>
+#include <combo/multi.h>
+#include <combo/global.h>
+#include <combo/effect.h>
 #include "../actors.h"
 
 void ArrowCycle_Handle(Actor_Player* link, GameState_Play* play);
@@ -8,16 +18,15 @@ void Player_UpdateWrapper(Actor_Player* this, GameState_Play* play)
 {
     ArrowCycle_Handle(this, play);
     Player_Update(this, play);
-    comboDpadUpdate(play);
+    Dpad_Update(play);
     Ocarina_HandleWarp(this, play);
-    comboMultiProcessMessages(play);
 }
 
 int Player_DpadHook(Actor_Player* this, GameState_Play* play)
 {
     if (Player_UsingItem(this))
         return 1;
-    return comboDpadUse(play, DPF_ITEMS);
+    return Dpad_Use(play, DPF_ITEMS);
 }
 
 void Player_DrawHookshotReticleCustom(GameState_Play* play, Actor_Player* player)
@@ -101,6 +110,10 @@ static AnimSfxEntry sMagicSpellSfx[][2] =
         { 0x681C, ANIMSFX_DATA(ANIMSFX_TYPE_4, 20) }, /* NA_SE_VO_LI_MAGIC_ATTACK */
         { 0x1818, -ANIMSFX_DATA(ANIMSFX_TYPE_1, 20) }, /* NA_SE_IT_SWORD_SWING_HARD */
     },
+    {
+        { 0x6801, ANIMSFX_DATA(ANIMSFX_TYPE_4, 20) }, /* NA_SE_VO_LI_SWORD_L */
+        { 0x1818, -ANIMSFX_DATA(ANIMSFX_TYPE_1, 20) }, /* NA_SE_IT_SWORD_SWING_HARD */
+    },
 };
 
 static PlayerAnimationHeader* sMagicSpellFirstAnimation[] =
@@ -156,9 +169,9 @@ static s32 Player_ActionToMagicSpell(Actor_Player* this, s32 itemAction)
 
 static s32 Player_ActionToBoots(Actor_Player* this, s32 itemAction)
 {
-    s32 boots = itemAction - PLAYER_CUSTOM_IA_BOOTS_MIN;
+    s32 boots = itemAction - PLAYER_CUSTOM_IA_BOOTS_MIN + 1;
 
-    if ((boots >= PLAYER_BOOTS_MIN) && (boots <= PLAYER_BOOTS_MAX))
+    if ((boots >= PLAYER_BOOTS_IRON) && (boots <= PLAYER_BOOTS_HOVER))
     {
         return boots;
     }
@@ -184,7 +197,7 @@ static s32 Player_ActionToTunic(Actor_Player* this, s32 itemAction)
 
 Actor* Player_SpawnMagicSpellActor(GameState_Play* play, Actor_Player* this, s8 magicSpell)
 {
-    return SpawnActor(&play->actorCtx, play, sMagicSpellActorIds[magicSpell], this->base.world.pos.x, this->base.world.pos.y, this->base.world.pos.z, 0, 0, 0, 0);
+    return Actor_Spawn(&play->actorCtx, play, sMagicSpellActorIds[magicSpell], this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, 0, 0, 0, 0);
 }      /* size = 0x4 */
 
 typedef void (*Player_PlayAnimSfx)(Actor_Player*, AnimSfxEntry*);
@@ -255,14 +268,15 @@ void Player_Action_CastingSpell(Actor_Player* this, GameState_Play* play)
 
             if (this->av2.actionVar2 == 0)
             {
+                RespawnData* fw = &gCustomSave.fw[gOotSave.age];
                 gSaveContext.respawn[RESPAWN_MODE_HUMAN].data = 1;
                 Play_SetupRespawnPoint(play, RESPAWN_MODE_HUMAN, 0x6ff);
-                gSave.fw = gSaveContext.respawn[RESPAWN_MODE_DOWN];
-                gSave.fw.playerParams = 0x6ff;
-                gSave.fw.data = 40;
+                *fw = gSaveContext.respawn[RESPAWN_MODE_DOWN];
+                fw->playerParams = 0x6ff;
+                fw->data = 40;
 
                 /* Copy Game Over / Soar to Entrance respawn data. */
-                gSave.fwRespawnTop = gSaveContext.respawn[RESPAWN_MODE_TOP];
+                gCustomSave.fwRespawnTop[gOotSave.age] = gSaveContext.respawn[RESPAWN_MODE_TOP];
 
                 this->av2.actionVar2 = 2;
             }
@@ -276,7 +290,12 @@ void Player_Action_CastingSpell(Actor_Player* this, GameState_Play* play)
             }
             else if (this->av2.actionVar2 == 1)
             {
-                Player_PlayAnimSfx(this, sMagicSpellSfx[this->av1.actionVar1]);
+                s8 spellSfxIndex = this->av1.actionVar1;
+                if (spellSfxIndex == 2 && comboIsLinkAdult())
+                {
+                    spellSfxIndex = 3;
+                }
+                Player_PlayAnimSfx(this, sMagicSpellSfx[spellSfxIndex]);
                 if ((this->av1.actionVar1 == 2) && PlayerAnimation_OnFrame(&this->skelAnime, 30.0f))
                 {
                     this->state &= ~0x30000000; /* PLAYER_STATE1_20000000 | PLAYER_STATE1_10000000 */
@@ -285,7 +304,7 @@ void Player_Action_CastingSpell(Actor_Player* this, GameState_Play* play)
             else if (sMagicSpellLoopTimer[this->av1.actionVar1] < this->av2.actionVar2++)
             {
                 PlayerAnimation_PlayOnceSetSpeed(play, &this->skelAnime, sMagicSpellThirdAnimation[this->av1.actionVar1], 0.83f);
-                this->currentYaw = this->base.rot2.y;
+                this->currentYaw = this->actor.shape.rot.y;
                 this->av1.actionVar1 = -1;
             }
         }
@@ -340,7 +359,7 @@ void Player_Action_FaroresWindText(Actor_Player* this, GameState_Play* play)
     if (this->av2.actionVar2 == 0)
     {
         /* Message Id is the same as OoT, but here it's the Great Fairy's Sword get-item message. Doesn't matter though. */
-        PlayerDisplayTextBox(play, 0x3B, &this->base);
+        PlayerDisplayTextBox(play, 0x3B, &this->actor);
         b = play->msgCtx.font.textBuffer.schar;
         b[2] = 0xFE; /* Use No icon. */
         b += 11;
@@ -363,9 +382,7 @@ void Player_Action_FaroresWindText(Actor_Player* this, GameState_Play* play)
             play->transitionTrigger = TRANS_TRIGGER_NORMAL;
             play->nextEntrance = gSaveContext.respawn[RESPAWN_MODE_HUMAN].entrance;
             play->transitionType = TRANS_TYPE_FADE_WHITE_FAST;
-
-            /* Restore Game Over / Soar to Entrance respawn data. */
-            gSaveContext.respawn[RESPAWN_MODE_TOP] = gSaveContext.save.fwRespawnTop;
+            gNoTimeFlow = 0;
 
             /* TODO cancel timers? */
 
@@ -375,8 +392,8 @@ void Player_Action_FaroresWindText(Actor_Player* this, GameState_Play* play)
         if (play->msgCtx.choiceIndex == 1)
         {
             gSaveContext.respawn[RESPAWN_MODE_HUMAN].data = -gSaveContext.respawn[RESPAWN_MODE_HUMAN].data;
-            gSave.fw.data = 0;
-            Audio_PlaySfx_AtPos(&gSaveContext.save.fw.pos, 0x8C8); /* NA_SE_PL_MAGIC_WIND_VANISH */
+            gCustomSave.fw[gOotSave.age].data = 0;
+            Audio_PlaySfx_AtPos(&gCustomSave.fw[gOotSave.age].pos, 0x8C8); /* NA_SE_PL_MAGIC_WIND_VANISH */
         }
 
         Player_func_8085B384 = OverlayAddr(0x8085B384);
@@ -426,23 +443,41 @@ s32 Player_CustomCsItem(Actor_Player* this, GameState_Play* play)
     return 0;
 }
 
-s16 sBootData[3][18] = {
+s16 sBootData[7][18] = {
+    /* Child Link - Iron Boots */
     { 200, 1000, 300, 700, 550, 270, 1000, 0, 120, 800, 300, -160, 600, 590, 750, 125, 200, 130 },
+
+    /* Child Link - Hover Boots */
     { 200, 1000, 300, 700, 550, 270, 600, 600, 120, 800, 550, -100, 600, 540, 270, 25, 0, 130 },
+
+    /* Child Link - Iron Boots (Underwater) */
+    { 80, 800, 150, 700, 480, 270, 600, 50, 120, 800, 550, -40, 400, 540, 270, 25, 0, 80 },
+
+    /* Adult Link - Kokiri Boots */
+    { 200, 1000, 300, 700, 550, 270, 700, 300, 120, 800, 600, -100, 600, 590, 750, 125, 200, 130 },
+
+    /* Adult Link - Iron Boots */
+    { 200, 1000, 300, 700, 550, 270, 1000, 0, 120, 800, 300, -160, 600, 590, 750, 125, 200, 130 },
+
+    /* Adult Link - Hover Boots */
+    { 200, 1000, 300, 700, 550, 270, 600, 600, 120, 800, 550, -100, 600, 540, 270, 25, 0, 130 },
+
+    /* Adult Link - Iron Boots (Underwater) */
     { 80, 800, 150, 700, 480, 270, 600, 50, 120, 800, 550, -40, 400, 540, 270, 25, 0, 80 },
 };
 
 void Player_CheckCustomBoots(GameState_Play* play)
 {
-    Actor_Player* player = GET_LINK(play);
+    Actor_Player* player = GET_PLAYER(play);
     if (player->transformation == MM_PLAYER_FORM_HUMAN)
     {
-        player->base.flags &= ~(1 << 17); /* ~ACTOR_FLAG_CAN_PRESS_HEAVY_SWITCH */
-        player->base.flags |= (1 << 26); /* ACTOR_FLAG_CAN_PRESS_SWITCH */
+        s32 isAdult = comboIsLinkAdult();
+        player->actor.flags &= ~ACTOR_FLAG_MM_CAN_PRESS_HEAVY_SWITCH;
+        player->actor.flags |= ACTOR_FLAG_MM_CAN_PRESS_SWITCH;
 
-        if (gSaveContext.save.itemEquips.boots > 0)
+        if (gSaveContext.save.itemEquips.boots > 0 || isAdult)
         {
-            s32 currentBoots = gSaveContext.save.itemEquips.boots - 1;
+            s32 currentBoots = gSaveContext.save.itemEquips.boots;
             s16* bootRegs;
 
             REG(27) = 2000;
@@ -452,21 +487,26 @@ void Player_CheckCustomBoots(GameState_Play* play)
             {
             case PLAYER_BOOTS_IRON:
                 player->currentBoots = 6; /* PLAYER_BOOTS_GORON */
-                player->base.flags |= (1 << 17); /* ACTOR_FLAG_CAN_PRESS_HEAVY_SWITCH */
+                player->actor.flags |= ACTOR_FLAG_MM_CAN_PRESS_HEAVY_SWITCH;
                 if (player->state & PLAYER_ACTOR_STATE_WATER)
                 {
-                    currentBoots = 2; /* Iron Underwater */
+                    currentBoots = 3; /* Iron Underwater */
                 }
                 REG(27) = 500;
                 REG(48) = 100;
                 break;
             case PLAYER_BOOTS_HOVER:
                 player->currentBoots = 0; /* PLAYER_BOOTS_FIERCE_DEITY */
-                player->base.flags &= ~(1 << 26); /* ~ACTOR_FLAG_CAN_PRESS_SWITCH */
+                player->actor.flags &= ~ACTOR_FLAG_MM_CAN_PRESS_SWITCH;
                 break;
             }
 
-            bootRegs = sBootData[currentBoots];
+            if (isAdult)
+            {
+                currentBoots += 4;
+            }
+
+            bootRegs = sBootData[currentBoots - 1];
             REG(19) = bootRegs[0];
             REG(30) = bootRegs[1];
             REG(32) = bootRegs[2];
@@ -520,18 +560,17 @@ s32 Player_CustomUseItem(Actor_Player* this, GameState_Play* play, s32 itemActio
     }
 
     s32 boots = Player_ActionToBoots(this, itemAction);
-    if (boots >= 0)
+    if (boots > 0)
     {
         if (this->transformation == MM_PLAYER_FORM_HUMAN)
         {
-            u16 newBoots = boots + 1;
-            if (gSaveContext.save.itemEquips.boots == newBoots)
+            if (gSaveContext.save.itemEquips.boots == boots)
             {
-                newBoots = 0;
+                boots = 0;
             }
-            gSaveContext.save.itemEquips.boots = newBoots;
+            gSaveContext.save.itemEquips.boots = boots;
 
-            if (!newBoots)
+            if (!boots)
             {
                 this->currentBoots = 1; /* PLAYER_BOOTS_HYLIAN */
             }
@@ -585,8 +624,8 @@ void Player_Action_FaroresWindSpawning(Actor_Player* this, GameState_Play* play)
     if (this->av2.actionVar2 > 20)
     {
         Player_Draw = OverlayAddr(0x80846528);
-        this->base.draw = Player_Draw;
-        this->base.world.pos.y += 60.0f;
+        this->actor.draw = Player_Draw;
+        this->actor.world.pos.y += 60.0f;
         Player_func_80833AA0 = OverlayAddr(0x80833AA0);
         Player_func_80833AA0(this, play);
         return;
@@ -595,14 +634,14 @@ void Player_Action_FaroresWindSpawning(Actor_Player* this, GameState_Play* play)
     if (this->av2.actionVar2++ == 20)
     {
         gSaveContext.respawn[RESPAWN_MODE_HUMAN].data++;
-        Audio_PlaySfx_AtPos(&gSaveContext.save.fw.pos, 0x87B); /* NA_SE_PL_MAGIC_WIND_WARP */
+        Audio_PlaySfx_AtPos(&gCustomSave.fw[gOotSave.age].pos, 0x87B); /* NA_SE_PL_MAGIC_WIND_WARP */
     }
 }
 
 void Player_InitFaroresWindRespawn(GameState_Play* play, Actor_Player* this)
 {
     Player_SetAction Player_SetAction = OverlayAddr(0x80831494);
-    this->base.draw = NULL;
+    this->actor.draw = NULL;
     Player_SetAction(play, this, Player_Action_FaroresWindSpawning, 0);
     this->state |= 0x20000000; /* PLAYER_STATE1_20000000 */
 }
@@ -612,7 +651,7 @@ void Player_AfterInit(GameState_Play* play)
     /* Displaced code: */
     Map_SetAreaEntrypoint(play);
 
-    Actor_Player* player = GET_LINK(play);
+    Actor_Player* player = GET_PLAYER(play);
 
     if (gSaveContext.nayrusLoveTimer != 0)
     {
@@ -624,6 +663,9 @@ void Player_AfterInit(GameState_Play* play)
 
     if (gSaveContext.respawnFlag == 8)
     {
+        /* Restore Game Over / Soar to Entrance respawn data. */
+        gSaveContext.respawn[RESPAWN_MODE_TOP] = gCustomSave.fwRespawnTop[gOotSave.age];
+
         Player_InitFaroresWindRespawn(play, player);
     }
 }
@@ -891,137 +933,85 @@ Gfx gLinkChildGoronBraceletDL[] = {
     gsSPEndDisplayList(),
 };
 
-const Vtx sGauntletVtx[] = {
-#include "sGauntletVtx.vtx.inc"
-};
+static int prepareObject(GameState_Play* play, u16 objectId)
+{
+    void* obj;
 
-const u32 gLinkAdultGauntletPlate1Tex = 0x08000000 | CUSTOM_KEEP_GAUNTLET1_TEXTURE;
+    obj = comboGetObject(objectId);
+    if (!obj)
+        return 0;
 
-Gfx gLinkAdultLeftGauntletPlate1DL[] = {
-    gsSPMatrix(0x0D0002C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW),
-    gsDPPipeSync(),
-    gsDPSetTextureLUT(G_TT_NONE),
-    gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock(gLinkAdultGauntletPlate1Tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 32, 0, G_TX_MIRROR | G_TX_CLAMP,
-                         G_TX_MIRROR | G_TX_CLAMP, 4, 5, G_TX_NOLOD, G_TX_NOLOD),
-    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, COMBINED, 0, ENVIRONMENT, 0, 0, 0, 0, COMBINED),
-    gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2),
-    gsSPClearGeometryMode(G_CULL_BOTH | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
-    gsSPSetGeometryMode(G_FOG | G_LIGHTING),
-    gsDPSetPrimColor(0, 0, 255, 255, 255, 255),
-    gsSPVertex(&sGauntletVtx[0], 24, 0),
-    gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
-    gsSP2Triangles(4, 5, 6, 0, 5, 4, 7, 0),
-    gsSP2Triangles(8, 9, 10, 0, 11, 12, 13, 0),
-    gsSP2Triangles(11, 13, 14, 0, 8, 15, 9, 0),
-    gsSP2Triangles(16, 17, 18, 0, 19, 20, 21, 0),
-    gsSP2Triangles(18, 22, 16, 0, 19, 21, 23, 0),
-    gsSPEndDisplayList(),
-};
+    OPEN_DISPS(play->gs.gfx);
+    gSPSegment(POLY_OPA_DISP++, 0x0a, obj);
+    CLOSE_DISPS();
 
-const u32 gLinkAdultGauntletPlate2Tex = 0x08000000 | CUSTOM_KEEP_GAUNTLET2_TEXTURE;
+    return 1;
+}
 
-const u32 gHilite2Tex = 0x04000000 | 0xca30;
+static void DrawBootsIron(GameState_Play* play, Actor_Player* link)
+{
+    OPEN_DISPS(play->gs.gfx);
+    if (comboIsLinkAdult())
+    {
+        if (!prepareObject(play, CUSTOM_OBJECT_ID_BOOTS_IRON))
+            return;
+        gSPDisplayList(POLY_OPA_DISP++, CUSTOM_OBJECT_BOOTS_IRON_0);
+        gSPDisplayList(POLY_OPA_DISP++, CUSTOM_OBJECT_BOOTS_IRON_1);
+    }
+    else
+    {
+        gSPSegment(POLY_OPA_DISP++, 0x08, g.customKeep);
+        gSPDisplayList(POLY_OPA_DISP++, gLinkAdultLeftIronBootDL);
+        gSPDisplayList(POLY_OPA_DISP++, gLinkAdultRightIronBootDL);
+    }
+    CLOSE_DISPS();
+}
 
-/* gLinkAdultLeftGauntletPlate2DL is omitted because we always render the "closed hand" variant so it doesn't clip into the link's hand */
+static void DrawBootsHover(GameState_Play* play, Actor_Player* link)
+{
+    OPEN_DISPS(play->gs.gfx);
+    if (comboIsLinkAdult())
+    {
+        if (!prepareObject(play, CUSTOM_OBJECT_ID_BOOTS_HOVER))
+            return;
+        gSPDisplayList(POLY_OPA_DISP++, CUSTOM_OBJECT_BOOTS_HOVER_0);
+        gSPDisplayList(POLY_OPA_DISP++, CUSTOM_OBJECT_BOOTS_HOVER_1);
+    }
+    else
+    {
+        gSPSegment(POLY_OPA_DISP++, 0x08, g.customKeep);
+        gSPDisplayList(POLY_OPA_DISP++, gLinkAdultLeftHoverBootDL);
+        gSPDisplayList(POLY_OPA_DISP++, gLinkAdultRightHoverBootDL);
+    }
+    CLOSE_DISPS();
+}
 
-Gfx gLinkAdultLeftGauntletPlate3DL[] = {
-    gsSPMatrix(0x0D000300, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW),
-    gsDPPipeSync(),
-    gsDPSetTextureLUT(G_TT_NONE),
-    gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock(gLinkAdultGauntletPlate2Tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_NOMIRROR |
-                         G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, 5, 5, G_TX_NOLOD, G_TX_NOLOD),
-    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, COMBINED, 0, ENVIRONMENT, 0, 0, 0, 0, COMBINED),
-    gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2),
-    gsSPClearGeometryMode(G_CULL_BOTH | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
-    gsSPSetGeometryMode(G_FOG | G_LIGHTING),
-    gsDPSetPrimColor(0, 0, 255, 255, 255, 255),
-    gsSPVertex(&sGauntletVtx[24], 26, 0),
-    gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
-    gsSP2Triangles(4, 5, 6, 0, 7, 8, 9, 0),
-    gsSP2Triangles(10, 11, 12, 0, 6, 5, 13, 0),
-    gsSP2Triangles(2, 1, 14, 0, 11, 15, 12, 0),
-    gsSP2Triangles(15, 11, 16, 0, 8, 7, 17, 0),
-    gsSP2Triangles(18, 19, 20, 0, 20, 21, 18, 0),
-    gsSP2Triangles(22, 23, 24, 0, 24, 25, 22, 0),
-    gsDPPipeSync(),
-    gsSPTexture(0x2710, 0x2710, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock(gHilite2Tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR |
-                         G_TX_WRAP, 4, 4, 1, 15),
-    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, 1, COMBINED, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED),
-    gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_OPA_SURF2),
-    gsSPSetGeometryMode(G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
-    gsSPDisplayList(0x0C000000),
-    gsDPSetPrimColor(0, 0, 254, 15, 15, 255),
-    gsSPVertex(&sGauntletVtx[50], 3, 0),
-    gsSP1Triangle(0, 1, 2, 0),
-    gsSPVertex(&sGauntletVtx[53], 9, 0),
-    gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
-    gsSP1Triangle(6, 7, 8, 0),
-    gsSPEndDisplayList(),
-};
+void DrawChildGauntlets(GameState_Play* play);
 
-Gfx gLinkAdultRightGauntletPlate1DL[] = {
-    gsSPMatrix(0x0D000380, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW),
-    gsDPPipeSync(),
-    gsDPSetTextureLUT(G_TT_NONE),
-    gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock(gLinkAdultGauntletPlate1Tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 32, 0, G_TX_MIRROR | G_TX_CLAMP,
-                         G_TX_MIRROR | G_TX_CLAMP, 4, 5, G_TX_NOLOD, G_TX_NOLOD),
-    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, COMBINED, 0, ENVIRONMENT, 0, 0, 0, 0, COMBINED),
-    gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2),
-    gsSPClearGeometryMode(G_CULL_BOTH | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
-    gsSPSetGeometryMode(G_FOG | G_LIGHTING),
-    gsDPSetPrimColor(0, 0, 255, 255, 255, 255),
-    gsSPVertex(&sGauntletVtx[62], 24, 0),
-    gsSP2Triangles(0, 1, 2, 0, 3, 0, 2, 0),
-    gsSP2Triangles(4, 5, 6, 0, 7, 6, 5, 0),
-    gsSP2Triangles(8, 9, 10, 0, 11, 12, 13, 0),
-    gsSP2Triangles(14, 11, 13, 0, 9, 15, 10, 0),
-    gsSP2Triangles(16, 17, 18, 0, 19, 20, 21, 0),
-    gsSP2Triangles(18, 22, 16, 0, 23, 19, 21, 0),
-    gsSPEndDisplayList(),
-};
-
-/* gLinkAdultRightGauntletPlate2DL is omitted because we always render the "closed hand" variant so it doesn't clip into the link's hand */
-
-Gfx gLinkAdultRightGauntletPlate3DL[] = {
-    gsSPMatrix(0x0D0003C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW),
-    gsDPPipeSync(),
-    gsDPSetTextureLUT(G_TT_NONE),
-    gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock(gLinkAdultGauntletPlate2Tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_NOMIRROR |
-                         G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, 5, 5, G_TX_NOLOD, G_TX_NOLOD),
-    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, COMBINED, 0, ENVIRONMENT, 0, 0, 0, 0, COMBINED),
-    gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2),
-    gsSPClearGeometryMode(G_CULL_BOTH | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
-    gsSPSetGeometryMode(G_FOG | G_LIGHTING),
-    gsDPSetPrimColor(0, 0, 255, 255, 255, 255),
-    gsSPVertex(&sGauntletVtx[86], 26, 0),
-    gsSP2Triangles(0, 1, 2, 0, 3, 0, 2, 0),
-    gsSP2Triangles(4, 5, 6, 0, 7, 8, 9, 0),
-    gsSP2Triangles(10, 11, 12, 0, 13, 5, 4, 0),
-    gsSP2Triangles(14, 1, 0, 0, 10, 15, 11, 0),
-    gsSP2Triangles(16, 11, 15, 0, 17, 9, 8, 0),
-    gsSP2Triangles(18, 19, 20, 0, 20, 21, 18, 0),
-    gsSP2Triangles(22, 23, 24, 0, 24, 25, 22, 0),
-    gsDPPipeSync(),
-    gsSPTexture(0x2710, 0x2710, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock(gHilite2Tex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 16, 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR |
-                         G_TX_WRAP, 4, 4, 1, 15),
-    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, 1, COMBINED, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED),
-    gsDPSetRenderMode(G_RM_FOG_SHADE_A, G_RM_AA_ZB_OPA_SURF2),
-    gsSPSetGeometryMode(G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
-    gsSPDisplayList(0x0C000000),
-    gsDPSetPrimColor(0, 0, 254, 15, 15, 255),
-    gsSPVertex(&sGauntletVtx[112], 3, 0),
-    gsSP1Triangle(0, 1, 2, 0),
-    gsSPVertex(&sGauntletVtx[115], 9, 0),
-    gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
-    gsSP1Triangle(6, 7, 8, 0),
-    gsSPEndDisplayList(),
-};
+static void DrawGauntlets(GameState_Play* play, Actor_Player* link)
+{
+    OPEN_DISPS(play->gs.gfx);
+    if (comboIsLinkAdult())
+    {
+        if (!prepareObject(play, CUSTOM_OBJECT_ID_GAUNTLETS))
+            return;
+        s32 playerLeftHandType = *(s32*)0x801f59f4;
+        s32 playerRightHandType = *(s32*)0x801f59f8;
+        gSPDisplayList(POLY_OPA_DISP++, CUSTOM_OBJECT_GAUNTLETS_0);
+        gSPDisplayList(POLY_OPA_DISP++, CUSTOM_OBJECT_GAUNTLETS_3);
+        gSPDisplayList(POLY_OPA_DISP++, (playerLeftHandType == 0) /* PLAYER_MODELTYPE_LH_OPEN */
+                                            ? CUSTOM_OBJECT_GAUNTLETS_1
+                                            : CUSTOM_OBJECT_GAUNTLETS_2);
+        gSPDisplayList(POLY_OPA_DISP++, (playerRightHandType == 6) /* PLAYER_MODELTYPE_RH_OPEN */
+                                            ? CUSTOM_OBJECT_GAUNTLETS_4
+                                            : CUSTOM_OBJECT_GAUNTLETS_5);
+    }
+    else
+    {
+        DrawChildGauntlets(play);
+    }
+    CLOSE_DISPS();
+}
 
 static Color_RGB8 sGauntletColors[] = {
     { 255, 255, 255 },
@@ -1057,32 +1047,29 @@ void Player_SkelAnime_DrawFlexLod(GameState_Play* play, void** skeleton, Vec3s* 
         gDPSetEnvColor(POLY_OPA_DISP++, tunicColor->r, tunicColor->g, tunicColor->b, 0xFF);
     }
 
-    SkelAnime_DrawFlexLod(play, skeleton, jointTable, dListCount, overrideLimbDraw, postLimbDraw, &player->base, lod);
+    SkelAnime_DrawFlexLod(play, skeleton, jointTable, dListCount, overrideLimbDraw, postLimbDraw, &player->actor, lod);
 
-    gSPSegment(POLY_OPA_DISP++, 0x08, gCustomKeep);
-    gSPSegment(POLY_XLU_DISP++, 0x08, gCustomKeep);
 
     if (overrideLimbDraw != Player_OverrideLimbDrawGameplayFirstPerson && gSaveContext.gameMode != 3) /* GAMEMODE_END_CREDITS */
     {
         switch (GET_PLAYER_CUSTOM_BOOTS(player))
         {
         case PLAYER_BOOTS_IRON:
-            gSPDisplayList(POLY_OPA_DISP++, gLinkAdultLeftIronBootDL);
-            gSPDisplayList(POLY_OPA_DISP++, gLinkAdultRightIronBootDL);
+            DrawBootsIron(play, player);
             break;
         case PLAYER_BOOTS_HOVER:
-            gSPDisplayList(POLY_OPA_DISP++, gLinkAdultLeftHoverBootDL);
-            gSPDisplayList(POLY_OPA_DISP++, gLinkAdultRightHoverBootDL);
+            DrawBootsHover(play, player);
             break;
         }
 
-        if (player->transformation == MM_PLAYER_FORM_HUMAN && comboConfig(CFG_MM_STRENGTH))
+        if (player->transformation == MM_PLAYER_FORM_HUMAN && Config_Flag(CFG_MM_STRENGTH))
         {
             Color_RGB8* gauntletColor;
             s32 strength = gSaveContext.save.inventory.upgrades.strength;
             switch (strength)
             {
                 case 1:
+                    gSPSegment(POLY_OPA_DISP++, 0x08, g.customKeep);
                     gSPDisplayList(POLY_OPA_DISP++, gLinkChildGoronBraceletDL);
                     break;
                 case 2:
@@ -1091,16 +1078,15 @@ void Player_SkelAnime_DrawFlexLod(GameState_Play* play, void** skeleton, Vec3s* 
                     gDPPipeSync(POLY_OPA_DISP++);
                     gDPSetEnvColor(POLY_OPA_DISP++, gauntletColor->r, gauntletColor->g, gauntletColor->b, 0);
 
-                    gSPDisplayList(POLY_OPA_DISP++, gLinkAdultLeftGauntletPlate1DL);
-                    gSPDisplayList(POLY_OPA_DISP++, gLinkAdultRightGauntletPlate1DL);
-                    gSPDisplayList(POLY_OPA_DISP++, gLinkAdultLeftGauntletPlate3DL);
-                    gSPDisplayList(POLY_OPA_DISP++, gLinkAdultRightGauntletPlate3DL);
+                    DrawGauntlets(play, player);
                     break;
             }
         }
     }
 
-    if (GET_PLAYER_CUSTOM_BOOTS(player) == PLAYER_BOOTS_HOVER && !(player->base.bgCheckFlags & BGCHECKFLAG_GROUND)
+    gSPSegment(POLY_XLU_DISP++, 0x08, g.customKeep);
+
+    if (GET_PLAYER_CUSTOM_BOOTS(player) == PLAYER_BOOTS_HOVER && !(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND)
         && !(player->state & (1 << 23)) && player->hoverBootsTimer != 0)
     {
         s32 sp5C;
@@ -1122,8 +1108,8 @@ void Player_SkelAnime_DrawFlexLod(GameState_Play* play, void** skeleton, Vec3s* 
                 sHoverBootCircleAlpha *= sp5C * (1.0f / 9.0f);
             }
 
-            Matrix_SetTranslateRotateYXZ(player->base.world.pos.x, player->base.world.pos.y + 2.0f,
-                                         player->base.world.pos.z, &sHoverBootsRot);
+            Matrix_SetTranslateRotateYXZ(player->actor.world.pos.x, player->actor.world.pos.y + 2.0f,
+                                         player->actor.world.pos.z, &sHoverBootsRot);
             ModelViewScale(4.0f, 4.0f, 4.0f, MAT_MUL);
 
             gSPMatrix(POLY_XLU_DISP++, GetMatrixMV(play->gs.gfx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -1190,7 +1176,7 @@ s32 Player_ShouldCheckItemUsabilityWhileSwimming(Actor_Player* player, u8 itemAc
 
 f32 Player_GetEnvironmentWindSpeed(GameState_Play* play)
 {
-    Actor_Player* player = GET_LINK(play);
+    Actor_Player* player = GET_PLAYER(play);
     if (GET_PLAYER_CUSTOM_BOOTS(player) == PLAYER_BOOTS_IRON)
     {
         return 0.0f;
@@ -1227,10 +1213,10 @@ s32 Player_PlayHoverSound(Actor_Player* this, f32* arg1Ptr)
     /* End displaced code */
 
     if (GET_PLAYER_CUSTOM_BOOTS(this) == PLAYER_BOOTS_HOVER
-        && !(this->base.bgCheckFlags & BGCHECKFLAG_GROUND)
+        && !(this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)
         && this->hoverBootsTimer != 0)
     {
-        Actor_PlaySfx_FlaggedCentered1(&this->base, 0xC9); /* NA_SE_PL_HOBBERBOOTS_LV - SFX_FLAG */
+        Actor_PlaySfx_FlaggedCentered1(&this->actor, 0xC9); /* NA_SE_PL_HOBBERBOOTS_LV - SFX_FLAG */
         return 1;
     }
 
@@ -1263,9 +1249,9 @@ s32 Player_UpdateHoverBoots(Actor_Player* this)
     Player_func_8083784C Player_func_8083784C = OverlayAddr(0x8083784C);
     s32 canHoverOnGround;
 
-    if (this->transformation == MM_PLAYER_FORM_DEKU && this->base.bgCheckFlags & BGCHECKFLAG_GROUND && Player_func_8083784C(this))
+    if (this->transformation == MM_PLAYER_FORM_DEKU && this->actor.bgCheckFlags & BGCHECKFLAG_GROUND && Player_func_8083784C(this))
     {
-        this->base.bgCheckFlags &= ~BGCHECKFLAG_GROUND;
+        this->actor.bgCheckFlags &= ~BGCHECKFLAG_GROUND;
     }
 
     if ((GET_PLAYER_CUSTOM_BOOTS(this) == PLAYER_BOOTS_HOVER) && (this->hoverBootsTimer != 0))
@@ -1279,14 +1265,14 @@ s32 Player_UpdateHoverBoots(Actor_Player* this)
 
     canHoverOnGround =
         (GET_PLAYER_CUSTOM_BOOTS(this) == PLAYER_BOOTS_HOVER) &&
-        ((this->base.yDistToWater >= 0.0f) || (Player_func_808340AC(*sPlayerFloorType) >= 0) || Player_func_808340D4(*sPlayerFloorType));
+        ((this->actor.depthInWater >= 0.0f) || (Player_func_808340AC(*sPlayerFloorType) >= 0) || Player_func_808340D4(*sPlayerFloorType));
 
-    if (canHoverOnGround && (this->base.bgCheckFlags & BGCHECKFLAG_GROUND) && (this->hoverBootsTimer != 0))
+    if (canHoverOnGround && (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) && (this->hoverBootsTimer != 0))
     {
-        this->base.bgCheckFlags &= ~BGCHECKFLAG_GROUND;
+        this->actor.bgCheckFlags &= ~BGCHECKFLAG_GROUND;
     }
 
-    if (this->base.bgCheckFlags & BGCHECKFLAG_GROUND)
+    if (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)
     {
         if (!canHoverOnGround) {
             this->hoverBootsTimer = 19;
@@ -1314,7 +1300,7 @@ s32 Player_CheckHoverBoots(Actor_Player* player)
     if (player->hoverBootsTimer != 0)
     {
         s32* sPlayerPrevFloorProperty = OverlayAddr(0x80862B1C);
-        player->base.velocity.y = 1.0f;
+        player->actor.velocity.y = 1.0f;
         *sPlayerPrevFloorProperty = 9; /* FLOOR_PROPERTY_9 */
         return 1;
     }
@@ -1329,7 +1315,7 @@ s32 Player_IsFloorSlippery(Actor_Player* player, s32 floorType)
     }
 
     /* Displaced code: */
-    return (player->base.bgCheckFlags & BGCHECKFLAG_GROUND) && floorType == 5 && player->currentBoots < 5; /* PLAYER_BOOTS_ZORA_UNDERWATER */
+    return (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) && floorType == 5 && player->currentBoots < 5; /* PLAYER_BOOTS_ZORA_UNDERWATER */
     /* End displaced code */
 }
 
@@ -1343,10 +1329,10 @@ s32 Player_ShouldTakeFloorDamage(Actor_Player* player, s32 isWallDamaging, s32 f
 {
     /* (floorDamageType < 0 && !isWallDamaging) never enters this code */
 
-    if (isFloorDamaging || isWallDamaging || player->base.yDistToWater > 0.0f)
+    if (isFloorDamaging || isWallDamaging || player->actor.depthInWater > 0.0f)
     {
         player->floorTypeTimer = 0;
-        player->base.colChkInfo.damage = 4;
+        player->actor.colChkInfo.damage = 4;
         return 1;
     }
 
@@ -1359,7 +1345,7 @@ s32 Player_ShouldTakeFloorDamage(Actor_Player* player, s32 isWallDamaging, s32 f
     if (gSaveContext.save.itemEquips.tunic != PLAYER_TUNIC_GORON || player->floorTypeTimer >= sFloorDamageDelay[floorDamageType])
     {
         player->floorTypeTimer = 0;
-        player->base.colChkInfo.damage = 4;
+        player->actor.colChkInfo.damage = 4;
         return 1;
     }
 
@@ -1368,16 +1354,16 @@ s32 Player_ShouldTakeFloorDamage(Actor_Player* player, s32 isWallDamaging, s32 f
 
 /* This skips the environment hazard text for hot rooms, but there are no hot rooms in MM. */
 s32 Player_GetEnvironmentalHazardCustom(GameState_Play* play) {
-    Actor_Player* player = GET_LINK(play);
+    Actor_Player* player = GET_PLAYER(play);
 
     if (play->roomCtx.curRoom.behaviorType2 == ROOM_BEHAVIOR_TYPE2_HOT)
     {
         return PLAYER_ENV_HAZARD_HOTROOM;
     }
     else if (player->transformation != MM_PLAYER_FORM_ZORA && player->underwaterTimer > 80
-        && (!comboConfig(CFG_MM_SCALES) || GET_PLAYER_CUSTOM_BOOTS(player) == PLAYER_BOOTS_IRON || player->underwaterTimer >= 300))
+        && (!Config_Flag(CFG_MM_SCALES) || GET_PLAYER_CUSTOM_BOOTS(player) == PLAYER_BOOTS_IRON || player->underwaterTimer >= 300))
     {
-        if (GET_PLAYER_CUSTOM_BOOTS(player) == PLAYER_BOOTS_IRON && (player->base.bgCheckFlags & BGCHECKFLAG_GROUND))
+        if (GET_PLAYER_CUSTOM_BOOTS(player) == PLAYER_BOOTS_IRON && (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND))
         {
             return PLAYER_ENV_HAZARD_UNDERWATER_FLOOR;
         }
@@ -1387,7 +1373,7 @@ s32 Player_GetEnvironmentalHazardCustom(GameState_Play* play) {
     {
         if ((player->transformation == MM_PLAYER_FORM_ZORA)
             && (player->currentBoots >= 5) /* PLAYER_BOOTS_ZORA_UNDERWATER */
-            && (player->base.bgCheckFlags & BGCHECKFLAG_GROUND))
+            && (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND))
         {
             return PLAYER_ENV_HAZARD_UNDERWATER_FLOOR;
         }
@@ -1440,7 +1426,7 @@ static u8 sDiveDoActions[] = { DO_ACTION_1, DO_ACTION_2, DO_ACTION_3, DO_ACTION_
 
 u8 Player_GetActionAWhileDiving(Actor_Player* this)
 {
-    s32 diveIndex = (sDiveDepths[gSaveContext.save.inventory.upgrades.scale] - this->base.yDistToWater) / 40.0f;
+    s32 diveIndex = (sDiveDepths[gSaveContext.save.inventory.upgrades.scale] - this->actor.depthInWater) / 40.0f;
     diveIndex = CLAMP(diveIndex, 0, ARRAY_SIZE(sDiveDoActions) - 1);
     return sDiveDoActions[diveIndex];
 }
@@ -1452,7 +1438,7 @@ f32 Player_GetMaxDiveDepth()
 
 u8 Player_GetStrengthCustom(u8 formStrength)
 {
-    if (comboConfig(CFG_MM_STRENGTH) && gSaveContext.save.playerForm == MM_PLAYER_FORM_HUMAN) /* || gSaveContext.save.playerForm == MM_PLAYER_FORM_FIERCE_DEITY) */
+    if (Config_Flag(CFG_MM_STRENGTH) && gSaveContext.save.playerForm == MM_PLAYER_FORM_HUMAN) /* || gSaveContext.save.playerForm == MM_PLAYER_FORM_FIERCE_DEITY) */
     {
         return gSaveContext.save.inventory.upgrades.strength;
     }
@@ -1462,4 +1448,199 @@ u8 Player_GetStrengthCustom(u8 formStrength)
 s32 Player_HasStrength(u8 requiredStrength)
 {
     return Player_GetStrength() >= requiredStrength;
+}
+
+void Player_PlaySfx_GiantsMask(u16 sfxId, Vec3f* pos, u8 token, f32* freqScale, f32* volume, s8* reverbAdd)
+{
+    if (comboIsLinkAdult())
+    {
+        sfxId -= 0x20;
+    }
+    AudioSfx_PlaySfx(sfxId, pos, token, freqScale, volume, reverbAdd);
+}
+
+PATCH_CALL(0x8019f874, Player_PlaySfx_GiantsMask);
+
+u8 Player_AfterMaskLoaded(Actor_Player* player)
+{
+    player->maskObjectLoadState = 0;
+
+    if (player->actor.id == AC_PLAYER && comboIsLinkAdult())
+    {
+        u32* maskObjectSegment;
+        switch (player->currentMask)
+        {
+        case MASK_KEATON:
+            maskObjectSegment = (u32*) player->maskObjectSegment;
+            maskObjectSegment[0x12a] = 0xde000000;
+            maskObjectSegment[0x12b] = 0x0405a2e0;
+            break;
+        case MASK_BUNNY:
+            maskObjectSegment = (u32*) player->maskObjectSegment;
+            maskObjectSegment[0x188] = 0xde000000;
+            maskObjectSegment[0x189] = 0x0405a2e0;
+            maskObjectSegment[0x1e0] = 0xde000000;
+            maskObjectSegment[0x1e1] = 0x0405a2e8;
+            maskObjectSegment[0x1ec] = 0xde000000;
+            maskObjectSegment[0x1ed] = 0x0405a2e0;
+            maskObjectSegment[0x224] = 0xde000000;
+            maskObjectSegment[0x225] = 0x0405a2e8;
+            maskObjectSegment[0x230] = 0xde000000;
+            maskObjectSegment[0x231] = 0x0405a2e0;
+            break;
+        case MASK_SCENTS:
+            maskObjectSegment = (u32*) player->maskObjectSegment;
+            maskObjectSegment[0x1c6] = 0xde000000;
+            maskObjectSegment[0x1c7] = 0x0405a2e0;
+            break;
+        }
+    }
+
+    return player->currentMask;
+}
+
+s32 Player_OverrideLimbDrawGameplayDefault_Custom(GameState_Play* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor_Player* player)
+{
+    if (!Player_OverrideLimbDrawGameplayDefault(play, limbIndex, dList, pos, rot, player))
+    {
+        switch (limbIndex)
+        {
+        case PLAYER_LIMB_ROOT:
+            if (player->state3 & 0x20000000 && comboIsLinkAdult()) /* PLAYER_STATE3_20000000 */
+            {
+                pos->y += 1280.0f;
+            }
+            break;
+        }
+    }
+
+    return 0;
+}
+
+static void Player_FormChangeDeleteEffects(void)
+{
+    EffectSs* eff;
+
+    for (u32 i = 0; i < gEffectSsTable.size; ++i)
+    {
+        eff = &gEffectSsTable.data[i];
+        if (eff->type == 0xf && ((u32)eff->gfx) == 0x06008860)
+        {
+            EffectSs_Delete(eff);
+        }
+    }
+}
+
+static Vec3f sTransformPos;
+
+static void Player_FormChangeResetState(Actor_Player* this)
+{
+    this->actor.speed = 0.f;
+    this->actor.velocity.x = 0.f;
+    this->actor.velocity.y = 0.f;
+    this->actor.velocity.z = 0.f;
+    this->actor.world.pos.x = sTransformPos.x;
+    this->actor.world.pos.y = sTransformPos.y;
+    this->actor.world.pos.z = sTransformPos.z;
+
+    /*
+     * KLUDGE: This is a workaround for various glitches related to fast-masking
+     * quickly on a shore. Should be fixed properly someday.
+     */
+    this->state ^= 0x08000000;
+    this->state3 &= ~0x8000;
+
+    Player_FormChangeDeleteEffects();
+}
+
+static void Player_ToggleForm(GameState_Play* play, Actor_Player* link, int form)
+{
+    /* Sanity checks */
+    if (link->actor.draw == NULL)
+        return;
+    if (Player_InCsMode(play))
+        return;
+    if (link->state & 0x207c7080)
+        return;
+    if (link->state3 & 0x1000)
+        return;
+
+    /* Toggle form */
+    if (gSave.playerForm == form)
+        gSave.playerForm = MM_PLAYER_FORM_HUMAN;
+    else
+        gSave.playerForm = (u8)form;
+
+    /* Start the process */
+    *((u8*)link + 0xae7) = 0;
+    link->actor.update = Player_UpdateForm;
+    link->actor.draw = NULL;
+    sTransformPos.x = link->actor.world.pos.x;
+    sTransformPos.y = link->actor.world.pos.y;
+    sTransformPos.z = link->actor.world.pos.z;
+    Player_FormChangeResetState(link);
+}
+
+static s8 sNextForm = -1;
+
+void Player_TryUpdateForm(Actor_Player* this, GameState_Play* play)
+{
+    if (!Config_Flag(CFG_MM_FAST_MASKS))
+        return;
+
+    if (sNextForm != -1)
+    {
+        Player_ToggleForm(play, this, sNextForm);
+        sNextForm = -1;
+    }
+    else if (this->actor.update == Player_UpdateForm)
+    {
+        Player_FormChangeResetState(this);
+        Player_UpdateForm(this, play);
+        if (this->actor.update != Player_UpdateForm)
+            this->state &= ~PLAYER_ACTOR_STATE_FROZEN;
+    }
+}
+
+static void Player_ToggleFormDelayed(int form)
+{
+    sNextForm = (s8)form;
+    Player_FormChangeDeleteEffects();
+}
+
+void Player_UseItem(GameState_Play* play, Actor_Player* this, s16 itemId)
+{
+    void (*Player_UseItemImpl)(GameState_Play* play, Actor_Player* this, s16 itemId);
+    u8 useDefault;
+
+    useDefault = 1;
+
+    if (Config_Flag(CFG_MM_FAST_MASKS))
+    {
+        switch (itemId)
+        {
+        case ITEM_MM_MASK_DEKU:
+            Player_ToggleFormDelayed(MM_PLAYER_FORM_DEKU);
+            useDefault = 0;
+            break;
+        case ITEM_MM_MASK_GORON:
+            Player_ToggleFormDelayed(MM_PLAYER_FORM_GORON);
+            useDefault = 0;
+            break;
+        case ITEM_MM_MASK_ZORA:
+            Player_ToggleFormDelayed(MM_PLAYER_FORM_ZORA);
+            useDefault = 0;
+            break;
+        case ITEM_MM_MASK_FIERCE_DEITY:
+            Player_ToggleFormDelayed(MM_PLAYER_FORM_FIERCE_DEITY);
+            useDefault = 0;
+            break;
+        }
+    }
+
+    if (useDefault)
+    {
+        Player_UseItemImpl = OverlayAddr(0x80831990);
+        Player_UseItemImpl(play, this, itemId);
+    }
 }

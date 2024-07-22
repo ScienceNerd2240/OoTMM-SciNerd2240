@@ -1,8 +1,7 @@
 #include <combo.h>
 #include <combo/custom.h>
 #include <combo/dma.h>
-
-void* gCustomKeep;
+#include <combo/global.h>
 
 #define OBJECT_COUNT    64
 #define OBJECT_TTL      6
@@ -45,7 +44,7 @@ static const ObjectTexturePatch kObjectTexturePatches[] = {
     { 0x53390, 0x7df10 },
 };
 
-ALIGNED(16) ObjectData kCustomObjectsTable[32];
+ALIGNED(16) ObjectData kCustomObjectsTable[128];
 
 static const ObjectPatch kObjectPatches[] = {
 #if defined(GAME_OOT)
@@ -153,7 +152,7 @@ static const ObjectPatch kObjectPatches[] = {
     { OBJ_OOT_GI_TICKETSTONE, { 0x0f38 } },
     { OBJ_OOT_GI_TRUTH_MASK, { 0x1408, 0x16e8 } },
     { CUSTOM_OBJECT_ID_GI_STONE_EMERALD, { 0xba0, 0x12a8 } },
-    { CUSTOM_OBJECT_ID_GI_STONE_RUBY, { 0x670, 0x938 } },
+    { CUSTOM_OBJECT_ID_GI_STONE_RUBY, { 0xa70, 0xd38 } },
     { CUSTOM_OBJECT_ID_GI_STONE_SAPPHIRE, { 0x1308 } },
     { CUSTOM_OBJECT_ID_GI_MEDALLION_FOREST, { 0x3a8, 0xe58 } },
     { CUSTOM_OBJECT_ID_GI_MEDALLION_FIRE,   { 0x1e8, 0xc48 } },
@@ -177,8 +176,8 @@ void comboLoadCustomKeep(void)
     u32 customKeepSize;
 
     customKeepSize = comboDmaLoadFile(NULL, CUSTOM_KEEP_VROM);
-    gCustomKeep = malloc(customKeepSize);
-    comboDmaLoadFile(gCustomKeep, CUSTOM_KEEP_VROM);
+    g.customKeep = malloc(customKeepSize);
+    comboDmaLoadFile(g.customKeep, CUSTOM_KEEP_VROM);
 }
 
 #if defined(GAME_OOT)
@@ -234,6 +233,24 @@ static void comboPatchForeignObject(void* buffer, u16 objectId)
         texture = (u32*)((u8*)buffer + offset + 4);
         *texture = 0x04000000 | comboGetTextureOverride((*texture) & 0xffffff);
     }
+}
+
+const ObjectData* comboGetObjectData(u16 objectId)
+{
+    const ObjectData* table;
+    if (objectId & 0x2000)
+    {
+        table = kCustomObjectsTable;
+    }
+    else if (objectId & 0x1000)
+    {
+        table = kExtraObjectsTable;
+    }
+    else
+    {
+        table = kObjectsTable;
+    }
+    return &table[objectId & 0xfff];
 }
 
 u32 comboLoadObject(void* buffer, u16 objectId)
@@ -364,7 +381,7 @@ void comboExObjectsReset(void)
     memset(sExObjectsIds, 0xff, sizeof(sExObjectsIds));
 }
 
-int comboGetObjectSlot(ObjectContext* objectCtx, u16 objectId)
+int Object_GetSlotWrapper(ObjectContext* objectCtx, u16 objectId)
 {
     int slot;
     int freeSlot;
@@ -372,7 +389,7 @@ int comboGetObjectSlot(ObjectContext* objectCtx, u16 objectId)
     u32 size;
 
     /* Forward */
-    slot = GetObjectSlot(objectCtx, objectId);
+    slot = _Object_GetSlot(objectCtx, objectId);
     if (slot >= 0)
         return slot;
 
@@ -422,13 +439,12 @@ int comboGetObjectSlot(ObjectContext* objectCtx, u16 objectId)
     return slot;
 }
 
-int comboIsObjectSlotLoaded(ObjectContext* objectCtx, int slot)
+int Object_IsLoadedWrapper(ObjectContext* objectCtx, int slot)
 {
     if (slot < EX_OBJECT_SLOTS_NORMAL)
-        return IsObjectSlotLoaded(objectCtx, slot);
+        return _Object_IsLoaded(objectCtx, slot);
     else
         return (gExObjectsAddr[slot] != NULL);
-        /*return 0; */
 }
 
 static void comboActorSetObjectSegment(GameState_Play* play, Actor* actor)
@@ -436,9 +452,9 @@ static void comboActorSetObjectSegment(GameState_Play* play, Actor* actor)
     int slot;
     void* segment;
 
-    slot = actor->objTableIndex;
+    slot = actor->objectSlot;
     if (slot < EX_OBJECT_SLOTS_NORMAL)
-        segment = play->objectCtx.status[actor->objTableIndex].segment;
+        segment = play->objectCtx.status[actor->objectSlot].segment;
     else
         segment = gExObjectsAddr[slot];
     segment = (void*)((u32)segment - 0x80000000);

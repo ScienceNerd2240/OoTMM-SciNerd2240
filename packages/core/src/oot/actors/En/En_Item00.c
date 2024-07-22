@@ -1,6 +1,8 @@
 #include <combo.h>
 #include <combo/item.h>
 #include <combo/player.h>
+#include <combo/config.h>
+#include <combo/draw.h>
 
 static void EnItem00_ItemQuery(ComboItemQuery* q, Actor_EnItem00* this, GameState_Play* play, s16 gi)
 {
@@ -34,7 +36,7 @@ void EnItem00_GiveItemDefaultRange(Actor_EnItem00* this, GameState_Play* play, s
     s16 itemId;
 
     EnItem00_ItemQuery(&q, this, play, gi);
-    link = GET_LINK(play);
+    link = GET_PLAYER(play);
     itemId = -1;
 
     if (q.ovType == OV_NONE)
@@ -46,7 +48,7 @@ void EnItem00_GiveItemDefaultRange(Actor_EnItem00* this, GameState_Play* play, s
 
     if (itemId >= 0)
     {
-        this->base.parent = &link->base;
+        this->base.parent = &link->actor;
         AddItemWithIcon(play, link, &kExtendedGetItems[gi - 1]);
         return;
     }
@@ -65,10 +67,10 @@ void EnItem00_DrawHeartPieceSmallKey(Actor_EnItem00* this, GameState_Play* play)
     switch (this->base.variable)
     {
     case 0x06:
-        scale = 12.5f;
+        scale = 17.5f;
         break;
     case 0x11:
-        scale = 8.3333f;
+        scale = 11.666f;
         break;
     default:
         UNREACHABLE();
@@ -77,7 +79,7 @@ void EnItem00_DrawHeartPieceSmallKey(Actor_EnItem00* this, GameState_Play* play)
     EnItem00_ItemQuery(&q, this, play, -1);
     comboItemOverride(&o, &q);
     ModelViewScale(scale, scale, scale, MAT_MUL);
-    comboDrawGI(play, &this->base, o.gi, 0);
+    Draw_Gi(play, &this->base, o.gi, 0);
 }
 
 PATCH_FUNC(0x80013498, EnItem00_DrawHeartPieceSmallKey);
@@ -89,7 +91,7 @@ static s16 bombDrop(s16 dropId)
     u8  bombCount;
     u8  bombchuCount;
 
-    if (!comboConfig(CFG_OOT_BOMBCHU_BAG))
+    if (!Config_Flag(CFG_OOT_BOMBCHU_BAG))
         return dropId;
 
     hasChuBag = (gOotSave.inventory.items[ITS_OOT_BOMBCHU] == ITEM_OOT_BOMBCHU_10);
@@ -118,7 +120,7 @@ static s16 bombDrop(s16 dropId)
     }
 
     /* Not low, return at random */
-    if (RandFloat() < 0.5f)
+    if (Rand_ZeroOne() < 0.5f)
         return ITEM00_BOMBCHU;
     return dropId;
 }

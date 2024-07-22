@@ -3,10 +3,28 @@
 
 #include <combo/util.h>
 #include <combo/game_state.h>
-#include <combo/common/actor.h>
+#include <combo/actor.h>
 #include <combo/mm/regs.h>
 #include <combo/mm/types.h>
 #include <combo/common/ocarina.h>
+#include <combo/mm/object.h>
+#include <combo/mm/message.h>
+#include <combo/play/collision_context.h>
+
+#define ACTORCTX_FLAG_0             (1 << 0)
+#define ACTORCTX_FLAG_TELESCOPE_ON  (1 << 1)
+#define ACTORCTX_FLAG_PICTO_BOX_ON  (1 << 2)
+#define ACTORCTX_FLAG_3             (1 << 3)
+#define ACTORCTX_FLAG_4             (1 << 4)
+#define ACTORCTX_FLAG_5             (1 << 5)
+#define ACTORCTX_FLAG_6             (1 << 6)
+#define ACTORCTX_FLAG_7             (1 << 7)
+
+#define GAMEMODE_NORMAL 0
+#define GAMEMODE_TITLE_SCREEN 1
+#define GAMEMODE_FILE_SELECT 2
+#define GAMEMODE_END_CREDITS 3
+#define GAMEMODE_OWL_SAVE 4
 
 typedef struct
 {
@@ -122,7 +140,7 @@ typedef struct {
     /* 0x14 */ s16 zFar; /* Max depth (render distance) of the view as a whole. fogFar will always match zFar */
 } CurrentEnvLightSettings; /* size = 0x16 */
 
-typedef struct
+typedef struct EnvironmentContext
 {
     /* 0x00 */ u16 unk_0;
     /* 0x02 */ u16 sceneTimeSpeed;
@@ -190,6 +208,25 @@ ASSERT_OFFSET(EnvironmentContext, loadMsg,                0x080);
 
 _Static_assert(sizeof(EnvironmentContext) == 0x100, "MM EnvironmentContext size is wrong");
 
+typedef struct TitleCardContext {
+    /* 0x0 */ void* texture;
+    /* 0x4 */ s16 x;
+    /* 0x6 */ s16 y;
+    /* 0x8 */ u8 width;
+    /* 0x9 */ u8 height;
+    /* 0xA */ u8 durationTimer; // how long the title card appears for before fading
+    /* 0xB */ u8 delayTimer; // how long the title card waits to appear
+    /* 0xC */ s16 alpha;
+    /* 0xE */ s16 intensity;
+} TitleCardContext; // size = 0x10
+
+typedef struct PlayerImpact {
+    /* 0x00 */ u8 type;
+    /* 0x01 */ u8 timer;
+    /* 0x04 */ f32 dist;
+    /* 0x08 */ Vec3f pos;
+} PlayerImpact; // size = 0x14
+
 typedef struct ActorContext
 {
     /* 0x000 */ u8 freezeFlashTimer;
@@ -205,7 +242,10 @@ typedef struct ActorContext
     /* 0x00F */ u8 numLensActors;
     ActorList   actors[12];
     /* 0x0A0 */ Actor* lensActors[32]; /* LENS_ACTOR_MAX // Draws up to LENS_ACTOR_MAX number of invisible actors */
-    char        unk_120[0x134];
+    char        unk_120[0xc4];
+    /* 0x1E4 */ TitleCardContext titleCtx;
+    /* 0x1F4 */ PlayerImpact playerImpact;
+    char        unk_208[0x4c];
     Actor*      elegyStatues[4];
     char        unk_264[0x4];
     u8          unk_268;
@@ -214,6 +254,8 @@ typedef struct ActorContext
 ActorContext;
 
 ASSERT_OFFSET(ActorContext, actors,         0x010);
+ASSERT_OFFSET(ActorContext, unk_120,        0x120);
+ASSERT_OFFSET(ActorContext, titleCtx,       0x1e4);
 ASSERT_OFFSET(ActorContext, elegyStatues,   0x254);
 ASSERT_OFFSET(ActorContext, unk_264,        0x264);
 ASSERT_OFFSET(ActorContext, unk_268,        0x268);
@@ -416,7 +458,7 @@ _Static_assert(sizeof(MessageContext) == 0x120e0, "MM MessageContext size is wro
 
 typedef struct Room
 {
-    s8 id;
+    s8 num;
     u8 unk_1;
     u8 behaviorType2;
     u8 behaviorType1;
@@ -454,6 +496,34 @@ typedef struct {
     /* 0x1 */ u8   ambienceId;
 } SequenceContext; /* size = 0x2 */
 
+typedef struct {
+    /* 0x000 */ GameState state;
+    /* 0x0A4 */ void* daytelopStaticFile;
+    /* 0x0A8 */ void* gameoverStaticFile;
+    /* 0x0B0 */ View view;
+    /* 0x218 */ char unk_218[0x28];
+    /* 0x240 */ s16 transitionCountdown;
+    /* 0x242 */ s16 fadeInState;
+    /* 0x244 */ s16 alpha;
+} DayTelopState; // size = 0x248
+
+_Static_assert(sizeof(DayTelopState) == 0x248, "MM DayTelopState Size is wrong");
+
+#define STOP_GAMESTATE(curState)     \
+    do {                             \
+        GameState* state = curState; \
+                                     \
+        state->running = 0;          \
+    } while(0)
+
+#define SET_NEXT_GAMESTATE(curState, nextInit, nextSize) \
+    do {                                                 \
+        GameState* state = curState;                     \
+                                                         \
+        (state)->nextGameStateInit = nextInit;                        \
+        (state)->nextGameStateSize = nextSize;                        \
+    } while (0)
+
 typedef struct GameState_Play
 {
     GameState           gs;
@@ -470,7 +540,8 @@ typedef struct GameState_Play
     /* 0x00812 */ s16 nextCamera;
     /* 0x00814 */ SequenceContext sequenceCtx;
     /* 0x00818 */ LightContext lightCtx;
-    char                unk_00828[0x01478];
+    char                unk_00828[0x08];
+    CollisionContext    colCtx;
     ActorContext        actorCtx;
     /* 0x01F24 */ CutsceneContext csCtx;
     char                unk_01f78[0x02740];
@@ -481,7 +552,8 @@ typedef struct GameState_Play
     PauseContext        pauseCtx;
     GameOverContext     gameOverCtx;
     EnvironmentContext  envCtx;
-    char                unk_17104[0x015dc];
+    char                unk_17104[0xc84];
+    ObjectContext       objectCtx;
     RoomContext         roomCtx;
     char                unk_18760[0x3c];
     s16                 playerActorCsIds[10];
@@ -500,7 +572,7 @@ typedef struct GameState_Play
     void*               actorCsCamList;
     void*               setupEntranceList;
     u16*                setupExitList;
-    void*               setupPathList;
+    Path*               setupPathList;
     void*               naviQuestHints;
     void*               sceneMaterialAnims;
     void*               specialEffects;
@@ -509,7 +581,7 @@ typedef struct GameState_Play
     s16                 worldCoverAlpha;
     s16                 bgCoverAlpha;
     u16                 nextEntrance;
-    s8                  unk_1887c;
+    s8                  bButtonAmmoPlusOne;
     s8                  unk_1887d;
     s8                  unk_1887e;
     u8                  transitionType;
@@ -532,6 +604,7 @@ GameData;
 
 extern GameData* gGameData;
 
+ASSERT_OFFSET(GameState_Play, colCtx,                   0x00830);
 ASSERT_OFFSET(GameState_Play, actorCtx,                 0x01ca0);
 ASSERT_OFFSET(GameState_Play, csCtx,                    0x01f24);
 ASSERT_OFFSET(GameState_Play, sramCtx,                  0x046b8);

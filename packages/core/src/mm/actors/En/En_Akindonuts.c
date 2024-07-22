@@ -1,5 +1,7 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/shop.h>
+#include <combo/inventory.h>
 
 #define SCRUB_SWAMP             1
 #define SCRUB_MOUNTAIN          2
@@ -290,7 +292,7 @@ int EnAkindonuts_HasGivenItem(Actor* this)
 {
     int ret;
 
-    ret = Actor_HasParent(this);
+    ret = Actor_HasParentZ(this);
     if (ret)
     {
         switch (sScrubFlag)

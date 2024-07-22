@@ -15,7 +15,7 @@ typedef struct
     s16         health;
     s8          magicSize;
     s8          magicAmount;
-    u16         rupees;
+    s16         rupees;
     u16         swordHealth;
     char        unk_38[2];
     u8          magicUpgrade;
@@ -163,7 +163,7 @@ typedef struct
     Vec3i   pos;
     s32     yaw;
     s32     playerParams;
-    s32     entranceIndex;
+    s32     entrance;
     s32     roomIndex;
     s32     set;
     s32     tempSwitchFlags;
@@ -242,16 +242,40 @@ ASSERT_OFFSET(OotSave, checksum,                0x1352);
 
 typedef struct
 {
-    OotSave save;
-    u32     fileIndex;
-    char    unk_1358[0x04];
-    s32     gameMode;
-    s32     sceneSetupId;
-    s32     respawnFlag;
-    char    unk_1368[0x2f];
-    u8      grottoChestFlag;
-    char    unk_1398[0x34];
-    s16     rupeesDelta;
+    Vec3f   pos;
+    s16     yaw;
+    s16     playerParams;
+    s16     entrance;
+    u8      roomIndex;
+    s8      data;
+    u32     tempSwitchFlags;
+    u32     tempCollectFlags;
+}
+OotRespawnData;
+
+#if defined(GAME_OOT)
+# define gGrottoData   (gSaveContext.respawn[1].data)
+#endif
+
+typedef struct
+{
+    OotSave         save;
+    u32             fileIndex;
+    char            unk_1358[0x04];
+    s32             gameMode;
+    s32             sceneSetupId;
+    s32             respawnFlag;
+    OotRespawnData  respawn[3];
+    float           entranceSpeed;
+    u16             entranceSound;
+    char            unk_13c2[1];
+    u8              retainWeatherMode;
+    u16             dogParams;
+    u8              envHazardTextTriggerFlags;
+    u8              showTitleCard;
+    s16             nayrusLoveTimer;
+    char            unk_13ca[2];
+    s16             rupeesDelta;
     /* 0x13CE */ s16 timerState; /* See `TimerState` */
     /* 0x13D0 */ s16 timerSeconds;
     /* 0x13D2 */ s16 subTimerState; /* See `SubTimerState` */
@@ -286,7 +310,16 @@ typedef struct
     char    unk_1411[1];
     u16     nextCutscene;
     u8      inCutscene;
-    char    unk_1415[0x0f];
+    u8      chamberCutsceneNum;
+    u16     nextDayTime;
+    u8      transFadeDuration;
+    u8      transWipeSpeed;
+    u16     skyboxTime;
+    u8      dogIsLost;
+    u8      nextTransitionType;
+    char    unk_141e[0x02];
+    s16     worldMapArea;
+    s16     sunSongState;
     u16     healthDelta;
     char    unk_1426[0x2a];
 }
@@ -294,9 +327,8 @@ OotSaveContext;
 
 ASSERT_OFFSET(OotSaveContext, gameMode,                     0x135c);
 ASSERT_OFFSET(OotSaveContext, sceneSetupId,                 0x1360);
-ASSERT_OFFSET(OotSaveContext, unk_1368,                     0x1368);
-ASSERT_OFFSET(OotSaveContext, grottoChestFlag,              0x1397);
-ASSERT_OFFSET(OotSaveContext, unk_1398,                     0x1398);
+ASSERT_OFFSET(OotSaveContext, respawnFlag,                  0x1364);
+ASSERT_OFFSET(OotSaveContext, respawn,                      0x1368);
 ASSERT_OFFSET(OotSaveContext, mapIndex,                     0x1402);
 ASSERT_OFFSET(OotSaveContext, minigameState,                0x1404);
 ASSERT_OFFSET(OotSaveContext, minigameScore,                0x1406);
@@ -310,11 +342,23 @@ ASSERT_OFFSET(OotSaveContext, cutsceneTransitionControl,    0x1410);
 ASSERT_OFFSET(OotSaveContext, unk_1411,                     0x1411);
 ASSERT_OFFSET(OotSaveContext, nextCutscene,                 0x1412);
 ASSERT_OFFSET(OotSaveContext, inCutscene,                   0x1414);
+ASSERT_OFFSET(OotSaveContext, chamberCutsceneNum,           0x1415);
+ASSERT_OFFSET(OotSaveContext, nextDayTime,                  0x1416);
+ASSERT_OFFSET(OotSaveContext, transFadeDuration,            0x1418);
+ASSERT_OFFSET(OotSaveContext, transWipeSpeed,               0x1419);
+ASSERT_OFFSET(OotSaveContext, skyboxTime,                   0x141a);
+ASSERT_OFFSET(OotSaveContext, dogIsLost,                    0x141c);
+ASSERT_OFFSET(OotSaveContext, nextTransitionType,           0x141d);
+ASSERT_OFFSET(OotSaveContext, unk_141e,                     0x141e);
+ASSERT_OFFSET(OotSaveContext, worldMapArea,                 0x1420);
+ASSERT_OFFSET(OotSaveContext, sunSongState,                 0x1422);
 ASSERT_OFFSET(OotSaveContext, healthDelta,                  0x1424);
 ASSERT_OFFSET(OotSaveContext, unk_1426,                     0x1426);
 
 _Static_assert(sizeof(OotSave) == 0x1354, "OotSave size is wrong");
 _Static_assert(sizeof(OotSaveContext) == 0x1450, "OotSaveContext size is wrong");
+
+#define CLOCK_TIME(hr, min) ((s32)(((hr) * 60 + (min)) * (f32)0x10000 / (24 * 60) + 0.5f))
 
 #if defined(GAME_OOT)
 ALIGNED(16) extern OotSaveContext gSaveContext;

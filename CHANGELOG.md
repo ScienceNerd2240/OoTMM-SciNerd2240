@@ -6,19 +6,242 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Farore's Wind is now logical for Romani's Song, Aliens, and Cremia Escort.
-- Farore's Wind is now logical for Stock Pot Inn night access.
-- Farore's Wind is now logical to reach the Mountain Village grotto.
-- Farore's Wind is now logical for Hot Spring Water in Snowhead Temple's Eenos room without ER.
-- OOT Warp Songs can now be logically used within MM dungeons.
+- Fast elemental arrow equip in MM.
+- Ability to choose how many stray fairies are required to obtain a reward.
+- Choice to pre-activate owl statues.
+- Crates shuffle, for OoT and MM.
+- The boat cruise is now faster if you are not playing the archery.
+
+### Changed
+
+- Internal names of the music tracks, for an easier sorting in the cosmetics log.
+
+### Fixed
+
+- Starting age no longer defaults to either child or adult after generating a random starting age seed.
+- Minor collection delay for Bolero.
+- Long-standing issue where Anju's reservation worked inconsistently.
+- Title cards not being displayed on game transitions.
+- MQ Forest Temple freestanding hearts logic issue.
+
+## [24.1] - 2024-07-11
+
+### Added
+
+- The baby chickens in Cucco Shack are now displayed on the mini-map.
+
+### Changed
+
+- Made the Title Screen a little nicer.
+- Altered the patch format to support more features in the future.
+
+### Fixed
+
+- The diamond around Link after using Nayru's Love in MM rotates instead of being static
+- Entrances for Zora Hall <-> Zora Cape Peninsula were reversed; this is now fixed.
+- The Sticks event in MQ Dodongo's Cavern now requires the Deku Baba Soul and has been moved to its correct room.
+
+## [24.0] - 2024-07-06
+
+### Added
+
+- Add a setting to allow one-ways to take you anywhere, alike wallmasters.
+- Add a setting to shuffle the few Water Void spots in MM.
+- Add a setting altering Shadow Temple boat speed.
+- Add ageless Slingshot and Bow.
+- Add CAMC to cows, where the cow ring hints at the item. If off, cow rings are collection markers instead.
+- Add an optional CAMC setting for maps and compasses.
+- Counter upon getting a Piece of Heart, showing your progression until your next heart container.
+- Can now shuffle the rewards for selling the OoT masks.
+- Add a setting to shuffle Wonder Items (non-MQ).
+- Add a setting to make some OoT dungeons open.
+- Add a setting to enable using Song of Double Time in OoT.
+
+### Changed
+
+- Make dungeon reward shuffle with one reward per-dungeon respect plando.
+- Removed the deku shield in the spirit pot if restore broken actors is off, but make it logical if it's on.
+- Hookshot is now visible on child.
+- Castle Courtyard can now be revisited.
+- Zelda's Soul is now required for the OoT/SoT check.
+- The angle of interaction of MM gossip stones is more tolerant.
+- If a dungeon is pre-completed, you now start with the boss soul, keys and silver rupees of the dungeon.
+- Exiting Ganon's Castle is once again logical as child to reach Hyrule Castle (not the courtyard).
+- Logic for soaring and warping in MM with ER is now even more robust, allowing usage everywhere they can be used.
+
+### Fixed
+
+- Fix website tooltips no longer having breaklines.
+- Fix Keaton Quiz music continuing at night if the received item was minor.
+- Fix song of time sometimes respawning the player in day-0 state until the next scene load.
+- Fix bottle issues when changing age.
+- Fix a weird interaction between scarecrow and clock shuffle.
+- Fix honey and darling behaving oddly when a clock shuffle transition occurs.
+- Fix some softlocks with instant transform.
+- Fix a softlock with the Roza Sisters in some cases.
+- Fix Dungeon Rewards Shuffle not generating with some settings.
+- Fix Ikana Wisp showing up even if you did not beat Stone Tower Temple.
+- Fix some names in spoiler having their game as a suffix when they're unique.
+- Fix Moon Crash sometimes causing the Clock UI to disappear.
+- MQ Fire Temple logic issue for the Flare Dancer Soul at the top of the temple.
+- Fix an issue where, in certain settings, the game could still expect you to do MM without a way to reset time.
+- Fix logic issue pertaining to Lost Woods and Overworld ER.
+- Fix Milk Bar being able to appear in places that close at 10pm in All Locations logic.
+- Fix bugs from grass allowing Strength as an option to collect them; the bugs will not spawn by picking up and throwing the grass.
+
+## [23.1] - 2024-05-30
+
+### Added
+
+- Add many bank QoL.
+- Add a setting to automatically plant beans in OoT.
+
+### Changed
+
+- Make multiworld items much faster to obtain.
+- Make triforce pieces in triforce quest land in slightly more challenging locations.
+- Make Navi give random junk hints when talked to.
+- Make OoT use the correct minimap state for fortress, graveyard and lake.
+- The rupee counter now goes much faster when large amounts of rupees are obtained/lost.
+- Fill Wallets is now almost instantaneous.
+- Using Deku Mask or Hover Boots to float from Ikana Castle to the sun block entrance is now a trick.
+
+### Fixed
+
+- Fix multiple pathfind bugs, leading to odd age-swap logic and very odd sometimes hints.
+- Fix MM swords in OoT not working against some ennemies.
+- Fix a crash when doing cremia's escort without gorman soul.
+- Fix moon crashing having odd side-effects with the clock sometimes.
+- Fix custom wisps rarely despawning sometimes.
+- Fix Fast Masks softlocks.
+- Fix a Fast Mask crash when deku link petals are on screen while transforming.
+
+## [23.0] - 2024-05-22
+
+### Added
+
+- Add a fast mask transforms setting.
+- Add a setting to allow the player to keep ammo/rupees/etc. through cycles.
+- Add the ability to use music with custom banks.
+- Add the ability to use custom fanfares.
+- Add fanfares for cross-game items.
+- Add a setting to display custom music names in-game.
+- Add Free Scarecrow for MM.
+- Add NPC souls to MM, more NPC souls in OoT, shared NPC souls.
+- Add cutscenes speed-ups for the end of Ganon's Castle Trials.
+- Add new junk hints.
+- Ruto now spawns on first floor of Jabu-Jabu if it's vanilla layout (not MQ!).
+
+### Changed
+
+- Make the sun song check actually swap day/night like in vanilla.
+- Update MM only preset.
+- Improved custom music support.
+- Make the medallion fanfare and the mask fanfare cross-games.
+- Allow compatible OoTR music to play in MM.
+- Allow compatible MMR music to play in OoT.
+- Woods of Mystery has been logically reorganized to allow for leaving from the Day 2 Grotto in ER.
+- Reduced Meg spawn timer after being hit.
+- Removed the camera lock upon throwing a bomb-flower onto the rock locking Dodongo's Cavern.
+- Boat Archery now ends right as you reach 20 points.
+- Hyrulian Castle Guards now ignores you if you are wearing Stone Mask.
+- Renamed the "Snowhead Temple without Fire Arrows" trick to "...using Hot Spring Water" to reflect its purpose.
+
+### Fixed
+
+- Fixed the special conditions validator to account for the extra added masks in OoT.
+- Fixed a bug with region-state flags that could create unbeatable seeds.
+- Fix minor bugs with swordless link.
+- Fix phantom shields being equipped on age travel in some very rare cases.
+- Fix Tricks section in spoiler log.
+- Fix some actors (Part-Timer in Termina Field, Running Man, Punk Kid) not being properly filtered.
+- Fix rupee scaling affecting bank withdraws.
+- Fix one fish not being properly flagged when obtained in pond fish shuffle.
+- Fix some silver blocks being only able to be pushed once in ageless strength.
+- Fix Koume/Kotake still giving red potions when they shouldn't.
+- Fix damage being wrong against Dead Hand in some cases.
+- Fix death after leaving a grotto in MM in ER leading to wrong warps in some cases.
+- Fix an issue with rewards within dungeons using only OOT or only MM.
+- Fix logic issue for Spirit Temple Statue Upper Right chest not checking for Hookshot or Hover Boots in certain conditions.
+- Fix possible softlock on Volvagia when damaging her second hitbox after death cutscene was initiated.
+- Update blitz presets.
+- Fix crash when trying to calm the council without the souls of all involved parties.
+- Fix crash in Twinmold Arena when trying to transform into Giant without Twinmold's soul.
+- Fix logic issue with Laundry Pool freestanding rupees checking for Day 2 and Night 2 instead of Night 2 only.
+- Fix Farore's Wind in MM not being correctly restricted.
+- Fix logic issue regarding the barrier in Ganon's Castle and certain ER cases.
+
+## [22.0] - 2024-04-24
+
+### Jokes
+
+- (**April Fools**) Implement "Daylight Saving Time in MM", removing one hour every night.
+
+### Added
+
+- Add Majora's Mask swords to Ocarina of Time.
+- Add the ability to play a single game.
+- Add ageless strength upgrades.
+- Add a setting to travel through time without the Master Sword.
+- Add a setting to play as swordless adult link.
+- Render most of the ageless items.
+- Add rupee scaling, a setting where rupees are worth more if you have an upgraded wallet.
+- Add full overworld ER.
+- Add random starting positions.
+- Add a setting to allow more granular hint regions.
+- Add decoupled entrances.
+- Add the ability to mix entrance pools.
+- Add Grotto/Grave entrance randomizer, for both games.
+- Misc. Souls for both games, which can be shared.
+- Added a validator for Special Conditions (web-wise).
+- Add setting to allow warping between games using Farore's Wind.
+- Add a clear state wisp to ikana valley.
+- Add the Ikana Music House to interiors shuffle.
+- Add the Goron Racetrack to interiors shuffle.
+
+### Changed
+
+- Change the fishing pond fish model.
+- Kotake no longer gives red potion refills when Koume isn't rescued.
+- Rework how Deku Tree behaves (it's now either always open, strictly opened by Mido, or vanilla behavior).
+- Rework how the sirloin function in indoor ER (+ new overworld ER) to allow shuffling the North in MM.
+- Saving is now enabled on the Clock Tower Roof with Moon Crash set to New Cycle.
+- Farore's Wind in MM is now tied to Link's age, like in OoT.
+- Logic for MM's cursed and cleared states has received an overhaul and is now more robust.
+- Powder Keg Trial with Short Hook Anywhere and without thawing the ice is now a trick.
+- Clock Town Post Box, Goron Elder, and Keaton Quiz can now be logically obtained in their alternate locations.
+- Guessing the Bomber Code for the notebook check is now logical in East Clock Town.
+
+### Fixed
+
+- Fix Epona spawning near Lon Lon ranch by default.
+- Fix various crashes in MM when taking Epona to the wrong region in ER.
+- Fix Goron Ruby looking odd in MM.
+- Ruto's Soul is now accounted in logic for the Big Octo in Jabu-Jabu.
+- Logic for entering Woodfall Temple if exiting the temple itself has been fixed.
+- The "GBT without Fire Arrows" trick now correctly accounts for being tall and no longer requires Ice Arrows.
+- Fixed logic for reaching Swamp Canopy Front in MM.
+
+## [21.0] - 2024-03-28
+
+### Added
+
+- Prettier "Entrances" section in the spoiler log.
+- New trick to reach Zelda's Courtyard using Age Swap in Ganon's Castle.
+- Adult Link in Majora's Mask.
 - New trick to wait on the roof for Stock Pot Inn to close.
 - Add tricks for using Farore's Wind and resetting time to get the Romani Ranch checks.
 - Hover Boots are now accounted for getting Letter to Kafei and Toilet Hand in Stock Pot Inn.
 - Hookshot Anywhere for both games and Climb Anywhere for OOT can now be enabled without logical implications.
-- - Key logic for Forest, Shadow, and Spirit Temples still accounts for the above settings whether they are logical or not.
 
 ### Changed
 
+- Soaring from an MM boss now always returns to the entrance of the dungeon, even if it's a cross-dungeon.
+- OOT Warp Songs can now be logically used within MM dungeons.
+- Farore's Wind is now logical for Romani's Song, Aliens, and Cremia Escort.
+- Farore's Wind is now logical for Stock Pot Inn night access.
+- Farore's Wind is now logical to reach the Mountain Village grotto.
+- Farore's Wind is now logical for Hot Spring Water in Snowhead Temple's Eenos room without ER.
 - Child Hookshot to get past the Gerudo Valley gate no longer requires Hookshot Anywhere enabled to be in logic.
 - Adjusted MM dungeon access logic to account for the combination of Moon Crash Cycles and Clock Tower ER.
 - Removed the time constraints on Bremen Mask and Doggy Race since those events are always available if you can get in.
@@ -27,14 +250,28 @@ All notable changes to this project will be documented in this file.
 - Make Zora Hall stage lights with Din's Fire a trick.
 - Make resetting time with Farore's Wind for Evan a trick.
 - Hookshot Anywhere to go behind the waterfall in Zora's River is now a trick.
+- Din's Fire is now logical to defeat the Big Octo in Deku Palace.
+- Nayru's Love is now logical for various routing in Woodfall.
 
 ### Fixed
 
+- Fix Soaring from OoT being able to cancel the GI animation.
+- Fix OoT Blast/Stone mask behaving oddly with scene restrictions.
+- Fix clock transitions breaking grottos.
+- Fix minor discrepancies between song of time and moon crash cycle.
+- Fix various bugs with swordless & age swap equips.
+- Fix region states in MM being incorrect when coming from OoT.
+- Fix Woods of Mystery grass patches being labeled wrong and having incorrect day logic.
+- Fix Diving Minigame Purple and Huge Rupees being swapped.
+- Fix a very persistent wrong warp issue.
+- Fix a weird interaction between plentiful item pool and OoT elegy.
+- Fix some items not being received in multi.
 - Fix an issue where the grace period could cause a buggy cycle-reset.
 - Fixed an issue where Strength got removed from logic for King Dodongo, causing bomb bag to be hard-required.
 - Some logic issues involving Shared Din's Fire not being accounted for in some situations.
 - Fixed an issue where logic thought you could get Pendant of Memories after 10pm on night 2.
 - Fix Farore's Wind in MM not being properly dispelled when used.
+- Fixed logic for the hearts in MQ Bottom of the Well.
 
 ## [20.0] - 2024-02-19
 
@@ -1081,7 +1318,13 @@ All notable changes to this project will be documented in this file.
 
 - Initial stable release.
 
-[Unreleased]: https://github.com/OoTMM/OoTMM/compare/v20.0...HEAD
+[Unreleased]: https://github.com/OoTMM/OoTMM/compare/v24.1...HEAD
+[24.1]: https://github.com/OoTMM/OoTMM/compare/v24.0...v24.1
+[24.0]: https://github.com/OoTMM/OoTMM/compare/v23.1...v24.0
+[23.1]: https://github.com/OoTMM/OoTMM/compare/v23.0...v23.1
+[23.0]: https://github.com/OoTMM/OoTMM/compare/v22.0...v23.0
+[22.0]: https://github.com/OoTMM/OoTMM/compare/v21.0...v22.0
+[21.0]: https://github.com/OoTMM/OoTMM/compare/v20.0...v21.0
 [20.0]: https://github.com/OoTMM/OoTMM/compare/v19.2...v20.0
 [19.2]: https://github.com/OoTMM/OoTMM/compare/v19.1...v19.2
 [19.1]: https://github.com/OoTMM/OoTMM/compare/v19.0...v19.1

@@ -1,9 +1,10 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/config.h>
 
 static void BgTokiSwd_GiveItem(Actor* this, GameState_Play* play, s16 gi, int npc, int event)
 {
-    if (Actor_HasParent(this))
+    if (Actor_HasParentZ(this))
     {
         this->parent = NULL;
         SetEventChk(event);
@@ -27,24 +28,24 @@ void BgTokiSwd_Handler(Actor* this, GameState_Play* play)
         return;
     }
 
-    if (Actor_HasParent(this))
+    if (Actor_HasParentZ(this))
     {
         /* Swap farore */
         swapFarore();
 
         /* Time Travel */
-        play->transitionTrigger = TRANS_TYPE_NORMAL;
+        play->transitionTrigger = TRANS_TRIGGER_NORMAL;
         play->transitionType = TRANS_GFX_SHORTCUT;
         play->nextEntranceIndex = 0x02ca;
         play->linkAgeOnLoad = !(gSave.age);
 
-        ActorDestroy(this);
+        Actor_Kill(this);
     }
     else
     {
         /* Needs the Master Sword to become adult */
-        if (gSave.inventory.equipment.swords & EQ_OOT_SWORD_MASTER)
-            ActorEnableGrab(this, play);
+        if (!Config_Flag(CFG_OOT_TIME_TRAVEL_REQUIRES_MS) || (gSave.inventory.equipment.swords & EQ_OOT_SWORD_MASTER))
+            Actor_OfferCarry(this, play);
     }
 }
 

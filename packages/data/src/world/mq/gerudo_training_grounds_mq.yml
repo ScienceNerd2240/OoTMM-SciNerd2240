@@ -30,6 +30,7 @@
     "Gerudo Training Grounds Lava Room": "soul_lizalfos_dinalfos && soul_armos && soul_dodongo && (can_use_sword_master || can_use_sword_goron)"
   locations:
     "MQ Gerudo Training Grounds Right Side Dinolfos Chest": "soul_lizalfos_dinalfos && soul_armos && soul_dodongo && (can_use_sword_master || can_use_sword_goron)" #This room is too difficult for child to do with other means
+    "MQ Gerudo Training Grounds Wonder Item Dodongo Room Wall": "can_use_bow"
 "Gerudo Training Grounds Lava Room":
   dungeon: GTG
   exits:
@@ -79,12 +80,12 @@
 "Gerudo Training Grounds Stalfos Room":
   dungeon: GTG
   exits:
-    "Gerudo Training Grounds Spinning Statue Room": "has_blue_fire && can_play_time && has_lens && is_adult"
+    "Gerudo Training Grounds Spinning Statue Room": "soul_enemy(SOUL_ENEMY_STALFOS) && soul_skulltula && has_blue_fire && can_play_time && has_lens && is_adult"
   events:
     BLUE_FIRE: "has_bottle"
   locations:
-    "MQ Gerudo Training Grounds Stalfos Room Chest": "soul_enemy(SOUL_ENEMY_STALFOS) && soul_skulltula"
-    "MQ Gerudo Training Grounds Silver Block Room Chest": "can_lift_silver && soul_enemy(SOUL_ENEMY_SPIKE) && soul_freezard"
+    "MQ Gerudo Training Grounds Stalfos Room Chest": "soul_enemy(SOUL_ENEMY_STALFOS) && soul_skulltula" # Should maybe check for fight?
+    "MQ Gerudo Training Grounds Silver Block Room Chest": "soul_enemy(SOUL_ENEMY_STALFOS) && soul_skulltula && can_lift_silver && soul_enemy(SOUL_ENEMY_SPIKE) && soul_freezard"
 "Gerudo Training Grounds Spinning Statue Room":
   dungeon: GTG
   exits:
@@ -102,3 +103,4 @@
     "MQ Gerudo Training Grounds Ice Arrows Chest": "event(GTG_ICE_ARROWS)"
     "MQ Gerudo Training Grounds SR Lava Back-Right": "has_fire_arrows"
     "MQ Gerudo Training Grounds SR Lava Center": "has_fire_arrows"
+    "MQ Gerudo Training Grounds Wonder Item Eye Statue": "has_hover_boots"

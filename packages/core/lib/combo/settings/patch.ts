@@ -1,5 +1,4 @@
-import { Glitch } from './glitches';
-import { Trick } from './tricks';
+import { TrickKey } from './tricks';
 import { Settings } from './type';
 import { PartialDeep } from 'type-fest';
 
@@ -8,10 +7,9 @@ type SettingsArrayRemove<T> = { remove: T[] };
 type SettingsArraySet<T> = { set: T[] };
 type SettingsArrayPatch<T> = SettingsArrayAdd<T> | SettingsArrayRemove<T> | SettingsArraySet<T>;
 
-export type SettingsPatch = PartialDeep<Omit<Settings, 'junkLocations' | 'tricks' | 'glitches' | 'plando' | 'hints'>> & {
+export type SettingsPatch = PartialDeep<Omit<Settings, 'junkLocations' | 'tricks' | 'plando' | 'hints'>> & {
   junkLocations?: SettingsArrayPatch<string>;
-  tricks?: SettingsArrayPatch<Trick>;
-  glitches?: SettingsArrayPatch<Glitch>;
+  tricks?: SettingsArrayPatch<TrickKey>;
   plando?: {
     locations?: null | {[k: string]: string | null};
   };

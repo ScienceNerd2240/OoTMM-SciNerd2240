@@ -4,8 +4,8 @@
 #include <combo/dungeon.h>
 #include <combo/dma.h>
 #include <combo/time.h>
-
-#define ENTRANCE_MARKET       0x1d1
+#include <combo/config.h>
+#include <combo/context.h>
 
 static const u16 kDungeonEntrances[] = {
     ENTR_OOT_DEKU_TREE,
@@ -29,7 +29,7 @@ static const u16 kBossEntrances[] = {
     ENTR_OOT_BOSS_TEMPLE_SPIRIT,
 };
 
-static void dungeonRespawn(s16 sceneId, int isSave)
+static int dungeonRespawn(s16 sceneId, int isSave)
 {
     int bossId;
     int dungeonId;
@@ -61,23 +61,61 @@ static void dungeonRespawn(s16 sceneId, int isSave)
         bossId = BOSSID_TWINROVA;
         break;
     default:
-        return;
+        return 0;
     }
 
-    dungeonId = gComboData.boss[bossId];
+    dungeonId = gComboConfig.boss[bossId];
     if (dungeonId >= DUNGEONID_TEMPLE_WOODFALL)
     {
         if (isSave)
-        {
-            gSave.entrance = (gSave.age == AGE_ADULT) ? ENTR_OOT_WARP_SONG_TEMPLE : ENTR_OOT_HOUSE_LINK_WARP;
-        }
-        else
-        {
-            gSave.entrance = kBossEntrances[bossId];
-        }
+            return 0;
+        gSave.entrance = kBossEntrances[bossId];
     }
     else
         gSave.entrance = kDungeonEntrances[dungeonId];
+    return 1;
+}
+
+static void fixSpawn(void)
+{
+    u32 entrance;
+    s32 override;
+
+    /* If the player saved in a boss, don't touch it */
+    if (dungeonRespawn(gSave.sceneId, 1))
+        return;
+
+    /* If the player saved in a dungeon, don't touch it */
+    switch (gSave.sceneId)
+    {
+    case SCE_OOT_INSIDE_DEKU_TREE:
+    case SCE_OOT_DODONGO_CAVERN:
+    case SCE_OOT_INSIDE_JABU_JABU:
+    case SCE_OOT_TEMPLE_FOREST:
+    case SCE_OOT_TEMPLE_FIRE:
+    case SCE_OOT_TEMPLE_WATER:
+    case SCE_OOT_TEMPLE_SHADOW:
+    case SCE_OOT_TEMPLE_SPIRIT:
+    case SCE_OOT_BOTTOM_OF_THE_WELL:
+    case SCE_OOT_ICE_CAVERN:
+    case SCE_OOT_GERUDO_TRAINING_GROUND:
+    case SCE_OOT_INSIDE_GANON_CASTLE:
+    case SCE_OOT_GANON_TOWER:
+        return;
+    }
+
+    /* If the player saved in link's house, and it's not ER, honor that */
+    if (gSave.sceneId == SCE_OOT_LINK_HOUSE && !Config_Flag(CFG_ER_ANY))
+    {
+        gSave.entrance = ENTR_OOT_SPAWN_CHILD;
+        return;
+    }
+
+    entrance = gSave.age == AGE_CHILD ? ENTR_OOT_SPAWN_CHILD : ENTR_OOT_SPAWN_ADULT;
+    override = comboEntranceOverride(entrance);
+    if (override != -1)
+        entrance = (u32)override;
+    gSave.entrance = entrance;
 }
 
 void Sram_AfterOpenSave(void)
@@ -86,26 +124,27 @@ void Sram_AfterOpenSave(void)
     gSave.entrance = DEBUG_OOT_ENTRANCE;
 #endif
 
+    if (Config_Flag(CFG_ONLY_MM))
+        comboGameSwitch(NULL, ENTR_MM_CLOCK_TOWN);
+
     /* Read the other save */
-    comboReadForeignSave();
+    Save_ReadForeign();
 
     /* Met deku tree - deku tree open - met mido */
     gSave.eventsChk[0] |= 0x102c;
     gSave.eventsMisc[0] |= 0x000b;
 
-    if (comboConfig(CFG_OOT_OPEN_DEKU))
+    if (Config_Flag(CFG_OOT_OPEN_DEKU))
         SetEventChk(EV_OOT_CHK_DEKU_MIDO_SWORD_SHIELD);
 
-    comboOnSaveLoad();
-
-    /* Dungeon shuffle override */
-    dungeonRespawn(gSave.sceneId, 1);
+    Save_OnLoad();
+    fixSpawn();
 }
 
 void Sram_CopySaveWrapper(void* fileSelect, void* sramCtx)
 {
     Sram_CopySave(fileSelect, sramCtx);
-    comboCopyMmSave(*(short*)((char*)fileSelect + 0x1ca50), *(short*)((char*)fileSelect + 0x1ca38));
+    Save_CopyMM(*(short*)((char*)fileSelect + 0x1ca50), *(short*)((char*)fileSelect + 0x1ca38));
 }
 
 PATCH_CALL(0x808048d8, Sram_CopySaveWrapper);
@@ -142,12 +181,16 @@ static void applyStartingEvents(void)
 {
     int skippedTrials;
 
-    if (comboConfig(CFG_DOOR_OF_TIME_OPEN))
+    /* Always set */
+    SetEventChk(EV_OOT_CHK_ZELDA_FLED);
+    SetEventChk(EV_OOT_CHK_ZELDA_FLED_BRIDGE);
+
+    if (Config_Flag(CFG_DOOR_OF_TIME_OPEN))
     {
         SetEventChk(EV_OOT_CHK_DOOR_TIME);
     }
 
-    if (comboConfig(CFG_OOT_SKIP_ZELDA))
+    if (Config_Flag(CFG_OOT_SKIP_ZELDA))
     {
         SetEventChk(EV_OOT_CHK_ZELDA_LETTER);
         SetEventChk(EV_OOT_CHK_SONG_ZELDA);
@@ -155,23 +198,23 @@ static void applyStartingEvents(void)
         SetEventChk(EV_OOT_CHK_CHILD_TALON_FLED);
     }
 
-    if (comboConfig(CFG_OOT_OPEN_KAKARIKO_GATE))
+    if (Config_Flag(CFG_OOT_OPEN_KAKARIKO_GATE))
     {
         BITMAP16_SET(gSave.eventsMisc, EV_OOT_INF_KAKARIKO_GATE_OPEN);
     }
 
-    if (comboConfig(CFG_OOT_KZ_OPEN))
+    if (Config_Flag(CFG_OOT_KZ_OPEN))
     {
         SetEventChk(EV_OOT_CHK_KING_ZORA_MOVED);
     }
 
-    if (gComboData.mq & (1 << MQ_TEMPLE_SHADOW))
+    if (Config_IsMq(MQ_TEMPLE_SHADOW))
     {
         gSave.perm[SCE_OOT_TEMPLE_SHADOW].switches |= (1 << 7);
     }
 
     /* Carpenters */
-    if (comboConfig(CFG_OOT_CARPENTERS_NONE) || comboConfig(CFG_OOT_CARPENTERS_ONE))
+    if (Config_Flag(CFG_OOT_CARPENTERS_NONE) || Config_Flag(CFG_OOT_CARPENTERS_ONE))
     {
         SetEventChk(EV_OOT_CHK_CARPENTER_2);
         SetEventChk(EV_OOT_CHK_CARPENTER_3);
@@ -181,7 +224,7 @@ static void applyStartingEvents(void)
         gSave.perm[SCE_OOT_THIEVES_HIDEOUT].switches |= (1 << 3);
         gSave.perm[SCE_OOT_THIEVES_HIDEOUT].switches |= (1 << 4);
 
-        if (comboConfig(CFG_OOT_CARPENTERS_NONE))
+        if (Config_Flag(CFG_OOT_CARPENTERS_NONE))
         {
             SetEventChk(EV_OOT_CHK_CARPENTER_1);
             gSave.perm[SCE_OOT_THIEVES_HIDEOUT].switches |= (1 << 1);
@@ -190,37 +233,37 @@ static void applyStartingEvents(void)
 
     /* Ganon trials */
     skippedTrials = 0;
-    if (!comboConfig(CFG_OOT_TRIAL_LIGHT))
+    if (!Config_Flag(CFG_OOT_TRIAL_LIGHT))
     {
         SetEventChk(EV_OOT_CHK_TRIAL_LIGHT);
         skippedTrials++;
     }
 
-    if (!comboConfig(CFG_OOT_TRIAL_FOREST))
+    if (!Config_Flag(CFG_OOT_TRIAL_FOREST))
     {
         SetEventChk(EV_OOT_CHK_TRIAL_FOREST);
         skippedTrials++;
     }
 
-    if (!comboConfig(CFG_OOT_TRIAL_FIRE))
+    if (!Config_Flag(CFG_OOT_TRIAL_FIRE))
     {
         SetEventChk(EV_OOT_CHK_TRIAL_FIRE);
         skippedTrials++;
     }
 
-    if (!comboConfig(CFG_OOT_TRIAL_WATER))
+    if (!Config_Flag(CFG_OOT_TRIAL_WATER))
     {
         SetEventChk(EV_OOT_CHK_TRIAL_WATER);
         skippedTrials++;
     }
 
-    if (!comboConfig(CFG_OOT_TRIAL_SHADOW))
+    if (!Config_Flag(CFG_OOT_TRIAL_SHADOW))
     {
         SetEventChk(EV_OOT_CHK_TRIAL_SHADOW);
         skippedTrials++;
     }
 
-    if (!comboConfig(CFG_OOT_TRIAL_SPIRIT))
+    if (!Config_Flag(CFG_OOT_TRIAL_SPIRIT))
     {
         SetEventChk(EV_OOT_CHK_TRIAL_SPIRIT);
         skippedTrials++;
@@ -229,12 +272,12 @@ static void applyStartingEvents(void)
     if (skippedTrials == 6)
         SetEventChk(EN_OOT_CHK_GANON_BARRIER);
 
-    if (comboConfig(CFG_OOT_FREE_SCARECROW))
+    if (Config_Flag(CFG_OOT_FREE_SCARECROW))
     {
         SetEventChk(EV_OOT_CHK_SONG_SCARECROW_ADULT);
     }
 
-    if (comboConfig(CFG_MM_REMOVED_FAIRIES))
+    if (Config_Flag(CFG_MM_REMOVED_FAIRIES))
     {
         gMmSave.permanentSceneFlags[SCE_MM_TEMPLE_WOODFALL].switch1 |= 0x0007fc00;
         gMmSave.permanentSceneFlags[SCE_MM_TEMPLE_WOODFALL].collectible |= 0x70000000;
@@ -245,6 +288,17 @@ static void applyStartingEvents(void)
         gMmSave.permanentSceneFlags[SCE_MM_TEMPLE_GREAT_BAY].switch1 |= 0x00078000;
         gMmSave.permanentSceneFlags[SCE_MM_TEMPLE_GREAT_BAY].collectible |= 0x7c000000;
     }
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_GB)) gMmSave.playerData.owlActivationFlags |= (1 << 0);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_ZC)) gMmSave.playerData.owlActivationFlags |= (1 << 1);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_SH)) gMmSave.playerData.owlActivationFlags |= (1 << 2);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_MV)) gMmSave.playerData.owlActivationFlags |= (1 << 3);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_CT)) gMmSave.playerData.owlActivationFlags |= (1 << 4);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_MR)) gMmSave.playerData.owlActivationFlags |= (1 << 5);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_WF)) gMmSave.playerData.owlActivationFlags |= (1 << 6);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_SS)) gMmSave.playerData.owlActivationFlags |= (1 << 7);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_IC)) gMmSave.playerData.owlActivationFlags |= (1 << 8);
+    if (Config_Flag(CFG_MM_PRE_ACTIVATED_OWL_ST)) gMmSave.playerData.owlActivationFlags |= (1 << 9);
+
 }
 
 void comboCreateSave(void* unk, void* buffer)
@@ -252,10 +306,13 @@ void comboCreateSave(void* unk, void* buffer)
     u32 base;
 
     /* Create MM save */
-    comboCreateSaveMM();
+    Save_CreateMM();
+
+    /* Move epona in a dummy scene */
+    gSave.horseData.sceneId = -1;
 
     /* Apply some early settings */
-    if (!comboConfig(CFG_CHILD_WALLET))
+    if (!Config_Flag(CFG_CHILD_WALLET))
     {
         gOotExtraFlags.childWallet = 1;
         gMmExtraFlags2.childWallet = 1;
@@ -263,51 +320,74 @@ void comboCreateSave(void* unk, void* buffer)
     comboWalletRefresh();
 
     /* Apply enemy souls */
-    if (!comboConfig(CFG_OOT_SOULS_ENEMY))
+    if (!Config_Flag(CFG_OOT_SOULS_ENEMY))
         memset(gSharedCustomSave.soulsEnemyOot, 0xff, sizeof(gSharedCustomSave.soulsEnemyOot));
-    if (!comboConfig(CFG_MM_SOULS_ENEMY))
+    if (!Config_Flag(CFG_MM_SOULS_ENEMY))
         memset(gSharedCustomSave.soulsEnemyMm, 0xff, sizeof(gSharedCustomSave.soulsEnemyMm));
-    if (!comboConfig(CFG_OOT_SOULS_BOSS))
+    if (!Config_Flag(CFG_OOT_SOULS_BOSS))
         memset(gSharedCustomSave.soulsBossOot, 0xff, sizeof(gSharedCustomSave.soulsBossOot));
-    if (!comboConfig(CFG_MM_SOULS_BOSS))
+    if (!Config_Flag(CFG_MM_SOULS_BOSS))
         memset(gSharedCustomSave.soulsBossMm, 0xff, sizeof(gSharedCustomSave.soulsBossMm));
-    if (!comboConfig(CFG_OOT_SOULS_NPC))
+    if (!Config_Flag(CFG_OOT_SOULS_NPC))
         memset(gSharedCustomSave.soulsNpcOot, 0xff, sizeof(gSharedCustomSave.soulsNpcOot));
+    if (!Config_Flag(CFG_MM_SOULS_NPC))
+        memset(gSharedCustomSave.soulsNpcMm, 0xff, sizeof(gSharedCustomSave.soulsNpcMm));
+    if (!Config_Flag(CFG_OOT_SOULS_MISC))
+        memset(gSharedCustomSave.soulsMiscOot, 0xff, sizeof(gSharedCustomSave.soulsMiscOot));
+    if (!Config_Flag(CFG_MM_SOULS_MISC))
+        memset(gSharedCustomSave.soulsMiscMm, 0xff, sizeof(gSharedCustomSave.soulsMiscMm));
 
     /* Apply ocarina buttons */
-    if (!comboConfig(CFG_OOT_OCARINA_BUTTONS))
+    if (!Config_Flag(CFG_OOT_OCARINA_BUTTONS))
         gSharedCustomSave.ocarinaButtonMaskOot = 0xffff;
-    if (!comboConfig(CFG_MM_OCARINA_BUTTONS))
+    if (!Config_Flag(CFG_MM_OCARINA_BUTTONS))
         gSharedCustomSave.ocarinaButtonMaskMm = 0xffff;
 
-    if (comboConfig(CFG_MM_CLOCKS))
+    if (Config_Flag(CFG_MM_CLOCKS))
     {
-        if (comboConfig(CFG_MM_CLOCKS_PROGRESSIVE_REVERSE))
+        if (Config_Flag(CFG_MM_CLOCKS_PROGRESSIVE_REVERSE))
             gSharedCustomSave.mm.halfDays = 0x20;
-        else if (comboConfig(CFG_MM_CLOCKS_PROGRESSIVE))
+        else if (Config_Flag(CFG_MM_CLOCKS_PROGRESSIVE))
             gSharedCustomSave.mm.halfDays = 0x01;
     }
     else
         gSharedCustomSave.mm.halfDays = 0x3f;
 
+    /* Set initial equips */
     gOotSave.childEquips.buttonItems[0] = ITEM_NONE;
-    gOotSave.adultEquips.buttonItems[0] = ITEM_NONE;
+    gOotSave.childEquips.equipment.boots = 0x01;
+    gOotSave.childEquips.equipment.tunics = 0x01;
+
+    gOotSave.adultEquips.equipment.boots = 0x01;
+    gOotSave.adultEquips.equipment.tunics = 0x01;
+
+    if (!Config_Flag(CFG_OOT_SWORDLESS_ADULT))
+    {
+        gOotSave.adultEquips.buttonItems[0] = ITEM_OOT_SWORD_MASTER;
+        gOotSave.adultEquips.equipment.swords = 0x02;
+    }
+    else
+        gOotSave.adultEquips.buttonItems[0] = ITEM_NONE;
 
     /* Apply starting age */
-    if (comboConfig(CFG_OOT_START_ADULT))
+    if (Config_Flag(CFG_OOT_START_ADULT))
     {
         /* Spawn as adult in ToT */
         gOotSave.age = AGE_ADULT;
         gOotSave.entrance = ENTR_OOT_WARP_SONG_TEMPLE;
         gOotSave.sceneId = SCE_OOT_TEMPLE_OF_TIME;
 
-        /* Force Master Sword */
-        gOotSave.equips.buttonItems[0] = ITEM_OOT_SWORD_MASTER;
-        gOotSave.inventory.equipment.swords |= EQ_OOT_SWORD_MASTER;
-        gOotSave.equips.equipment.swords = 2;
+        if (!Config_Flag(CFG_OOT_SWORDLESS_ADULT))
+        {
+            /* Force Master Sword */
+            gOotSave.equips.buttonItems[0] = ITEM_OOT_SWORD_MASTER;
+            gOotSave.inventory.equipment.swords |= EQ_OOT_SWORD_MASTER;
+            gOotSave.equips.equipment.swords = 2;
+            gSharedCustomSave.foundMasterSword = 1;
 
-        /* Unset the swordless flag */
-        gSave.eventsMisc[29] = 0;
+            /* Unset the swordless flag */
+            gSave.eventsMisc[29] = 0;
+        }
     }
 
     /* Apply starting items */
@@ -319,12 +399,12 @@ void comboCreateSave(void* unk, void* buffer)
     /* Apply pre-completed dungeons */
     for (int i = 0; i < 32; ++i)
     {
-        if (gComboData.preCompleted & (1 << i))
+        if (gComboConfig.preCompleted & (1 << i))
             comboDungeonSetFlags(i, 0);
     }
 
     /* Write save */
-    comboWriteSave();
+    Save_Write();
 
     /* Copy inside the buffer */
     base = 0x20 + 0x1450 * gSaveContext.fileIndex;
@@ -342,10 +422,10 @@ PATCH_CALL(0x8009dacc, DeathWarpWrapper);
 
 void PrepareAndSave(void)
 {
-    comboSave(gPlay, 0);
+    Save_DoSave(gPlay, 0);
 }
 
-void comboSave(GameState_Play* play, int saveFlags)
+void Save_DoSave(GameState_Play* play, int saveFlags)
 {
     /* Wait for net */
     netWaitSave();
@@ -360,6 +440,21 @@ void comboSave(GameState_Play* play, int saveFlags)
 
     if (!(saveFlags & SF_NOCOMMIT))
     {
-        comboWriteSave();
+        Save_Write();
     }
 }
+
+static u8 sHoldTarget;
+COSMETIC(HOLD_TARGET, sHoldTarget);
+
+static void Save_CopySettings(void* dst, const void* src, size_t size)
+{
+    memcpy(dst, src, size);
+
+    if (sHoldTarget)
+    {
+        ((u8*)dst)[1] = 1;
+    }
+}
+
+PATCH_CALL(0x80091258, Save_CopySettings);

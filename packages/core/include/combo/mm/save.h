@@ -167,7 +167,7 @@ typedef struct {
     /* 0x00 */ Vec3f pos; /* Normally it's a Vec3i, but this is easier. */
     /* 0x0C */ s32 yaw;
     /* 0x10 */ s32 playerParams;
-    /* 0x14 */ s32 entranceIndex;
+    /* 0x14 */ s32 entrance;
     /* 0x18 */ s32 roomIndex;
     /* 0x1C */ s32 set;
     /* 0x20 */ s32 tempSwchFlags;
@@ -188,7 +188,7 @@ typedef struct RespawnData {
 
 typedef struct
 {
-    s32                     entranceIndex;
+    s32                     entrance;
     u8                      equippedMask;
     u8                      isFirstCycle;
     char                    unk_006;
@@ -198,7 +198,7 @@ typedef struct
     u16                     owlLocation;
     s32                     isNight;
     s32                     daySpeed;
-    s32                     day;
+    u32                     day;
     u32                     daysElapsed;
     u8                      playerForm;
     u8                      snowheadCleared;
@@ -208,9 +208,7 @@ typedef struct
     MmItemEquips            itemEquips;
     MmInventory             inventory;
     MmPermanentSceneFlags   permanentSceneFlags[120];
-    RespawnData             fw;
-    RespawnData             fwRespawnTop;
-    u8                      unk_E58[0x14];
+    u8                      unk_DF4[0x54];
     u32                     dekuPlaygroundHighScores[3];
     u32                     pictoFlags0;
     u32                     pictoFlags1;
@@ -224,7 +222,7 @@ typedef struct
     u32                     unk_EC8;
     u32                     unk_ECC[2];
     u32                     stolenItems;
-    u32                     unk_DD8;
+    u32                     unk_ED8;
     u32                     bankRupees;
     u32                     unk_ee0;
     u32                     unk_ee4;
@@ -247,13 +245,22 @@ typedef struct
     MmHorseData             horseData;
     u16                     checksum;
     u8                      eventInf[8];
-    u8                      unk_1014;
+    u8                      hasSirloin;
     u8                      unk_1015;
     u16                     jinxTimer;
     s16                     rupeesDelta;
     char                    unk[0x2c86];
 }
 MmSave;
+
+ASSERT_SIZE(MmSave, 0x3ca0);
+ASSERT_OFFSET(MmSave, entrance,    0x0000);
+ASSERT_OFFSET(MmSave, equippedMask,     0x0004);
+ASSERT_OFFSET(MmSave, isFirstCycle,     0x0005);
+ASSERT_OFFSET(MmSave, unk_006,          0x0006);
+ASSERT_OFFSET(MmSave, linkAge,          0x0007);
+ASSERT_OFFSET(MmSave, cutscene,         0x0008);
+ASSERT_OFFSET(MmSave, time,             0x000c);
 
 typedef struct
 {
@@ -331,15 +338,25 @@ typedef struct
     SaveOptions         options;
     char                unk_3f46[0x4];
     u16                 nextCutscene;
-    char                unk_3f4c[0xe];
+    u8                  cutsceneTrigger;
+    u8                  chamberCutsceneNum;
+    u16                 nextDayTime;
+    u8                  transFadeDuration;
+    u8                  transWipeSpeed;
+    u16                 skyboxTime;
+    u8                  dogIsLost;
+    u8                  nextTransitionType;
+    s16                 worldMapArea;
+    s16                 sunsSongState;
     u16                 healthDelta;
-    char                unk_3f5c[0xc];
+    s32                 betRupees;
+    u8                  screenScaleFlag;
+    f32                 screenScale;
     MmCycleSceneFlags   cycleSceneFlags[120];
     u16                 dungeonId;
 }
 MmSaveContext;
 
-_Static_assert(sizeof(MmSave) == 0x3ca0, "MmSave size is wrong");
 _Static_assert(sizeof(MmSaveContext) == 0x48d0, "MmSaveContext size is wrong");
 
 ASSERT_OFFSET(MmSaveContext, fileIndex,             0x3ca0);
@@ -353,11 +370,37 @@ ASSERT_OFFSET(MmSaveContext, minigameScore,         0x3f3a);
 ASSERT_OFFSET(MmSaveContext, minigameHiddenScore,   0x3f3c);
 ASSERT_OFFSET(MmSaveContext, options,               0x3f40);
 ASSERT_OFFSET(MmSaveContext, nextCutscene,          0x3f4a);
-ASSERT_OFFSET(MmSaveContext, unk_3f4c,              0x3f4c);
+ASSERT_OFFSET(MmSaveContext, cutsceneTrigger,       0x3f4c);
 ASSERT_OFFSET(MmSaveContext, healthDelta,           0x3f5a);
-ASSERT_OFFSET(MmSaveContext, unk_3f5c,              0x3f5c);
+ASSERT_OFFSET(MmSaveContext, betRupees,             0x3f5c);
 ASSERT_OFFSET(MmSaveContext, cycleSceneFlags,       0x3f68);
 ASSERT_OFFSET(MmSaveContext, dungeonId,             0x48c8);
+
+#define HUD_VISIBILITY_IDLE                                     0
+#define HUD_VISIBILITY_NONE                                     1
+#define HUD_VISIBILITY_NONE_ALT                                 2
+#define HUD_VISIBILITY_HEARTS_WITH_OVERWRITE                    3
+#define HUD_VISIBILITY_A                                        4
+#define HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_OVERWRITE            5
+#define HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE    6
+#define HUD_VISIBILITY_ALL_NO_MINIMAP_W_DISABLED                7
+#define HUD_VISIBILITY_B                                        8
+#define HUD_VISIBILITY_HEARTS_MAGIC                             9
+#define HUD_VISIBILITY_B_ALT                                    10
+#define HUD_VISIBILITY_HEARTS                                   11
+#define HUD_VISIBILITY_A_B_MINIMAP                              12
+#define HUD_VISIBILITY_HEARTS_MAGIC_WITH_OVERWRITE              13
+#define HUD_VISIBILITY_HEARTS_MAGIC_C                           14
+#define HUD_VISIBILITY_ALL_NO_MINIMAP                           15
+#define HUD_VISIBILITY_A_B_C                                    16
+#define HUD_VISIBILITY_B_MINIMAP                                17
+#define HUD_VISIBILITY_HEARTS_MAGIC_MINIMAP                     18
+#define HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP                   19
+#define HUD_VISIBILITY_B_MAGIC                                  20
+#define HUD_VISIBILITY_A_B                                      21
+#define HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP                 22
+#define HUD_VISIBILITY_ALL                                      50
+#define HUD_VISIBILITY_NONE_INSTANT                             52
 
 #if defined(GAME_MM)
 ALIGNED(16) extern MmSaveContext gSaveContext;
@@ -487,6 +530,8 @@ typedef struct ALIGNED(16)
     u8 npc[32];
     u8 shops[4];
     u8 halfDays;
+    RespawnData fw[2];
+    RespawnData fwRespawnTop[2];
 }
 MmCustomSave;
 

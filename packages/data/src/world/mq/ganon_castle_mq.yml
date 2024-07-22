@@ -3,7 +3,7 @@
   exits:
     "Ganon Castle Exterior After Bridge": "true"
     "Ganon Castle Main": "soul_iron_knuckle && soul_armos && soul_bubble && (can_use_sword_master || can_use_sword_goron || (can_use_sticks && (has_ranged_weapon_child || can_use_bow)) || has_explosives_or_hammer)"
-"Ganon Castle Wallmaster":
+"Ganon Castle Spirit Wallmaster":
   region: NONE
   exits:
     "VOID": "true"
@@ -22,11 +22,11 @@
 "Ganon Castle Fairy Fountain":
   dungeon: Ganon
   locations:
-    "MQ Ganon Castle Leftmost Scrub": "can_hit_scrub && scrub_price(0x21)"
-    "MQ Ganon Castle Left-Center Scrub": "can_hit_scrub && scrub_price(0x22)"
-    "MQ Ganon Castle Center Scrub": "can_hit_scrub && scrub_price(0x23)"
-    "MQ Ganon Castle Right-Center Scrub": "can_hit_scrub && scrub_price(0x24)"
-    "MQ Ganon Castle Rightmost Scrub": "can_hit_scrub && scrub_price(0x25)"
+    "MQ Ganon Castle Leftmost Scrub": "business_scrub(0x21)"
+    "MQ Ganon Castle Left-Center Scrub": "business_scrub(0x22)"
+    "MQ Ganon Castle Center Scrub": "business_scrub(0x23)"
+    "MQ Ganon Castle Right-Center Scrub": "business_scrub(0x24)"
+    "MQ Ganon Castle Rightmost Scrub": "business_scrub(0x25)"
     "MQ Ganon Castle Fairy Fountain Fairy 1": "true"
     "MQ Ganon Castle Fairy Fountain Fairy 2": "true"
     "MQ Ganon Castle Fairy Fountain Fairy 3": "true"
@@ -38,7 +38,7 @@
 "Ganon Castle Light":
   dungeon: Ganon
   events:
-    GANON_TRIAL_LIGHT: "soul_lizalfos_dinalfos && soul_enemy(SOUL_ENEMY_TORCH_SLUG) && has_light_arrows && has_lens && can_hookshot && small_keys_ganon(3)"
+    GANON_TRIAL_LIGHT: "soul_lizalfos_dinalfos && soul_enemy(SOUL_ENEMY_TORCH_SLUG) && can_use_light_arrows && has_lens && can_hookshot && small_keys_ganon(3)"
   locations:
     "MQ Ganon Castle Light Trial Chest": "soul_lizalfos_dinalfos && soul_enemy(SOUL_ENEMY_TORCH_SLUG) && can_play_zelda && has_weapon"
     "MQ Ganon Pot Light End 1": "soul_lizalfos_dinalfos && soul_enemy(SOUL_ENEMY_TORCH_SLUG) && has_lens && can_hookshot && small_keys_ganon(3)"
@@ -48,7 +48,7 @@
 "Ganon Castle Forest":
   dungeon: Ganon
   events:
-    GANON_TRIAL_FOREST: "soul_enemy(SOUL_ENEMY_STALFOS) && (can_play_time || can_play_elegy) && has_light_arrows"
+    GANON_TRIAL_FOREST: "soul_enemy(SOUL_ENEMY_STALFOS) && (can_play_time || can_play_elegy) && can_use_light_arrows"
   locations:
     "MQ Ganon Castle Forest Trial Key": "can_hookshot"
     "MQ Ganon Castle Forest Trial First Chest": "soul_enemy(SOUL_ENEMY_STALFOS) && has_weapon && can_hit_triggers_distance"
@@ -58,7 +58,7 @@
 "Ganon Castle Fire":
   dungeon: Ganon
   events:
-    GANON_TRIAL_FIRE: "has_light_arrows && has_tunic_goron_strict && (can_longshot || has_hover_boots) && silver_rupees_ganon_fire"
+    GANON_TRIAL_FIRE: "can_use_light_arrows && has_tunic_goron_strict && (can_longshot || has_hover_boots) && silver_rupees_ganon_fire"
   locations:
     "MQ Ganon Castle SR Fire Under Pillar": "has_tunic_goron && can_lift_gold"
     "MQ Ganon Castle SR Fire Center-Left": "has_tunic_goron_strict"
@@ -79,7 +79,7 @@
 "Ganon Castle Water Silver Rupees":
   dungeon: Ganon
   events:
-    GANON_TRIAL_WATER: "silver_rupees_ganon_water && has_light_arrows"
+    GANON_TRIAL_WATER: "silver_rupees_ganon_water && can_use_light_arrows"
   locations:
     "MQ Ganon Castle SR Water Shallow Hole": "true"
     "MQ Ganon Castle SR Water Above Ground": "true"
@@ -91,9 +91,9 @@
 "Ganon Castle Spirit":
   dungeon: Ganon
   events:
-    GANON_TRIAL_SPIRIT: "has_light_arrows && has_fire_arrows && can_reflect_light && can_hammer && has_bombchu && (soul_iron_knuckle || trick(OOT_HAMMER_WALLS))"
+    GANON_TRIAL_SPIRIT: "can_use_light_arrows && has_fire_arrows && can_reflect_light && can_hammer && has_bombchu && (soul_iron_knuckle || trick(OOT_HAMMER_WALLS))"
   exits:
-    "Ganon Castle Wallmaster": "soul_wallmaster && can_hammer && has_fire_arrows && can_reflect_light && has_bombchu && (soul_iron_knuckle || trick(OOT_HAMMER_WALLS))"
+    "Ganon Castle Spirit Wallmaster": "soul_wallmaster && can_hammer && has_fire_arrows && can_reflect_light && has_bombchu && (soul_iron_knuckle || trick(OOT_HAMMER_WALLS))"
   locations:
     "MQ Ganon Castle Spirit Trial First Chest": "can_hammer && ((can_use_bow && soul_iron_knuckle) || trick(OOT_HAMMER_WALLS))"
     "MQ Ganon Castle Spirit Trial Second Chest": "can_hammer && ((can_use_bow && soul_iron_knuckle) || trick(OOT_HAMMER_WALLS)) && has_bombchu && has_lens"
@@ -107,7 +107,7 @@
 "Ganon Castle Shadow":
   dungeon: Ganon
   events:
-    GANON_TRIAL_SHADOW: "has_lens && has_light_arrows && (has_hover_boots || (can_hookshot && has_fire && can_use_bow)) && silver_rupees_ganon_shadow"
+    GANON_TRIAL_SHADOW: "has_lens && can_use_light_arrows && (has_hover_boots || (can_hookshot && has_fire && can_use_bow)) && silver_rupees_ganon_shadow"
   locations:
     "MQ Ganon Castle Shadow Trial Bomb Flower Chest": "(can_hookshot || has_hover_boots) && (can_use_bow || (has_lens && has_hover_boots && (can_use_din || has_bombflowers)))"
     "MQ Ganon Castle Shadow Trial Switch Chest": "can_use_bow && has_lens && (has_hover_boots || (can_hookshot && has_fire))"
@@ -118,8 +118,9 @@
     "MQ Ganon Castle SR Shadow Front-Center": "has_lens && (has_hover_boots || (can_use_bow && can_hookshot))"
     "MQ Ganon Pot Shadow End 1": "has_lens && (has_hover_boots || (can_hookshot && has_fire && can_use_bow)) && silver_rupees_ganon_shadow"
     "MQ Ganon Pot Shadow End 2": "has_lens && (has_hover_boots || (can_hookshot && has_fire && can_use_bow)) && silver_rupees_ganon_shadow"
+    "MQ Ganon Castle Wonder Item": "has_lens && (has_hover_boots || (can_use_bow && can_hookshot)) && (can_use_bow || has_explosives)"
 "Ganon Castle Stairs":
-  region: NONE
+  region: GANON_CASTLE
   exits:
-    "Ganon Castle": "true"
+    "Ganon Castle Main": "true"
     "Ganon Castle Tower": "true"

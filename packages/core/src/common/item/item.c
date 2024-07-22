@@ -2,6 +2,13 @@
 #include <combo/item.h>
 #include <combo/net.h>
 #include <combo/dma.h>
+#include <combo/entrance.h>
+#include <combo/io.h>
+#include <combo/config.h>
+#include <combo/shop.h>
+#include <combo/global.h>
+#include <combo/multi.h>
+#include <combo/actor.h>
 
 #if defined(GAME_OOT)
 u16 gMmMaxRupees[] = { 0, 200, 500, 999 };
@@ -17,39 +24,72 @@ const u8 kMaxSeeds[] = { 0, 30, 40, 50 };
 
 static int isPlayerSelf(u8 playerId)
 {
-    if (playerId == PLAYER_SELF || playerId == gComboData.playerId)
+    if (playerId == PLAYER_SELF || playerId == gComboConfig.playerId)
         return 1;
     return 0;
 }
 
 void comboSyncItems(void)
 {
-    if (comboConfig(CFG_SHARED_BOWS))
+    if (Config_Flag(CFG_SHARED_BOWS))
         gForeignSave.inventory.ammo[ITS_FOREIGN_BOW] = gSave.inventory.ammo[ITS_NATIVE_BOW];
 
-    if (comboConfig(CFG_SHARED_BOMB_BAGS))
+    if (Config_Flag(CFG_SHARED_BOMB_BAGS))
         gForeignSave.inventory.ammo[ITS_FOREIGN_BOMBS] = gSave.inventory.ammo[ITS_NATIVE_BOMBS];
 
-    if (comboConfig(CFG_SHARED_BOMBCHU))
+    if (Config_Flag(CFG_SHARED_BOMBCHU))
         gForeignSave.inventory.ammo[ITS_FOREIGN_BOMBCHU] = gSave.inventory.ammo[ITS_NATIVE_BOMBCHU];
 
-    if (comboConfig(CFG_SHARED_MAGIC))
+    if (Config_Flag(CFG_SHARED_MAGIC))
        gForeignSave.playerData.magicAmount = gSave.playerData.magicAmount;
 
-    if (comboConfig(CFG_SHARED_NUTS_STICKS))
+    if (Config_Flag(CFG_SHARED_NUTS_STICKS))
     {
         gForeignSave.inventory.ammo[ITS_FOREIGN_NUTS] = gSave.inventory.ammo[ITS_NATIVE_NUTS];
         gForeignSave.inventory.ammo[ITS_FOREIGN_STICKS] = gSave.inventory.ammo[ITS_NATIVE_STICKS];
     }
 
-    if (comboConfig(CFG_SHARED_WALLETS))
+    if (Config_Flag(CFG_SHARED_WALLETS))
         gForeignSave.playerData.rupees = gSave.playerData.rupees;
 
-    if (comboConfig(CFG_SHARED_HEALTH))
+    if (Config_Flag(CFG_SHARED_HEALTH))
     {
         gForeignSave.playerData.healthMax = gSave.playerData.healthMax;
         gForeignSave.playerData.health = gSave.playerData.health;
         gForeignSave.inventory.quest.heartPieces = gSave.inventory.quest.heartPieces;
+    }
+
+    if (Config_Flag(CFG_CROSS_GAME_FW))
+    {
+#if defined(GAME_MM)
+        RespawnData* fw = &gCustomSave.fw[gOotSave.age];
+        OotFaroreWind* foreignFw = &gForeignSave.fw;
+
+        if (fw->data <= 0 || fw->entrance != ENTR_FW_CROSS)
+        {
+            foreignFw->set = 0;
+        }
+
+        if (fw->data > 0 && foreignFw->set <= 0)
+        {
+            foreignFw->set = 1;
+            foreignFw->entrance = ENTR_FW_CROSS;
+        }
+#else
+        RespawnData* foreignFw = &gSharedCustomSave.mm.fw[gSave.age];
+        OotFaroreWind* fw = &gSave.fw;
+
+        if (fw->set <= 0 || fw->entrance != ENTR_FW_CROSS)
+        {
+            foreignFw->data = 0;
+        }
+
+        if (fw->set > 0 && foreignFw->data <= 0)
+        {
+            foreignFw->data = 1;
+            foreignFw->entrance = ENTR_FW_CROSS;
+        }
+#endif
     }
 }
 
@@ -78,7 +118,7 @@ static void comboGiveItemRaw(Actor* actor, GameState_Play* play, const ComboItem
     ComboItemOverride o;
 
     comboItemOverride(&o, q);
-    if (GiveItem(actor, play, o.gi, a, b))
+    if (Actor_OfferGetItem(actor, play, o.gi, a, b))
     {
         if (q->gi < 0)
         {
@@ -98,7 +138,7 @@ void comboGiveItem(Actor* actor, GameState_Play* play, const ComboItemQuery* q, 
     ComboItemQuery qNothing = ITEM_QUERY_INIT;
     const ComboItemQuery* qPtr;
 
-    if (multiIsMarked(play, q->ovType, q->sceneId, q->roomId, q->id) && !(q->ovFlags & OVF_RENEW))
+    if (Multi_IsMarked(play, q->ovType, q->sceneId, q->roomId, q->id) && !(q->ovFlags & OVF_RENEW))
     {
         qNothing.gi = GI_NOTHING;
         qPtr = &qNothing;
@@ -322,15 +362,15 @@ int comboAddItemRawEx(GameState_Play* play, const ComboItemQuery* q, int updateT
     if (updateText)
         comboTextHijackItemEx(play, &o, count);
 
-    if (comboConfig(CFG_MULTIPLAYER) && q->ovType != OV_NONE)
+    if (Config_Flag(CFG_MULTIPLAYER) && q->ovType != OV_NONE)
     {
         /* Mark the item */
         if (isPlayerSelf(o.player))
         {
 #if defined(GAME_OOT)
-            multiSetMarkedOot(play, q->ovType, q->sceneId, q->roomId, q->id);
+            Multi_SetMarkedOot(play, q->ovType, q->sceneId, q->roomId, q->id);
 #else
-            multiSetMarkedMm(play, q->ovType, q->sceneId, q->roomId, q->id);
+            Multi_SetMarkedMm(play, q->ovType, q->sceneId, q->roomId, q->id);
 #endif
 
             /* If the item was a renewable, add it to the GI skips */
@@ -352,7 +392,7 @@ int comboAddItemRawEx(GameState_Play* play, const ComboItemQuery* q, int updateT
         netWaitCmdClear();
         bzero(&net->cmdOut, sizeof(net->cmdOut));
         net->cmdOut.op = NET_OP_ITEM_SEND;
-        net->cmdOut.itemSend.playerFrom = gComboData.playerId;
+        net->cmdOut.itemSend.playerFrom = gComboConfig.playerId;
         net->cmdOut.itemSend.playerTo = o.player;
 #if defined(GAME_OOT)
         net->cmdOut.itemSend.game = 0;
@@ -365,7 +405,7 @@ int comboAddItemRawEx(GameState_Play* play, const ComboItemQuery* q, int updateT
         netMutexUnlock();
     }
 
-    return -1;
+    return count;
 }
 
 int comboAddItemEx(GameState_Play* play, const ComboItemQuery* q, int updateText)
@@ -373,7 +413,7 @@ int comboAddItemEx(GameState_Play* play, const ComboItemQuery* q, int updateText
     ComboItemQuery qNothing = ITEM_QUERY_INIT;
     const ComboItemQuery* qPtr;
 
-    if (multiIsMarked(play, q->ovType, q->sceneId, q->roomId, q->id) && !(q->ovFlags & OVF_RENEW))
+    if (Multi_IsMarked(play, q->ovType, q->sceneId, q->roomId, q->id) && !(q->ovFlags & OVF_RENEW))
     {
         qNothing.gi = GI_NOTHING;
         qPtr = &qNothing;
@@ -397,7 +437,7 @@ void comboPlayerAddItem(GameState_Play* play, s16 gi)
     ComboItemOverride o;
 
     /* Check for a chest */
-    player = GET_LINK(play);
+    player = GET_PLAYER(play);
     chest = *(Actor**)((char*)player + CHEST_OFF);
     if (chest && chest->id == AC_EN_BOX)
     {
@@ -435,4 +475,24 @@ u8 comboItemType(s16 gi)
     if (gi < 0)
         gi = -gi;
     return kExtendedGetItems[gi - 1].type;
+}
+
+Actor_ItemDecoy* Item_AddWithDecoy(GameState_Play* play, const ComboItemQuery* q)
+{
+    int count;
+    Actor_ItemDecoy* decoy;
+    ComboItemOverride o;
+
+    comboItemOverride(&o, q);
+    count = comboAddItemEx(play, q, FALSE);
+    decoy = (Actor_ItemDecoy*)Actor_Spawn(&play->actorCtx, play, AC_ITEM_DECOY, 0, 0, 0, 0, 0, 0, 0);
+    if (!decoy)
+        return NULL;
+    decoy->count = (s16)count;
+    decoy->gi = o.gi;
+    decoy->player = o.player;
+    decoy->playerFrom = o.playerFrom;
+    g.decoysCount++;
+
+    return decoy;
 }

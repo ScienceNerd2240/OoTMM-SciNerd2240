@@ -15,6 +15,8 @@ const ENTRANCES_DEBUG_CATEGORIES = {
   BOSS: 'Boss',
   WARP: 'Songs/Owls',
   INTERIOR: 'Interiors',
+  OOT_GROTTO: 'Grottos (OoT)',
+  MM_GROTTO: 'Grottos (MM)',
   SPECIAL: 'Special',
 };
 
@@ -58,11 +60,11 @@ async function genGI() {
   cgSource.include('combo/sr.h');
   cgSource.raw('');
   cgSource.raw('#if defined(GAME_OOT)');
-  cgSource.raw('# define OBJECT_OOT(x) x');
-  cgSource.raw('# define OBJECT_MM(x) ((x) ^ MASK_FOREIGN_OBJECT)');
+  cgSource.raw('# define X_OOT(x) x');
+  cgSource.raw('# define X_MM(x) ((x) ^ MASK_FOREIGN_OBJECT)');
   cgSource.raw('#else');
-  cgSource.raw('# define OBJECT_OOT(x) ((x) ^ MASK_FOREIGN_OBJECT)');
-  cgSource.raw('# define OBJECT_MM(x) x');
+  cgSource.raw('# define X_OOT(x) ((x) ^ MASK_FOREIGN_OBJECT)');
+  cgSource.raw('# define X_MM(x) x');
   cgSource.raw('#endif');
   cgSource.raw('');
   cgSource.raw('const GetItem kExtendedGetItems[] = {');
@@ -78,7 +80,7 @@ async function genGI() {
       if (gi.object.type === 'custom') {
         fields.push(`CUSTOM_OBJECT_ID_${gi.object.id}`);
       } else {
-        fields.push(`OBJECT_${gi.object.type.toUpperCase()}(0x${gi.object.id.toString(16)})`);
+        fields.push(`X_${gi.object.type.toUpperCase()}(0x${gi.object.id.toString(16)})`);
       }
     }
     cgSource.raw(`    { ${fields.join(', ')} },`);
@@ -141,6 +143,7 @@ async function genEntrances() {
   /* Codegen debug data */
   const debug = new CodeGen(path.resolve('build', 'src', 'common', 'entrances_debug.c'));
   debug.include('combo.h');
+  debug.include('combo/debug.h');
   debug.raw('');
   debug.raw('#if defined(DEBUG)');
   for (const [name, _] of Object.entries(ENTRANCES_DEBUG_CATEGORIES)) {
@@ -170,10 +173,10 @@ export const codegen = async (monitor: Monitor) => {
     genGI(),
     genDrawGI(),
     genEntrances(),
-    codegenFile(SCENES,               "SCE",      "scenes.h",       "GENERATED_SCENES_H"),
-    codegenFile(NPC,                  "NPC",      "npc.h",          "GENERATED_NPC_H"),
-    codegenFile(CONFVARS_VALUES,      "CFG",      "config.h",       "GENERATED_CONFIG_H"),
-    codegenFile(PATCH_GROUP_VALUES,   "PG",       "patch_group.h",  "GENERATED_PATCH_GROUP_H"),
-    codegenFile(PRICE_RANGES,         "PRICES",   "prices.h",       "GENERATED_PRICES_H"),
+    codegenFile(SCENES,               "SCE",      "scenes.h",             "GENERATED_SCENES_H"),
+    codegenFile(NPC,                  "NPC",      "npc.h",                "GENERATED_NPC_H"),
+    codegenFile(CONFVARS_VALUES,      "CFG",      "generated_config.h",   "GENERATED_CONFIG_H"),
+    codegenFile(PATCH_GROUP_VALUES,   "PG",       "patch_group.h",        "GENERATED_PATCH_GROUP_H"),
+    codegenFile(PRICE_RANGES,         "PRICES",   "prices.h",             "GENERATED_PRICES_H"),
   ]);
 };

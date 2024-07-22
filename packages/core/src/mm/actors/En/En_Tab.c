@@ -1,5 +1,7 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/player.h>
+#include <combo/shop.h>
 
 static u8 sItemIndex;
 
@@ -98,7 +100,7 @@ void EnTab_GiveItem(Actor* this, GameState_Play* play, s16 gi, float a, float b)
     Actor_Player* link;
     int sc;
 
-    link = GET_LINK(play);
+    link = GET_PLAYER(play);
 
     if (link->state & PLAYER_ACTOR_STATE_GET_ITEM)
         return;
@@ -128,7 +130,7 @@ void EnTab_GiveItem(Actor* this, GameState_Play* play, s16 gi, float a, float b)
         break;
     default:
         sItemIndex = -1;
-        this->parent = &link->base;
+        this->parent = &link->actor;
         PlayerDisplayTextBox(play, 0x2b0c, NULL);
         if (sc != SC_ERR_NORUPEES)
             comboTextMessageCantBuy(play, 0);
@@ -142,11 +144,11 @@ void EnTab_AfterGivingItem(Actor* actor)
     {
     case 0:
         gMmExtraFlags2.milkBarMilk = 1;
-        AddRupees(-kPrices[0]);
+        AddRupeesRaw(-kPrices[0]);
         break;
     case 1:
         gMmExtraFlags2.milkBarChateau = 1;
-        AddRupees(-kPrices[1]);
+        AddRupeesRaw(-kPrices[1]);
         break;
     }
 }

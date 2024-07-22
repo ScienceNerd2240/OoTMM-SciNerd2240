@@ -1,5 +1,8 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/player.h>
+#include <combo/config.h>
+#include <combo/shop.h>
 
 #define SCRUB_ITEM_NUTS             0x00
 #define SCRUB_ITEM_STICK            0x01
@@ -20,13 +23,30 @@
 #define KEY(sceneId, inGrotto, item) \
     (((inGrotto) << 24) | ((sceneId) << 16) | (item))
 
+static int scrubSceneKey(GameState_Play* play, int inGrotto)
+{
+    s8 roomId;
+
+    if (!inGrotto)
+        return play->sceneId;
+    roomId = play->roomCtx.curRoom.num;
+    if (roomId == 0x06)
+        return SCE_OOT_LOST_WOODS;
+    if (roomId == 0x01)
+        return SCE_OOT_HYRULE_FIELD;
+    return gLastScene;
+}
+
 static int EnDns_GetID(Actor* this)
 {
     int key;
+    int lastScene;
     int inGrotto;
 
     inGrotto = (gPlay->sceneId == SCE_OOT_GROTTOS);
-    key = KEY(inGrotto ? gLastScene : gPlay->sceneId, inGrotto, this->variable & 0xff);
+    lastScene = scrubSceneKey(gPlay, inGrotto);
+    key = KEY(lastScene, inGrotto, this->variable & 0xff);
+
     switch (key)
     {
     /* Lost Woods */
@@ -133,7 +153,7 @@ static s16 EnDns_GetPrice(Actor* this)
     int id;
 
     id = EnDns_GetID(this);
-    return (s16)gComboData.prices[PRICES_OOT_SCRUBS + id];
+    return (s16)gComboConfig.prices[PRICES_OOT_SCRUBS + id];
 }
 
 void EnDns_MaybeDestroy(Actor* this)
@@ -142,7 +162,7 @@ void EnDns_MaybeDestroy(Actor* this)
 
     EnDns_ItemOverride(&o, EnDns_GetID(this));
     if (o.gi == 0)
-        ActorDestroy(this);
+        Actor_Kill(this);
 }
 
 static int EnDns_CanBuy(Actor* this)
@@ -174,6 +194,7 @@ static void EnDns_ShopText(Actor* this, GameState_Play* play)
     char* b;
     char* start;
     s16 price;
+    u8 lineBreaks;
 
     EnDns_ItemQuery(&q, EnDns_GetID(this));
 
@@ -188,10 +209,25 @@ static void EnDns_ShopText(Actor* this, GameState_Play* play)
     comboTextAppendNum(&b, price);
     comboTextAppendStr(&b, " Rupees");
     comboTextAppendClearColor(&b);
-    comboTextAppendStr(&b, "?" TEXT_NL TEXT_CHOICE2 TEXT_COLOR_GREEN);
-    comboTextAppendStr(&b, "Yes" TEXT_NL);
-    comboTextAppendStr(&b, "No" TEXT_END);
+    comboTextAppendStr(&b, "?" TEXT_NL TEXT_END);
     comboTextAutoLineBreaks(start);
+
+    lineBreaks = 0;
+    for (int i = 0; start[i] != TEXT_END[0]; ++i)
+    {
+        if (start[i] == TEXT_NL[0])
+            lineBreaks++;
+    }
+
+    /* Ensure there are two line breaks */
+    b--;
+    while (lineBreaks < 2)
+    {
+        comboTextAppendStr(&b, TEXT_NL);
+        lineBreaks++;
+    }
+
+    comboTextAppendStr(&b, TEXT_CHOICE2 TEXT_COLOR_GREEN "Yes" TEXT_NL "No" TEXT_END);
 }
 
 static int EnDns_TalkedTo(Actor* this, GameState_Play* play)
@@ -211,8 +247,8 @@ static int EnDns_HasGivenItem(Actor* this)
     Actor_Player* link;
     int id;
 
-    link = GET_LINK(gPlay);
-    if (Actor_HasParent(this) && !(link->state & PLAYER_ACTOR_STATE_GET_ITEM))
+    link = GET_PLAYER(gPlay);
+    if (Actor_HasParentZ(this) && !(link->state & PLAYER_ACTOR_STATE_GET_ITEM))
     {
         id = EnDns_GetID(this);
         BITMAP8_SET(gCustomSave.scrubs, id);

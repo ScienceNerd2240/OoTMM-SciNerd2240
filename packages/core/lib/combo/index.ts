@@ -5,7 +5,7 @@ import { Monitor, MonitorCallbacks } from './monitor';
 import { worldState } from './logic';
 import { itemName } from './names';
 import { isShuffled } from './logic/is-shuffled';
-import { DEFAULT_SETTINGS, DUNGEONS, GLITCHES, makeSettings, mergeSettings, SettingCategory, SETTINGS, Settings, SETTINGS_CATEGORIES, SPECIAL_CONDS, SPECIAL_CONDS_FIELDS, TRICKS } from './settings';
+import { DEFAULT_SETTINGS, DUNGEONS, makeSettings, mergeSettings, SETTINGS, Settings, SPECIAL_CONDS, SPECIAL_CONDS_FIELDS, TRICKS } from './settings';
 import { SettingsPatch } from './settings/patch';
 import { makeCosmetics } from './cosmetics';
 import { makeRandomSettings } from './settings/random';
@@ -32,7 +32,7 @@ export type GeneratorParams = {
   monitor?: MonitorCallbacks
 };
 
-export type { GeneratorOutput, Settings, OptionsInput, SettingCategory, SettingsPatch };
+export type { GeneratorOutput, Settings, OptionsInput, SettingsPatch };
 
 type LocInfo = {
   [k: string]: string[]
@@ -43,12 +43,11 @@ export const generate = (params: GeneratorParams): Generator => {
   return new Generator(params.oot, params.mm, opts, params.monitor || {});
 };
 
-export { SETTINGS, DEFAULT_SETTINGS, SETTINGS_CATEGORIES, TRICKS, GLITCHES, itemName, DUNGEONS, mergeSettings, makeSettings, SPECIAL_CONDS, SPECIAL_CONDS_FIELDS };
+export { SETTINGS, DEFAULT_SETTINGS, TRICKS, itemName, DUNGEONS, mergeSettings, makeSettings, SPECIAL_CONDS, SPECIAL_CONDS_FIELDS };
 
 export type Items = {[k: string]: number};
 
-export const itemPool = (aSettings: Partial<Settings>): Items => {
-  const settings: Settings = { ...DEFAULT_SETTINGS, ...aSettings };
+export const itemPool = (settings: Settings): Items => {
   const cosmetics = makeCosmetics({});
   const monitor = new Monitor({ onLog: () => {} });
   const random = makeRandomSettings({});

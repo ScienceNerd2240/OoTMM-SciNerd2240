@@ -1,5 +1,6 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/config.h>
 
 static const s16 kGreatFairyRewards[] = {
     GI_MM_MASK_GREAT_FAIRY,
@@ -50,7 +51,7 @@ static void EnElfgrp_GiveReward(Actor* actor, GameState_Play* play)
     if (gMmExtraFlags.greatFairies & mask)
         return;
 
-    if (Actor_HasParent(actor))
+    if (Actor_HasParentZ(actor))
     {
         gMmExtraFlags.greatFairies |= mask;
         actor->parent = NULL;
@@ -68,7 +69,7 @@ static int EnElfgrp_GetFairyCount(GameState_Play* play, int type)
 {
     if (type == 0 || type > 4)
         return 0;
-    if (gSave.inventory.strayFairies[type - 1] >= 15)
+    if (gSave.inventory.strayFairies[type - 1] >= gComboConfig.strayFairyRewardCount)
         return 25;
     return 0;
 }
@@ -85,10 +86,17 @@ static void fairyHint(GameState_Play* play, int index)
     b = play->msgCtx.font.textBuffer.schar;
     comboTextAppendHeader(&b);
     start = b;
-    comboTextAppendStr(&b, "Young one, please help us! If you bring the " TEXT_COLOR_PINK "15 Stray Fairies");
+    comboTextAppendStr(&b, "Young one, please help us! If you bring the " TEXT_COLOR_PINK);
+    if (gComboConfig.strayFairyRewardCount > 1)
+    {
+        comboTextAppendNum(&b, gComboConfig.strayFairyRewardCount);
+        comboTextAppendStr(&b, " Stray Fairies");
+    }
+    else
+        comboTextAppendStr(&b, "Stray Fairy");
     comboTextAppendClearColor(&b);
     comboTextAppendStr(&b, " here, we will give you ");
-    comboTextAppendItemNameQueryEx(&b, &q, TF_PREPOS | TF_PROGRESSIVE, gComboData.staticHintsImportance[9 + (index - 2)]);
+    comboTextAppendItemNameQueryEx(&b, &q, TF_PREPOS | TF_PROGRESSIVE, gComboConfig.staticHintsImportance[9 + (index - 2)]);
     comboTextAppendStr(&b, "!" TEXT_END);
     comboTextAutoLineBreaks(start);
 }
@@ -108,9 +116,9 @@ static void fairyHintTown(GameState_Play* play)
     comboTextAppendStr(&b, "Young one, please help us! If you bring the missing " TEXT_COLOR_ORANGE "Stray Fairy");
     comboTextAppendClearColor(&b);
     comboTextAppendStr(&b, " here, we will give you ");
-    comboTextAppendItemNameQueryEx(&b, &q1, TF_PREPOS | TF_PROGRESSIVE, gComboData.staticHintsImportance[18]);
+    comboTextAppendItemNameQueryEx(&b, &q1, TF_PREPOS | TF_PROGRESSIVE, gComboConfig.staticHintsImportance[18]);
     comboTextAppendStr(&b, " and ");
-    comboTextAppendItemNameQueryEx(&b, &q2, TF_PREPOS | TF_PROGRESSIVE, gComboData.staticHintsImportance[19]);
+    comboTextAppendItemNameQueryEx(&b, &q2, TF_PREPOS | TF_PROGRESSIVE, gComboConfig.staticHintsImportance[19]);
     comboTextAppendStr(&b, "!" TEXT_END);
     comboTextAutoLineBreaks(start);
 }

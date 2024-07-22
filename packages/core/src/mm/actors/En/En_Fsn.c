@@ -1,5 +1,6 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/shop.h>
 
 static u8 sIsSecondReward;
 
@@ -39,7 +40,7 @@ PATCH_CALL(0x80ae3cd4, EnFsn_GiveNormalItem);
 
 int EnFsn_HasGivenShopItem(Actor_EnFsn* this, GameState_Play* play)
 {
-    if (!Actor_HasParent(&this->base))
+    if (!Actor_HasParentZ(&this->base))
         return 0;
 
     if (this->mode == 1)
@@ -47,7 +48,7 @@ int EnFsn_HasGivenShopItem(Actor_EnFsn* this, GameState_Play* play)
         /* Set item count to zero */
         *(u16*)((char*)this + 0x38c) = 0;
         MM_SET_EVENT_WEEK(EV_MM_WEEK_CURIOSITY_SHOP_BOUGHT);
-        comboShopAfterBuy(play, this->items[this->itemIndex]);
+        Shop_AfterBuy(play, this->items[this->itemIndex]);
     }
     else if (sIsSecondReward)
     {

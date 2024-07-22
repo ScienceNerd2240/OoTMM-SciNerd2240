@@ -1,6 +1,6 @@
 import { Item, ItemGroups, Items, ItemsCount } from '../items';
 import { ItemID } from '../items/defs';
-import { GLITCHES, SETTINGS, Settings, TRICKS } from '../settings';
+import { SETTINGS, Settings, TRICKS, TrickKey } from '../settings';
 import { Age } from './pathfind';
 import { PRICE_RANGES } from './price';
 import { ResolvedWorldFlags, WORLD_FLAGS, World } from './world';
@@ -52,24 +52,41 @@ export const MM_TIME_SLICES = [
   'NIGHT3_AM_05_00',
 ];
 
-//export type Expr = (state: State) => ExprResult;
-
+const CONSTRAINT_FLAGS = [
+  'MM_REGION_SWAMP_CURSED',
+  'MM_REGION_SWAMP_CLEARED',
+  'MM_REGION_NORTH_CURSED',
+  'MM_REGION_NORTH_CLEARED',
+  'MM_REGION_OCEAN_CURSED',
+  'MM_REGION_OCEAN_CLEARED',
+  'MM_REGION_VALLEY_CURSED',
+  'MM_REGION_VALLEY_CLEARED',
+];
 
 type RecursiveArray<T> = Array<T | RecursiveArray<T>>;
+
+type ExprDependencies = {
+  items: Set<Item>;
+  events: Set<string>;
+};
+
+const DEPENDENCIES_EMPTY: ExprDependencies = { items: new Set(), events: new Set() };
 
 type ExprResultFalse = {
   result: false;
   depItems: RecursiveArray<Item>;
   depEvents: RecursiveArray<string>;
-}
+};
 
 type ExprRestrictions = {
   oot: {
     day: boolean;
     night: boolean;
-  },
+  };
   mmTime: number;
   mmTime2: number;
+  flagsOn: number;
+  flagsOff: number;
 };
 
 export const defaultRestrictions = (): ExprRestrictions => ({
@@ -79,6 +96,8 @@ export const defaultRestrictions = (): ExprRestrictions => ({
   },
   mmTime: 0,
   mmTime2: 0,
+  flagsOn: 0,
+  flagsOff: 0,
 });
 
 export const maxRestrictions = (): ExprRestrictions => ({
@@ -88,17 +107,24 @@ export const maxRestrictions = (): ExprRestrictions => ({
   },
   mmTime: 0xffffffff,
   mmTime2: 0xffffffff,
+  flagsOn: 0xffffffff,
+  flagsOff: 0xffffffff,
 });
 
 export const isDefaultRestrictions = (r: ExprRestrictions): boolean => {
   return r.oot.day === false &&
     r.oot.night === false &&
     r.mmTime === 0 &&
-    r.mmTime2 === 0;
+    r.mmTime2 === 0 &&
+    r.flagsOn === 0 &&
+    r.flagsOff === 0;
 };
 
 function isRestrictionImpossible(r: ExprRestrictions): boolean {
   if (r.mmTime === 0xffffffff && r.mmTime2 === 0xffffffff) {
+    return true;
+  }
+  if (r.flagsOn & r.flagsOff) {
     return true;
   }
   return false;
@@ -109,7 +135,7 @@ type ExprResultTrue = {
   depItems: RecursiveArray<Item>;
   depEvents: RecursiveArray<string>;
   restrictions?: ExprRestrictions;
-}
+};
 
 export type ExprResult = ExprResultFalse | ExprResultTrue;
 
@@ -117,9 +143,11 @@ export type AreaData = {
   oot: {
     day: boolean;
     night: boolean;
-  },
+  };
   mmTime: number;
   mmTime2: number;
+  flagsOn: number;
+  flagsOff: number;
 };
 
 type State = {
@@ -128,7 +156,6 @@ type State = {
   licenses: ItemsCount;
   age: Age;
   events: Set<string>;
-  ignoreItems: boolean;
   areaData: AreaData;
   world: World;
   settings: Settings;
@@ -146,6 +173,8 @@ export const exprRestrictionsAnd = (exprs: ExprResult[]): ExprRestrictions => {
     restrictions.oot.night = restrictions.oot.night || expr.restrictions.oot.night;
     restrictions.mmTime = (restrictions.mmTime | expr.restrictions.mmTime) >>> 0;
     restrictions.mmTime2 = (restrictions.mmTime2 | expr.restrictions.mmTime2) >>> 0;
+    restrictions.flagsOn = (restrictions.flagsOn | expr.restrictions.flagsOn) >>> 0;
+    restrictions.flagsOff = (restrictions.flagsOff | expr.restrictions.flagsOff) >>> 0;
   }
 
   return restrictions;
@@ -156,12 +185,13 @@ export const exprRestrictionsOr = (exprs: ExprResult[]): ExprRestrictions => {
 
   for (const expr of exprs) {
     if (!expr.result) continue;
-    if (!expr.restrictions)
-      return defaultRestrictions();
+    if (!expr.restrictions) return defaultRestrictions();
     restrictions.oot.day = restrictions.oot.day && expr.restrictions.oot.day;
     restrictions.oot.night = restrictions.oot.night && expr.restrictions.oot.night;
     restrictions.mmTime = (restrictions.mmTime & expr.restrictions.mmTime) >>> 0;
     restrictions.mmTime2 = (restrictions.mmTime2 & expr.restrictions.mmTime2) >>> 0;
+    restrictions.flagsOn = (restrictions.flagsOn & expr.restrictions.flagsOn) >>> 0;
+    restrictions.flagsOff = (restrictions.flagsOff & expr.restrictions.flagsOff) >>> 0;
   }
 
   return restrictions;
@@ -170,19 +200,14 @@ export const exprRestrictionsOr = (exprs: ExprResult[]): ExprRestrictions => {
 const itemCount = (state: State, item: Item): number => state.items.get(item) || 0;
 const itemsCount = (state: State, items: Item[]): number => items.reduce((acc, item) => acc + itemCount(state, item), 0);
 
-function resolveSpecialCond(settings: Settings, state: State, special: string): ExprResult {
+function specialCondSets(settings: Settings, special: string) {
   const { specialConds } = settings;
   if (!specialConds.hasOwnProperty(special)) {
     throw new Error(`Unknown special condition: ${special}`);
   }
-
-  if (state.ignoreItems) {
-    return { result: true, depItems: [], depEvents: [] };
-  }
-
+  const cond = specialConds[special as keyof typeof specialConds];
   let items = new Set<Item>();
   let itemsUnique = new Set<Item>();
-  const cond = specialConds[special as keyof typeof specialConds];
 
   if (cond.stones) itemsUnique = new Set([...itemsUnique, ...ItemGroups.STONES]);
   if (cond.medallions) itemsUnique = new Set([...itemsUnique, ...ItemGroups.MEDALLIONS]);
@@ -204,14 +229,38 @@ function resolveSpecialCond(settings: Settings, state: State, special: string): 
   if (cond.coinsBlue) items.add(Items.OOT_COIN_BLUE);
   if (cond.coinsYellow) items.add(Items.OOT_COIN_YELLOW);
 
-  const countUnique = [...itemsUnique].filter(item => itemCount(state, item) > 0).length;
-  const result = (itemsCount(state, [...items]) + countUnique) >= cond.count;
+  return { items, itemsUnique };
+}
+
+function resolveSpecialCond(settings: Settings, state: State, special: string): ExprResult {
+  const { items, itemsUnique } = specialCondSets(settings, special);
+  const { specialConds } = settings;
+  const cond = specialConds[special as keyof typeof specialConds];
+
+  const countUnique = [...itemsUnique].filter((item) => itemCount(state, item) > 0).length;
+  const result = itemsCount(state, [...items]) + countUnique >= cond.count;
 
   return { result, depEvents: [], depItems: [...items, ...itemsUnique] };
 }
 
 const exprMap = new Map<string, Expr>();
 const exprKeyId = new Map<string, number>();
+
+function mergeDependencies(deps: ExprDependencies[]): ExprDependencies {
+  const items = new Set<Item>();
+  const events = new Set<string>();
+
+  for (const d of deps) {
+    for (const i of d.items) {
+      items.add(i);
+    }
+    for (const e of d.events) {
+      events.add(e);
+    }
+  }
+
+  return { items, events };
+}
 
 export abstract class Expr {
   readonly key: string;
@@ -224,7 +273,7 @@ export abstract class Expr {
   visit(cb: (expr: Expr) => void) {
     cb(this);
   }
-};
+}
 
 export abstract class ExprContainer extends Expr {
   readonly exprs: Expr[];
@@ -240,7 +289,10 @@ export abstract class ExprContainer extends Expr {
       e.visit(cb);
     }
   }
-};
+}
+
+const RESULT_TRUE: ExprResultTrue = { result: true, depItems: [], depEvents: [] };
+const RESULT_FALSE: ExprResultFalse = { result: false, depItems: [], depEvents: [] };
 
 class ExprTrue extends Expr {
   constructor() {
@@ -248,9 +300,9 @@ class ExprTrue extends Expr {
   }
 
   eval(_state: State): ExprResult {
-    return { result: true, depItems: [], depEvents: [] };
+    return RESULT_TRUE;
   }
-};
+}
 
 class ExprFalse extends Expr {
   constructor() {
@@ -258,9 +310,9 @@ class ExprFalse extends Expr {
   }
 
   eval(_state: State): ExprResult {
-    return { result: false, depItems: [], depEvents: [] };
+    return RESULT_FALSE;
   }
-};
+}
 
 export class ExprAnd extends ExprContainer {
   constructor(exprs: Expr[]) {
@@ -276,23 +328,23 @@ export class ExprAnd extends ExprContainer {
 
       /* Early exit */
       if (!r.result) {
-        return { result: false, depItems: results.map(x => x.depItems), depEvents: results.map(x => x.depEvents) };
+        return { result: false, depItems: results.map((x) => x.depItems), depEvents: results.map((x) => x.depEvents) };
       }
     }
 
     const restrictions = exprRestrictionsAnd(results);
     /* Check for a contradiction (a restriction that prevents everything) */
     if (isRestrictionImpossible(restrictions)) {
-      return { result: false, depItems: results.map(x => x.depItems), depEvents: results.map(x => x.depEvents) };
+      return { result: false, depItems: results.map((x) => x.depItems), depEvents: results.map((x) => x.depEvents) };
     }
 
     if (isDefaultRestrictions(restrictions)) {
-      return { result: true, depItems: [], depEvents: [] };
+      return RESULT_TRUE;
     } else {
-      return { result: true, depItems: results.map(x => x.depItems), depEvents: results.map(x => x.depEvents), restrictions };
+      return { result: true, depItems: results.map((x) => x.depItems), depEvents: results.map((x) => x.depEvents), restrictions };
     }
   }
-};
+}
 
 export class ExprOr extends ExprContainer {
   constructor(exprs: Expr[]) {
@@ -310,7 +362,7 @@ export class ExprOr extends ExprContainer {
       if (r.result) {
         result = true;
         if (!r.restrictions) {
-          return { result: true, depItems: [], depEvents: [] };
+          return RESULT_TRUE;
         }
       }
     }
@@ -318,15 +370,15 @@ export class ExprOr extends ExprContainer {
     if (result) {
       const restrictions = exprRestrictionsOr(results);
       if (isDefaultRestrictions(restrictions)) {
-        return { result: true, depItems: [], depEvents: [] };
+        return RESULT_TRUE;
       } else {
-        return { result: true, depItems: results.map(x => x.depItems), depEvents: results.map(x => x.depEvents), restrictions };
+        return { result: true, depItems: results.map((x) => x.depItems), depEvents: results.map((x) => x.depEvents), restrictions };
       }
     } else {
-      return { result: false, depItems: results.map(x => x.depItems), depEvents: results.map(x => x.depEvents) };
+      return { result: false, depItems: results.map((x) => x.depItems), depEvents: results.map((x) => x.depEvents) };
     }
   }
-};
+}
 
 export class ExprAge extends Expr {
   readonly age: Age;
@@ -338,91 +390,115 @@ export class ExprAge extends Expr {
   }
 
   eval(state: State): ExprResult {
-    const result = state.age === this.age;
-    return { result, depItems: [], depEvents: [] };
+    return (state.age === this.age) ? RESULT_TRUE : RESULT_FALSE;
   }
-};
+}
 
-class ExprHas extends Expr {
+export class ExprHas extends Expr {
   readonly item: Item;
   readonly count: number;
+  private readonly resultFalse: ExprResultFalse;
 
   constructor(item: Item, count: number) {
     const key = `HAS(${item.id},${count})`;
     super(key);
     this.item = item;
     this.count = count;
+    this.resultFalse = { result: false, depItems: [item], depEvents: [] };
   }
 
   eval(state: State): ExprResult {
-    const result = (state.ignoreItems || (itemCount(state, this.item) >= this.count));
-    return { result, depItems: [this.item], depEvents: [] };
+    if (itemCount(state, this.item) >= this.count) {
+      return RESULT_TRUE;
+    } else {
+      return this.resultFalse;
+    }
   }
-};
+}
 
-class ExprRenewable extends Expr {
+export class ExprRenewable extends Expr {
   readonly item: Item;
+  readonly resultFalse: ExprResultFalse;
 
   constructor(item: Item) {
     const key = `RENEWABLE(${item.id})`;
     super(key);
     this.item = item;
+    this.resultFalse = { result: false, depItems: [item], depEvents: [] };
   }
 
   eval(state: State): ExprResult {
-    const result = (state.ignoreItems || (state.renewables.get(this.item) || 0) > 0);
-    return { result, depItems: [this.item], depEvents: [] };
+    if ((state.renewables.get(this.item) || 0) > 0) {
+      return RESULT_TRUE;
+    } else {
+      return this.resultFalse;
+    }
   }
-};
+}
 
-class ExprLicense extends Expr {
+export class ExprLicense extends Expr {
   readonly item: Item;
+  readonly resultFalse: ExprResultFalse;
 
   constructor(item: Item) {
     const key = `LICENSE(${item.id})`;
     super(key);
     this.item = item;
+    this.resultFalse = { result: false, depItems: [item], depEvents: [] };
   }
 
   eval(state: State): ExprResult {
-    const result = (state.ignoreItems || (state.licenses.get(this.item) || 0) > 0);
-    return { result, depItems: [this.item], depEvents: [] };
+    if ((state.licenses.get(this.item) || 0) > 0) {
+      return RESULT_TRUE;
+    } else {
+      return this.resultFalse;
+    }
   }
-};
+}
 
 class ExprEvent extends Expr {
   readonly event: string;
+  readonly resultFalse: ExprResultFalse;
 
   constructor(event: string) {
     super(`EVENT(${event})`);
     this.event = event;
+    this.resultFalse = { result: false, depItems: [], depEvents: [event] };
   }
 
   eval(state: State): ExprResult {
-    const result = state.events.has(this.event);
-    return { result, depItems: [], depEvents: [this.event] };
+    if (state.events.has(this.event)) {
+      return RESULT_TRUE;
+    } else {
+      return this.resultFalse;
+    }
   }
-};
+}
 
 class ExprMasks extends Expr {
   readonly count: number;
+  readonly resultFalse: ExprResultFalse;
 
   constructor(count: number) {
     super(`MASKS(${count})`);
     this.count = count;
+    this.resultFalse = { result: false, depItems: [...ItemGroups.MASKS_REGULAR], depEvents: [] };
   }
 
   eval(state: State): ExprResult {
-    const result = state.ignoreItems || (itemsCount(state, [...ItemGroups.MASKS_REGULAR]) >= this.count);
-    return { result, depItems: [...ItemGroups.MASKS_REGULAR], depEvents: [] };
+    if (itemsCount(state, [...ItemGroups.MASKS_REGULAR]) >= this.count) {
+      return RESULT_TRUE;
+    } else {
+      return this.resultFalse;
+    }
   }
-};
+}
 
 class ExprSpecial extends Expr {
   readonly type = 'special';
   readonly special: string;
 
-  constructor(special: string) {
+  constructor(settings: Settings, special: string) {
     super(`SPECIAL(${special})`);
     this.special = special;
   }
@@ -430,7 +506,7 @@ class ExprSpecial extends Expr {
   eval(state: State): ExprResult {
     return resolveSpecialCond(state.settings, state, this.special);
   }
-};
+}
 
 class ExprTimeOot extends Expr {
   readonly time: 'day' | 'night';
@@ -448,14 +524,10 @@ class ExprTimeOot extends Expr {
       restrictions.oot[negation] = true;
       return { result: true, depItems: [], depEvents: [], restrictions };
     } else {
-      return {
-        result: false,
-        depItems: [],
-        depEvents: [],
-      };
+      return RESULT_FALSE;
     }
   }
-};
+}
 
 class ExprTimeMm extends Expr {
   readonly value: number;
@@ -468,20 +540,16 @@ class ExprTimeMm extends Expr {
   }
 
   eval(state: State): ExprResult {
-    if ((state.areaData.mmTime & this.value) || (state.areaData.mmTime2 & this.value2)) {
+    if (state.areaData.mmTime & this.value || state.areaData.mmTime2 & this.value2) {
       const restrictions = defaultRestrictions();
-      restrictions.mmTime = ~(this.value) >>> 0;
-      restrictions.mmTime2 = ~(this.value2) >>> 0;
+      restrictions.mmTime = ~this.value >>> 0;
+      restrictions.mmTime2 = ~this.value2 >>> 0;
       return { result: true, restrictions, depItems: [], depEvents: [] };
     } else {
-      return {
-        result: false,
-        depItems: [],
-        depEvents: [],
-      };
+      return RESULT_FALSE;
     }
   }
-};
+}
 
 class ExprPrice extends Expr {
   readonly slot: number;
@@ -495,8 +563,47 @@ class ExprPrice extends Expr {
 
   eval(state: State): ExprResult {
     const price = state.world.prices[this.slot];
-    const result = price <= this.max;
-    return { result, depItems: [], depEvents: [] };
+    return price <= this.max ? RESULT_TRUE : RESULT_FALSE;
+  }
+}
+
+class ExprFlagOn extends Expr {
+  readonly result: ExprResult;
+  readonly flagBit: number;
+
+  constructor(flag: number) {
+    super(`FLAG_ON(${flag})`);
+    this.flagBit = ((1 << flag) >>> 0);
+    this.result = { ...RESULT_TRUE };
+    this.result.restrictions = defaultRestrictions();
+    this.result.restrictions.flagsOn = this.flagBit;
+  }
+
+  eval(state: State): ExprResult {
+    if (state.areaData.flagsOff & this.flagBit) {
+      return RESULT_FALSE;
+    }
+    return this.result;
+  }
+};
+
+class ExprFlagOff extends Expr {
+  readonly result: ExprResult;
+  readonly flagBit: number;
+
+  constructor(flag: number) {
+    super(`FLAG_OFF(${flag})`);
+    this.flagBit = ((1 << flag) >>> 0);
+    this.result = { ...RESULT_TRUE };
+    this.result.restrictions = defaultRestrictions();
+    this.result.restrictions.flagsOff = this.flagBit;
+  }
+
+  eval(state: State): ExprResult {
+    if (state.areaData.flagsOn & this.flagBit) {
+      return RESULT_FALSE;
+    }
+    return this.result;
   }
 };
 
@@ -521,16 +628,19 @@ export const exprTrue = () => EXPR_TRUE;
 export const exprFalse = () => EXPR_FALSE;
 
 function subkey(exprs: Expr[]): string {
-  return exprs.map(x => exprKeyId.get(x.key)).sort().join(',');
+  return exprs
+    .map((x) => exprKeyId.get(x.key))
+    .sort()
+    .join(',');
 }
 
 export const exprAnd = (exprs: Expr[]): Expr => {
   /* Parse-time Optimizations */
-  exprs = exprs.filter(x => x !== EXPR_TRUE);
+  exprs = exprs.filter((x) => x !== EXPR_TRUE);
   if (exprs.length === 0) {
     return EXPR_TRUE;
   }
-  if (exprs.some(x => x === EXPR_FALSE)) {
+  if (exprs.some((x) => x === EXPR_FALSE)) {
     return EXPR_FALSE;
   }
 
@@ -544,11 +654,11 @@ export const exprAnd = (exprs: Expr[]): Expr => {
 
 export const exprOr = (exprs: Expr[]): Expr => {
   /* Optimizations */
-  exprs = exprs.filter(x => x !== EXPR_FALSE);
+  exprs = exprs.filter((x) => x !== EXPR_FALSE);
   if (exprs.length === 0) {
     return EXPR_FALSE;
   }
-  if (exprs.some(x => x === EXPR_TRUE)) {
+  if (exprs.some((x) => x === EXPR_TRUE)) {
     return EXPR_TRUE;
   }
 
@@ -578,9 +688,12 @@ export const exprNot = (expr: Expr): Expr => {
 export const exprAge = (age: Age): Expr => {
   /* Avoids creating a new object for every call */
   switch (age) {
-  case 'child': return EXPR_AGE_CHILD;
-  case 'adult': return EXPR_AGE_ADULT;
-  default: throw new Error(`Invalid age: ${age}`);
+    case 'child':
+      return EXPR_AGE_CHILD;
+    case 'adult':
+      return EXPR_AGE_ADULT;
+    default:
+      throw new Error(`Invalid age: ${age}`);
   }
 };
 
@@ -608,8 +721,8 @@ export const exprMasks = (count: number): Expr => {
   return exprMemo(new ExprMasks(count));
 };
 
-export const exprSpecial = (special: string): Expr => {
-  return exprMemo(new ExprSpecial(special));
+export const exprSpecial = (settings: Settings, special: string): Expr => {
+  return exprMemo(new ExprSpecial(settings, special));
 };
 
 export const exprSetting = (settings: Settings, resolvedFlags: ResolvedWorldFlags, setting: string, value: any): Expr => {
@@ -619,8 +732,8 @@ export const exprSetting = (settings: Settings, resolvedFlags: ResolvedWorldFlag
       throw new Error(`Unknown world flag: ${setting}`);
     }
     const f = resolvedFlags[setting as keyof typeof resolvedFlags];
-    const s = SETTINGS.find(x => x.key === f.setting)!;
-    if (!((s as any).values as any[]).some(x => x.value === value)) {
+    const s = SETTINGS.find((x) => x.key === f.setting)!;
+    if (!((s as any).values as any[]).some((x) => x.value === value)) {
       throw new Error(`Invalid world flag value: ${value} (for flag: ${setting})`);
     }
 
@@ -643,21 +756,17 @@ export const exprTrick = (settings: Settings, trick: string): Expr => {
   if (!TRICKS.hasOwnProperty(trick)) {
     throw new Error(`Trick ${trick} not found`);
   }
-  return settings.tricks.includes(trick as keyof typeof TRICKS) ? EXPR_TRUE : EXPR_FALSE;
-};
-
-export const exprGlitch = (settings: Settings, glitch: string): Expr => {
-  if (!GLITCHES.hasOwnProperty(glitch)) {
-    throw new Error(`Glitch ${glitch} not found`);
-  }
-  return settings.glitches.includes(glitch as keyof typeof GLITCHES) ? EXPR_TRUE : EXPR_FALSE;
+  return settings.tricks.includes(trick as TrickKey) ? EXPR_TRUE : EXPR_FALSE;
 };
 
 export const exprOotTime = (time: string): Expr => {
   switch (time) {
-  case 'day': return EXPR_TIME_OOT_DAY;
-  case 'night': return EXPR_TIME_OOT_NIGHT;
-  default: throw new Error(`Invalid OoT time: ${time}`);
+    case 'day':
+      return EXPR_TIME_OOT_DAY;
+    case 'night':
+      return EXPR_TIME_OOT_NIGHT;
+    default:
+      throw new Error(`Invalid OoT time: ${time}`);
   }
 };
 
@@ -675,65 +784,65 @@ export const exprMmTime = (operator: string, sliceNames: string[]): Expr => {
   }
 
   switch (operator) {
-  case 'before':
-    /* Time < slice */
-    if (slices.length !== 1) {
-      throw new Error(`Wrong number of MM time slices for operator ${operator}`);
-    }
-    for (let i = 0; i < slices[0]; ++i)
-      if (i < 32) {
-        value = (value | (1 << i)) >>> 0;
-      } else {
-        value2 = (value2 | (1 << (i - 32))) >>> 0;
+    case 'before':
+      /* Time < slice */
+      if (slices.length !== 1) {
+        throw new Error(`Wrong number of MM time slices for operator ${operator}`);
       }
-    break;
-  case 'after':
-    /* Time >= slice */
-    if (slices.length !== 1) {
-      throw new Error(`Wrong number of MM time slices for operator ${operator}`);
-    }
-    for (let i = slices[0]; i < MM_TIME_SLICES.length; ++i)
-      if (i < 32) {
-        value = (value | (1 << i)) >>> 0;
-      } else {
-        value2 = (value2 | (1 << (i - 32))) >>> 0;
+      for (let i = 0; i < slices[0]; ++i)
+        if (i < 32) {
+          value = (value | (1 << i)) >>> 0;
+        } else {
+          value2 = (value2 | (1 << (i - 32))) >>> 0;
+        }
+      break;
+    case 'after':
+      /* Time >= slice */
+      if (slices.length !== 1) {
+        throw new Error(`Wrong number of MM time slices for operator ${operator}`);
       }
-    break;
-  case 'at':
-    /* Time == slice */
-    if (slices.length !== 1) {
-      throw new Error(`Wrong number of MM time slices for operator ${operator}`);
-    }
-    if (slices[0] < 32) {
-      value = (1 << slices[0]) >>> 0;
-    } else {
-      value2 = (1 << (slices[0] - 32)) >>> 0;
-    }
-    break;
-  case 'between':
-    /* Time >= slice1 && Time < slice2 */
-    if (slices.length !== 2) {
-      throw new Error(`Wrong number of MM time slices for operator ${operator}`);
-    }
-    for (let i = slices[0]; i < slices[1]; ++i) {
-      if (i < 32) {
-        value = (value | (1 << i)) >>> 0;
-      } else {
-        value2 = (value2 | (1 << (i - 32))) >>> 0;
+      for (let i = slices[0]; i < MM_TIME_SLICES.length; ++i)
+        if (i < 32) {
+          value = (value | (1 << i)) >>> 0;
+        } else {
+          value2 = (value2 | (1 << (i - 32))) >>> 0;
+        }
+      break;
+    case 'at':
+      /* Time == slice */
+      if (slices.length !== 1) {
+        throw new Error(`Wrong number of MM time slices for operator ${operator}`);
       }
-    }
-    break;
-  default:
-    throw new Error(`Invalid MM time operator: ${operator}`);
+      if (slices[0] < 32) {
+        value = (1 << slices[0]) >>> 0;
+      } else {
+        value2 = (1 << (slices[0] - 32)) >>> 0;
+      }
+      break;
+    case 'between':
+      /* Time >= slice1 && Time < slice2 */
+      if (slices.length !== 2) {
+        throw new Error(`Wrong number of MM time slices for operator ${operator}`);
+      }
+      for (let i = slices[0]; i < slices[1]; ++i) {
+        if (i < 32) {
+          value = (value | (1 << i)) >>> 0;
+        } else {
+          value2 = (value2 | (1 << (i - 32))) >>> 0;
+        }
+      }
+      break;
+    default:
+      throw new Error(`Invalid MM time operator: ${operator}`);
   }
 
   return exprMemo(new ExprTimeMm(value, value2));
-}
+};
 
 export const exprPrice = (range: string, id: number, max: number): Expr => {
   const slot = id + PRICE_RANGES[range];
   return exprMemo(new ExprPrice(slot, max));
-}
+};
 
 export const exprFish = (ageAndType: string, minPounds: number, maxPounds: number): Expr => {
   const items: Item[] = [];
@@ -744,6 +853,22 @@ export const exprFish = (ageAndType: string, minPounds: number, maxPounds: numbe
     items.push(item);
   }
 
-  const exprs = items.map(item => exprHas(item, 1));
+  const exprs = items.map((item) => exprHas(item, 1));
   return exprOr(exprs);
 };
+
+export const exprFlagOn = (flag: string): Expr => {
+  const index = CONSTRAINT_FLAGS.indexOf(flag);
+  if (index === -1) {
+    throw new Error(`Unknown constraint flag: ${flag}`);
+  }
+  return exprMemo(new ExprFlagOn(index));
+}
+
+export const exprFlagOff = (flag: string): Expr => {
+  const index = CONSTRAINT_FLAGS.indexOf(flag);
+  if (index === -1) {
+    throw new Error(`Unknown constraint flag: ${flag}`);
+  }
+  return exprMemo(new ExprFlagOff(index));
+}

@@ -18,6 +18,8 @@ export const WORLD_FLAGS = [
   'smallKeyRingMm',
   'silverRupeePouches',
   'openDungeonsMm',
+  'openDungeonsOot',
+  'mmPreActivatedOwls'
 ] as const;
 
 type WorldFlag = typeof WORLD_FLAGS[number];
@@ -81,26 +83,44 @@ function resolveWorldFlags(settings: Settings, random: Random): ResolvedWorldFla
   return result;
 }
 
+export const BOSS_INDEX_BY_DUNGEON = {
+  DT: 0,
+  DC: 1,
+  JJ: 2,
+  Forest: 3,
+  Fire: 4,
+  Water: 5,
+  Shadow: 6,
+  Spirit: 7,
+  WF: 8,
+  SH: 9,
+  GB: 10,
+  IST: 11,
+} as {[k: string]: number};
+
 export type ExprMap = {
   [k: string]: Expr;
 }
 
-export type WorldArea = {
-  game: Game;
-  boss: boolean;
-  ageChange: boolean;
-  dungeon: string | null;
+export type WorldAreaExprs = {
   exits: ExprMap;
   events: ExprMap;
   locations: ExprMap;
   gossip: ExprMap;
   stay: Expr[] | null;
+};
+
+export type WorldArea = WorldAreaExprs & {
+  game: Game;
+  boss: boolean;
+  ageChange: boolean;
+  dungeon: string | null;
   time: 'still' | 'day' | 'night' | 'flow';
   region: string;
 };
 
 type WorldCheckNumeric = {
-  type: 'chest' | 'collectible' | 'gs' | 'sf' | 'cow' | 'shop' | 'scrub' | 'sr' | 'pot' | 'grass' | 'fish' | 'fairy' | 'rupee' | 'heart' | 'fairy_spot';
+  type: 'chest' | 'collectible' | 'gs' | 'sf' | 'cow' | 'shop' | 'scrub' | 'sr' | 'pot' | 'crate' | 'grass' | 'wonder' | 'fish' | 'fairy' | 'rupee' | 'heart' | 'fairy_spot';
   id: number;
 };
 
@@ -126,6 +146,13 @@ export type ExprParsers = {
   mm: ExprParser;
 }
 
+export type WorldAreaExprsGraph = {[k: string]: WorldAreaExprs};
+
+export type WorldOptimized = {
+  child: WorldAreaExprsGraph;
+  adult: WorldAreaExprsGraph;
+};
+
 export type World = {
   areas: { [k: string]: WorldArea };
   checks: { [k: string]: WorldCheck };
@@ -139,11 +166,11 @@ export type World = {
   prices: number[];
   mq: Set<string>;
   bossIds: number[];
-  dungeonIds: number[];
   entranceOverrides: Map<string, string>;
   preCompleted: Set<string>;
   resolvedFlags: ResolvedWorldFlags;
   exprParsers: ExprParsers;
+  optimized: WorldOptimized | null;
 };
 
 export const DUNGEONS_REGIONS: { [k: string]: string } = {
@@ -160,12 +187,12 @@ export const DUNGEONS_REGIONS: { [k: string]: string } = {
   GTG: "OOT_GERUDO_TRAINING_GROUNDS",
   GF: "OOT_THIEVES_HIDEOUT",
   Ganon: "OOT_GANON_CASTLE",
-  Tower: "OOT_GANON_CASTLE",
+  Tower: "OOT_GANON_CASTLE_TOWER",
   WF: "MM_TEMPLE_WOODFALL",
   SH: "MM_TEMPLE_SNOWHEAD",
   GB: "MM_TEMPLE_GREAT_BAY",
   ST: "MM_TEMPLE_STONE_TOWER",
-  IST: "MM_TEMPLE_STONE_TOWER",
+  IST: "MM_TEMPLE_STONE_TOWER_INVERTED",
   SSH: "MM_SPIDER_HOUSE_SWAMP",
   OSH: "MM_SPIDER_HOUSE_OCEAN",
   BtW: "MM_BENEATH_THE_WELL",
@@ -194,19 +221,44 @@ function cloneChecks(checks: { [k: string]: WorldCheck }): { [k: string]: WorldC
   return result;
 }
 
-function cloneWorldArea(worldArea: WorldArea): WorldArea {
+function cloneWorldAreaExprs(worldArea: WorldAreaExprs): WorldAreaExprs {
   return {
-    game: worldArea.game,
-    boss: worldArea.boss,
-    ageChange: worldArea.ageChange,
-    dungeon: worldArea.dungeon,
     exits: { ...worldArea.exits },
     events: { ...worldArea.events },
     locations: { ...worldArea.locations },
     gossip: { ...worldArea.gossip },
     stay: worldArea.stay ? [...worldArea.stay] : null,
+  };
+}
+
+function cloneWorldAreaExprsGraph(worldAreaExprsGraph: WorldAreaExprsGraph): WorldAreaExprsGraph {
+  const result: WorldAreaExprsGraph = {};
+  for (const [k, v] of Object.entries(worldAreaExprsGraph)) {
+    result[k] = cloneWorldAreaExprs(v);
+  }
+  return result;
+};
+
+function cloneWorldArea(worldArea: WorldArea): WorldArea {
+  return {
+    ...cloneWorldAreaExprs(worldArea),
+    game: worldArea.game,
+    boss: worldArea.boss,
+    ageChange: worldArea.ageChange,
+    dungeon: worldArea.dungeon,
     time: worldArea.time,
     region: worldArea.region,
+  };
+}
+
+function cloneWorldOptimized(worldOptimized: WorldOptimized | null): WorldOptimized | null {
+  if (!worldOptimized) {
+    return null;
+  }
+
+  return {
+    child: cloneWorldAreaExprsGraph(worldOptimized.child),
+    adult: cloneWorldAreaExprsGraph(worldOptimized.adult),
   };
 }
 
@@ -225,11 +277,22 @@ export function cloneWorld(world: World): World {
     mq: new Set(world.mq),
     preCompleted: new Set(world.preCompleted),
     bossIds: [...world.bossIds],
-    dungeonIds: [...world.dungeonIds],
     entranceOverrides: new Map(world.entranceOverrides),
     resolvedFlags: world.resolvedFlags,
     exprParsers: world.exprParsers,
+    optimized: cloneWorldOptimized(world.optimized),
   };
+}
+
+export function optimizedWorldView(world: World): WorldOptimized {
+  if (!world.optimized) {
+    return {
+      child: world.areas,
+      adult: world.areas,
+    }
+  };
+
+  return world.optimized;
 }
 
 export class LogicPassWorld {
@@ -265,7 +328,34 @@ export class LogicPassWorld {
   private createWorld(): World {
     this.world = this.makeDefaultWorld();
     for (const g of GAMES) {
-      this.loadGame(g);
+      if (this.state.settings.games === 'ootmm' || this.state.settings.games === g)
+        this.loadGame(g);
+    }
+    if (this.state.settings.games === 'oot') {
+      for (const a of Object.values(this.world.areas)) {
+        delete a.exits['MM Clock Town'];
+      }
+    }
+    if (this.state.settings.games === 'mm') {
+      for (const a of Object.values(this.world.areas)) {
+        delete a.exits['OOT Market'];
+      }
+
+      this.world.areas['OOT SPAWN'] = {
+        game: 'mm',
+        boss: false,
+        ageChange: false,
+        dungeon: null,
+        exits: {
+          'MM Clock Town': exprTrue(),
+        },
+        events: {},
+        locations: {},
+        gossip: {},
+        stay: null,
+        time: 'still',
+        region: 'NONE',
+      };
     }
     return this.world;
   }
@@ -281,6 +371,9 @@ export class LogicPassWorld {
       this.loadMacros(g, parser);
       exprParsers[g] = parser;
     }
+
+    /* Expr parser settings */
+    exprParsers.mm.addVar('STRAY_FAIRY_COUNT', this.state.settings.strayFairyRewardCount);
 
     /* MQ */
     const mq = new Set<string>;
@@ -311,11 +404,11 @@ export class LogicPassWorld {
       prices,
       mq,
       preCompleted: new Set(),
-      bossIds: [],
-      dungeonIds: [],
+      bossIds: Object.values(BOSS_INDEX_BY_DUNGEON),
       entranceOverrides: new Map,
       resolvedFlags,
       exprParsers,
+      optimized: null,
     };
   }
 
@@ -347,6 +440,25 @@ export class LogicPassWorld {
   }
 
   private loadAreas(game: Game, exprParser: ExprParser) {
+    if (game === 'oot' && this.state.settings.games === 'mm') {
+      this.world.areas['OOT SPAWN'] = {
+        game: 'oot',
+        boss: false,
+        ageChange: false,
+        dungeon: null,
+        exits: {
+          'MM Clock Town': exprTrue(),
+        },
+        events: {},
+        locations: {},
+        gossip: {},
+        stay: null,
+        time: 'still',
+        region: 'NONE',
+      };
+      return;
+    }
+
     const data = WORLD[game];
     for (let areaSetName in data) {
       let areaSet = (data as any)[areaSetName];

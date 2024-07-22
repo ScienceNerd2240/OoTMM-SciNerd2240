@@ -7,7 +7,6 @@ import { DEFAULT_DUNGEONS } from './dungeons';
 import { DEFAULT_SPECIAL_COND, DEFAULT_SPECIAL_CONDS, SPECIAL_CONDS, SPECIAL_CONDS_FIELDS } from './special-conds';
 import { SettingsPatch, patchArray } from './patch';
 import { SETTINGS_DEFAULT_HINTS } from './hints';
-import { DEFAULT_GLITCHES, GLITCHES } from './glitches';
 
 export const DEFAULT_SETTINGS: Settings = { ...SETTINGS.map(s => {
   if (s.type === 'set') {
@@ -19,7 +18,6 @@ export const DEFAULT_SETTINGS: Settings = { ...SETTINGS.map(s => {
   startingItems: {},
   junkLocations: [] as string[],
   tricks: [ ...DEFAULT_TRICKS ],
-  glitches: [ ...DEFAULT_GLITCHES ],
   dungeon: { ...DEFAULT_DUNGEONS },
   specialConds: { ...DEFAULT_SPECIAL_CONDS },
   plando: { locations: {} },
@@ -35,9 +33,6 @@ function validateSettingsStep(settings: Settings): Settings {
 
   /* Validate tricks */
   s.tricks = sortUnique(s.tricks.filter(t => TRICKS.hasOwnProperty(t)));
-
-  /* Validate glitches */
-  s.glitches = sortUnique(s.glitches.filter(g => GLITCHES.hasOwnProperty(g)));
 
   /* Validate junk locations */
   s.junkLocations = sortUnique(s.junkLocations);
@@ -68,18 +63,35 @@ function validateSettingsStep(settings: Settings): Settings {
     }
   }
 
+  /* Hardcoded game checks */
+  if (s.goal === 'both') {
+    if (s.games === 'oot') s.goal = 'ganon';
+    if (s.games === 'mm') s.goal = 'majora';
+  }
+
   /* Specific validation */
   for (const data of SETTINGS) {
     const key = data.key;
     const cond = (data as any).cond;
     const min = (data as any).min;
     const max = (data as any).max;
+    const defaultV = data.default;
 
     if (cond && !cond(s)) {
       if (data.type === 'set') {
-        (s as any)[key] = { type: data.default };
+        (s as any)[key] = { type: defaultV };
       } else {
-        (s as any)[key] = data.default;
+        (s as any)[key] = defaultV;
+      }
+    }
+
+    if (data.type === 'enum') {
+      const curV = (s as any)[key];
+      const enumD = (data as any).values.find((x: any) => x.value === curV);
+      if (enumD) {
+        if (enumD.cond && !enumD.cond(s)) {
+          (s as any)[key] = defaultV;
+        }
       }
     }
 
@@ -166,11 +178,6 @@ export function makeSettings(arg: PartialDeep<Settings>): Settings {
     result.tricks = [ ...arg.tricks ];
   }
 
-  /* Apply the glitches */
-  if (arg.glitches !== undefined && Array.isArray(arg.glitches)) {
-    result.glitches = [ ...arg.glitches ];
-  }
-
   /* Apply dungeon settings */
   if (arg.dungeon !== undefined) {
     result.dungeon = { ...DEFAULT_DUNGEONS, ...arg.dungeon };
@@ -215,10 +222,6 @@ export function mergeSettings(settings: Settings, patch: SettingsPatch): Setting
   /* Apply tricks */
   if (patch.tricks !== undefined)
     s.tricks = patchArray(s.tricks, patch.tricks);
-
-  /* Apply glitches */
-  if (patch.glitches !== undefined)
-    s.glitches = patchArray(s.glitches, patch.glitches);
 
   /* Apply dungeons */
   if (patch.dungeon) {

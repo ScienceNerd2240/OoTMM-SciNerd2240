@@ -14,7 +14,7 @@ async function makeDataPromise(path: string) {
 
 const dataPromise = makeDataPromise(dataVersionZipFile).then(data => JSZip.loadAsync(data));
 
-async function fetchFunc(path: string) {
+async function resolverFetchFunc(path: string) {
   const zip = await dataPromise;
   const file = zip.file(path);
   if (file) {
@@ -22,6 +22,11 @@ async function fetchFunc(path: string) {
   } else {
     throw new Error(`Failed to unzip file ${path}`);
   }
+}
+
+async function resolverGlobFunc(pattern: RegExp) {
+  const zip = await dataPromise;
+  return zip.file(pattern).map(f => f.name);
 }
 
 export type WorkerTaskItemPool = {
@@ -33,9 +38,9 @@ export type WorkerTaskItemPool = {
 export type WorkerTaskGenerate = {
   type: 'generate',
   id: number,
-  oot: Buffer,
-  mm: Buffer,
-  patch?: Buffer,
+  oot: File,
+  mm: File,
+  patch?: File,
   options: OptionsInput
 }
 
@@ -49,12 +54,20 @@ export type WorkerResultGenerate = {
   type: 'generate',
   id: number,
   data: GeneratorOutput,
+  warnings: string[],
 }
 
 export type WorkerResultGenerateLog = {
   type: 'generate-log',
   id: number,
   log: string
+}
+
+export type WorkerResultGenerateProgress = {
+  type: 'generate-progress',
+  id: number,
+  progress: number,
+  total: number,
 }
 
 export type WorkerResultGenerateError = {
@@ -64,11 +77,30 @@ export type WorkerResultGenerateError = {
 }
 
 export type WorkerTask = WorkerTaskItemPool | WorkerTaskGenerate;
-export type WorkerResult = WorkerResultItemPool | WorkerResultGenerate | WorkerResultGenerateLog | WorkerResultGenerateError;
+export type WorkerResult = WorkerResultItemPool | WorkerResultGenerate | WorkerResultGenerateLog | WorkerResultGenerateProgress | WorkerResultGenerateError;
 
-function onTaskGenerate(task: WorkerTaskGenerate) {
+async function readFile(f: File) {
+  const reader = new FileReader();
+  return new Promise<Buffer>((resolve, reject) => {
+    reader.onload = () => {
+      const data = reader.result;
+      if (!data) {
+        reject(new Error('No data'));
+        return;
+      }
+      return resolve(Buffer.from(data as ArrayBuffer));
+    };
+    reader.onerror = () => {
+      reject(reader.error);
+    };
+    reader.readAsArrayBuffer(f);
+  });
+}
+
+async function onTaskGenerate(task: WorkerTaskGenerate) {
   let { oot, mm, patch, options } = task;
   options.cosmetics = { ...options.cosmetics };
+  const warnings: string[] = [];
   const onLog = (msg: string) => {
     postMessage({
       type: 'generate-log',
@@ -76,12 +108,30 @@ function onTaskGenerate(task: WorkerTaskGenerate) {
       log: msg,
     });
   };
-  const generator = generate({ oot, mm, opts: { ...options, patch, fetch: fetchFunc }, monitor: { onLog } });
+  const onWarn = (msg: string) => {
+    warnings.push(msg);
+  }
+  const onProgress = (progress: number, total: number) => {
+    postMessage({
+      type: 'generate-progress',
+      id: task.id,
+      progress,
+      total,
+    });
+  };
+  const [ootData, mmData] = await Promise.all([readFile(oot), readFile(mm)]);
+  let patchData: Buffer | undefined;
+  if (patch) {
+    patchData = await readFile(patch);
+  }
+  const resolver = { fetch: resolverFetchFunc, glob: resolverGlobFunc };
+  const generator = generate({ oot: ootData, mm: mmData, opts: { ...options, patch: patchData, resolver }, monitor: { onLog, onProgress, onWarn } });
   generator.run().then(result => {
     postMessage({
       type: 'generate',
       id: task.id,
       data: result,
+      warnings,
     });
   }).catch((err) => {
     postMessage({

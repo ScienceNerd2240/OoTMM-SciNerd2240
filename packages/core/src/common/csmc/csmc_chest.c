@@ -2,15 +2,17 @@
 #include <combo/csmc.h>
 #include <combo/custom.h>
 #include <combo/dungeon.h>
+#include <combo/config.h>
 
-#define CSMC_CHEST_NORMAL     0x00
-#define CSMC_CHEST_BOSS_KEY   0x01
-#define CSMC_CHEST_MAJOR      0x02
-#define CSMC_CHEST_KEY        0x03
-#define CSMC_CHEST_SPIDER     0x04
-#define CSMC_CHEST_FAIRY      0x05
-#define CSMC_CHEST_HEART      0x06
-#define CSMC_CHEST_SOUL       0x07
+#define CSMC_CHEST_NORMAL           0x00
+#define CSMC_CHEST_BOSS_KEY         0x01
+#define CSMC_CHEST_MAJOR            0x02
+#define CSMC_CHEST_KEY              0x03
+#define CSMC_CHEST_SPIDER           0x04
+#define CSMC_CHEST_FAIRY            0x05
+#define CSMC_CHEST_HEART            0x06
+#define CSMC_CHEST_SOUL             0x07
+#define CSMC_CHEST_MAP_COMPASS      0x08
 
 #if defined(GAME_OOT)
 # define CHEST_TEX_NORMAL_FRONT     0x06001798
@@ -41,6 +43,7 @@ static const ChestCsmcData kCsmcData[] = {
     { 1, CUSTOM_CHEST_FAIRY_FRONT_ADDR, CUSTOM_CHEST_FAIRY_SIDE_ADDR },
     { 1, CUSTOM_CHEST_HEART_FRONT_ADDR, CUSTOM_CHEST_HEART_SIDE_ADDR },
     { 1, CUSTOM_CHEST_SOUL_FRONT_ADDR, CUSTOM_CHEST_SOUL_SIDE_ADDR },
+    { 1, CUSTOM_CHEST_MAP_FRONT_ADDR, CUSTOM_CHEST_MAP_SIDE_ADDR },
 };
 
 static int csmcChestId(s16 gi)
@@ -58,6 +61,7 @@ static int csmcChestId(s16 gi)
     case CSMC_FAIRY:        return CSMC_CHEST_FAIRY;
     case CSMC_HEART:        return CSMC_CHEST_HEART;
     case CSMC_SOUL:         return CSMC_CHEST_SOUL;
+    case CSMC_MAP_COMPASS:  return CSMC_CHEST_MAP_COMPASS;
     default:                return CSMC_CHEST_MAJOR;
     }
 }
@@ -68,7 +72,7 @@ static int csmcEnabledActor(Actor* this, GameState_Play* play)
         return 0;
 
 #if defined(GAME_OOT)
-    if (play->sceneId == SCE_OOT_TREASURE_SHOP && (this->variable & 0x1f) != 0x0a && !comboConfig(CFG_OOT_CHEST_GAME_SHUFFLE))
+    if (play->sceneId == SCE_OOT_TREASURE_SHOP && (this->variable & 0x1f) != 0x0a && !Config_Flag(CFG_OOT_CHEST_GAME_SHUFFLE))
         return 0;
 #endif
 
@@ -90,7 +94,7 @@ void csmcChestInit(Actor* this, GameState_Play* play, s16 gi)
     type = csmcFromItem(gi);
     if (type == CSMC_MAJOR || type == CSMC_BOSS_KEY)
     {
-        ActorSetScale(this, 0.01f);
+        Actor_SetScale(this, 0.01f);
         ActorSetUnk(this, 40.f);
 
 
@@ -98,7 +102,7 @@ void csmcChestInit(Actor* this, GameState_Play* play, s16 gi)
         /* Fix for IGT chest */
         if (play->sceneId == SCE_OOT_INSIDE_GANON_CASTLE)
         {
-            if ((this->variable & 0x1f) == (gComboData.mq & (1 << MQ_GANON_CASTLE) ? 0x04 : 0x11))
+            if ((this->variable & 0x1f) == (Config_IsMq(MQ_GANON_CASTLE) ? 0x04 : 0x11))
                 this->world.pos.z -= 10.f;
         }
 #endif
@@ -106,7 +110,7 @@ void csmcChestInit(Actor* this, GameState_Play* play, s16 gi)
     else
     {
 #if defined(GAME_OOT)
-        ActorSetScale(this, 0.005f);
+        Actor_SetScale(this, 0.005f);
         /* Fix for spirit temple chest */
         if (play->sceneId == SCE_OOT_TEMPLE_SPIRIT && (this->variable & 0x1f) == 0x04)
         {
@@ -114,7 +118,7 @@ void csmcChestInit(Actor* this, GameState_Play* play, s16 gi)
             this->world.pos.z += 40.f;
         }
 #else
-        ActorSetScale(this, 0.0075f);
+        Actor_SetScale(this, 0.0075f);
 #endif
         ActorSetUnk(this, 20.f);
     }

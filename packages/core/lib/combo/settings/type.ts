@@ -2,13 +2,13 @@ import { SETTINGS } from './data';
 import { DungeonSettings } from './dungeons';
 import { SettingHint } from './hints';
 import { SpecialConds } from './special-conds';
-import { Trick } from './tricks';
-import { Glitch } from './glitches';
+import { TrickKey } from './tricks';
 
 type SettingDataEnumValue = {
   readonly value: string;
   readonly name: string;
   readonly description?: string;
+  readonly cond?: (settings: any) => boolean;
 };
 
 type SettingDataCommon = {
@@ -22,7 +22,7 @@ type SettingDataCommon = {
 type SettingDataEnum = SettingDataCommon & {
   readonly type: 'enum';
   readonly values: ReadonlyArray<SettingDataEnumValue>;
-  readonly default: string;
+  readonly default: string | ((x: any) => string);
 };
 
 type SettingDataSet = SettingDataCommon & {
@@ -64,8 +64,7 @@ type SettingsPlando = {
 export type Settings = SettingsBase & {
   startingItems: {[k: string]: number};
   junkLocations: string[];
-  tricks: Trick[];
-  glitches: Glitch[];
+  tricks: TrickKey[];
   dungeon: DungeonSettings;
   specialConds: SpecialConds;
   plando: SettingsPlando;

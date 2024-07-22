@@ -1,5 +1,6 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/draw.h>
 
 static void ObjMoonStone_ItemQuery(ComboItemQuery* q, GameState_Play* play)
 {
@@ -24,14 +25,14 @@ void ObjMoonStone_Draw(Actor* this, GameState_Play* play)
 
     ObjMoonStone_ItemQuery(&q, play);
     comboItemOverride(&o, &q);
-    comboDrawGI(play, this, o.gi, 0);
+    Draw_Gi(play, this, o.gi, 0);
 }
 
 PATCH_FUNC(0x80c06910, ObjMoonStone_Draw);
 
 int ObjMoonStone_HasGivenItem(Actor* this)
 {
-    if (Actor_HasParent(this))
+    if (Actor_HasParentZ(this))
     {
         gMmExtraFlags2.moonTear = 1;
         return 1;

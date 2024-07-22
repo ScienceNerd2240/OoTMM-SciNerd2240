@@ -94,7 +94,7 @@ ChildHookHand:
   lw   a0,(gSaveContext+0x04)
   beqz a0,ChildHookHand_End
    nop
-  la t7,kDListEmpty
+  lw t7,gDlistHookshotBodyFP
   sw t7,0(a2)
 
 ChildHookHand_End:
@@ -114,7 +114,7 @@ ChildHookAim:
   lw   a0,(gSaveContext+0x04)
   beqz a0,ChildHookAim_End
    nop
-  la t3,kDListEmpty
+  lw t3,gDlistHookshotReticle
 
 ChildHookAim_End:
   sw  t3,0x4(v1)
@@ -158,12 +158,6 @@ PATCH_START 0x80853554
 .int 0
 PATCH_END
 
-/* Disable NPC reactions to masks */
-PATCH_START 0x800597c0
-  jr ra
-   li v0,0
-PATCH_END
-
 DrawMaskTrampoline:
   HOOK_CALL comboDrawExtendedMask
   jr ra
@@ -200,4 +194,52 @@ PATCH_START 0x80079848
   lw      a0,0x18(sp)
   j       Player_AfterSetEquipmentData
    addiu  sp,0x18
+PATCH_END
+
+/* Use our override handlers */
+.globl Player_OverrideLimbDrawGameplayDefault
+Player_OverrideLimbDrawGameplayDefault:
+  addiu sp,-0x28
+  j     _Player_OverrideLimbDrawGameplayDefault+8
+   sw   s0,0x20(sp)
+
+PATCH_START _Player_OverrideLimbDrawGameplayDefault
+ j Player_OverrideLimbDrawGameplayDefaultWrapper
+  nop
+PATCH_END
+
+.globl Player_OverrideLimbDrawPause
+Player_OverrideLimbDrawPause:
+  sw  a0,0x0(sp)
+  j   _Player_OverrideLimbDrawPause+8
+   sw a3,0xc(sp)
+
+PATCH_START _Player_OverrideLimbDrawPause
+ j Player_OverrideLimbDrawPauseWrapper
+  nop
+PATCH_END
+
+.globl Player_OverrideLimbDrawGameplayFirstPerson
+Player_OverrideLimbDrawGameplayFirstPerson:
+  addiu sp,-0x20
+  j   _Player_OverrideLimbDrawGameplayFirstPerson+8
+   sw ra,0x1c(sp)
+
+PATCH_START _Player_OverrideLimbDrawGameplayFirstPerson
+ j Player_OverrideLimbDrawGameplayFirstPersonWrapper
+  nop
+PATCH_END
+
+/* Use our hook to get the bow/sling string data */
+GetBowSlingshotStringData:
+  HOOK_CALL_RET Player_GetBowSlingshotStringData
+  jr ra
+   nop
+
+PATCH_START 0x8007bbdc
+  jal GetBowSlingshotStringData
+   nop
+  move t8,v0
+  nop
+  nop
 PATCH_END

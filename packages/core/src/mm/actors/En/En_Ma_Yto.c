@@ -1,11 +1,24 @@
 #include <combo.h>
 #include <combo/item.h>
+#include <combo/config.h>
+#include <combo/actor.h>
+
+void EnMaYto_WarpWrapper(Actor* this, GameState_Play* play)
+{
+    ActorFunc EnMaYto_Warp;
+
+    EnMaYto_Warp = actorAddr(AC_EN_MA_YTO, 0x80b905b0);
+    EnMaYto_Warp(this, play);
+
+    if (Config_Flag(CFG_ER_REGIONS_OVERWORLD))
+        gPlay->nextEntrance = 0x6480;
+}
 
 int EnMaYto_HasGivenItem(Actor* this)
 {
     int ret;
 
-    ret = Actor_HasParent(this);
+    ret = Actor_HasParentZ(this);
     if (ret)
         gMmExtraFlags.maskRomani = 1;
     return ret;

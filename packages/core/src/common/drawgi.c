@@ -1,5 +1,7 @@
 #include <combo.h>
 #include <combo/custom.h>
+#include <combo/global.h>
+#include <combo/draw.h>
 
 #define M_PI            3.14159265358979323846
 #define M_SQRT1_2       0.707106781186547524401
@@ -153,7 +155,7 @@ void DrawGi_CustomHeartContainer(GameState_Play* play, s16 drawGiId)
     CLOSE_DISPS();
 }
 
-void shaderFlameEffectColor(GameState_Play* play, u32 color, float scale, float offsetY)
+void Gfx_DrawFlameColor(GameState_Play* play, u32 color, float scale, float offsetY)
 {
 #if defined(GAME_OOT)
     static const u32 kFlameDlist = 0x52a10;
@@ -600,7 +602,7 @@ void DrawGi_CustomStrayFairy(GameState_Play* play, s16 drawGiId)
     const DrawGi* drawGi;
     int index;
     u8 r;
-    u8 g;
+    u8 gg;
     u8 b;
     u8 a;
 
@@ -617,15 +619,15 @@ void DrawGi_CustomStrayFairy(GameState_Play* play, s16 drawGiId)
 #endif
 
     OPEN_DISPS(play->gs.gfx);
-    gSPSegment(POLY_XLU_DISP++, 0x08, gCustomKeep);
-    comboSetObjectSegment(play->gs.gfx, &kStrayFairyObj);
+    gSPSegment(POLY_XLU_DISP++, 0x08, g.customKeep);
+    Draw_SetObjectSegment(play->gs.gfx, &kStrayFairyObj);
     ModelViewUnkTransform(&play->billboardMtxF);
     gSPMatrix(POLY_XLU_DISP++, GetMatrixMV(play->gs.gfx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     InitListPolyXlu(play->gs.gfx);
-    color4(&r, &g, &b, &a, kEnvColors[index - 1]);
-    gDPSetEnvColor(POLY_XLU_DISP++, r, g, b, a);
-    color4(&r, &g, &b, &a, kPrimColors[index - 1]);
-    gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, r, g, b, a);
+    color4(&r, &gg, &b, &a, kEnvColors[index - 1]);
+    gDPSetEnvColor(POLY_XLU_DISP++, r, gg, b, a);
+    color4(&r, &gg, &b, &a, kPrimColors[index - 1]);
+    gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, r, gg, b, a);
     gSPDisplayList(POLY_XLU_DISP++, offsetof(CustomStrayFairyObj, dlist) | 0x06000000);
     CLOSE_DISPS();
 }
@@ -681,6 +683,7 @@ void DrawGi_CustomGS(GameState_Play* play, s16 index)
         { 0xaaaaaaff, 0xffffffff, 0xff0000ff, 0xff0000ff }, /* Soul */
         { 0xaaaaaaff, 0xffffffff, 0x8800ffff, 0x8800ffff }, /* Boss Soul */
         { 0xaaaaaaff, 0xffffffff, 0x00ff00ff, 0x00ff00ff }, /* NPC Soul */
+        { 0xaaaaaaff, 0xffffffff, 0x888888ff, 0x888888ff }, /* Misc. Soul */
     };
 
     const DrawGi* drawGi;
@@ -1050,7 +1053,7 @@ void DrawGi_Triforce(GameState_Play* play, s16 index, u8 param)
     }
 
     InitListPolyXlu(play->gs.gfx);
-    shaderFlameEffectColor(play, color, 1.5f, 20.f);
+    Gfx_DrawFlameColor(play, color, 1.5f, 20.f);
 }
 
 void DrawGi_TriforceFull(GameState_Play* play, s16 index, u8 param)
@@ -1348,6 +1351,26 @@ void DrawGi_Clock(GameState_Play* play, s16 index)
     CLOSE_DISPS();
 }
 
+void DrawGi_PondFish(GameState_Play* play, s16 index, u8 param)
+{
+    const DrawGi* drawGi;
+    float scaleBase;
+    float scaleActual;
+    float scale;
+
+    drawGi = &kDrawGi[index];
+    scaleBase = FISH_WEIGHT_TO_LENGTH(2);
+    scaleActual = FISH_WEIGHT_TO_LENGTH(param * 0.2f + 2.f);
+    scale = scaleActual / scaleBase;
+
+    OPEN_DISPS(play->gs.gfx);
+    InitListPolyOpa(play->gs.gfx);
+    ModelViewScale(scale, scale, scale, MAT_MUL);
+    gSPMatrix(POLY_OPA_DISP++, GetMatrixMV(play->gs.gfx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, drawGi->lists[0]);
+    CLOSE_DISPS();
+}
+
 typedef struct
 {
     u32 listColorOpa;
@@ -1382,6 +1405,12 @@ static const Gfx kDlistRupeeBlackXlu[] = {
  */
 void DrawGi_Rupee(GameState_Play* play, s16 index, u8 param)
 {
+    float h;
+    u32 color;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
     static const float smallRupeeScale = 0.7f;
     static const RupeeColorDlists kColors[] = {
         { DLIST_RAW(kDlistRupeeBlackOpa), DLIST_RAW(kDlistRupeeBlackXlu) },
@@ -1399,12 +1428,33 @@ void DrawGi_Rupee(GameState_Play* play, s16 index, u8 param)
     OPEN_DISPS(play->gs.gfx);
     InitListPolyOpa(play->gs.gfx);
     gSPMatrix(POLY_OPA_DISP++, GetMatrixMV(play->gs.gfx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPDisplayList(POLY_OPA_DISP++, kColors[param].listColorOpa);
+    if (param < 7)
+    {
+        gSPDisplayList(POLY_OPA_DISP++, kColors[param].listColorOpa);
+    }
+    else
+    {
+        h = (play->gs.frameCount % 30) * (1.f/30.f);
+        color = hsla(h, 1.f, 0.5f, 1.f);
+        color4(&r, &g, &b, &a, color);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, r, g, b, a);
+        r *= 0.8f;
+        g *= 0.8f;
+        b *= 0.8f;
+        gDPSetEnvColor(POLY_OPA_DISP++, r, g, b, a);
+    }
     gSPDisplayList(POLY_OPA_DISP++, kDrawGi[index].lists[0]);
 
     InitListPolyXlu(play->gs.gfx);
     gSPMatrix(POLY_XLU_DISP++, GetMatrixMV(play->gs.gfx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPDisplayList(POLY_XLU_DISP++, kColors[param].listColorXlu);
+    if (param < 7)
+    {
+        gSPDisplayList(POLY_XLU_DISP++, kColors[param].listColorXlu);
+    }
+    else
+    {
+        gSPDisplayList(POLY_XLU_DISP++, kColors[5].listColorXlu);
+    }
     gSPDisplayList(POLY_XLU_DISP++, kDrawGi[index].lists[1]);
     CLOSE_DISPS();
 }

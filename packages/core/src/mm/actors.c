@@ -1,5 +1,12 @@
 #include <combo.h>
 #include <combo/souls.h>
+#include <combo/entrance.h>
+#include <combo/player.h>
+#include <combo/math.h>
+#include <combo/config.h>
+#include <combo/global.h>
+#include <combo/inventory.h>
+#include <combo/multi.h>
 
 void EnGo_GiveItem(Actor* actor, GameState_Play* play, s16 gi, float a, float b);
 void EnDnh_GiveItem(Actor* actor, GameState_Play* play, s16 gi, float a, float b);
@@ -17,6 +24,11 @@ void EnGo_AfterTextBox(Actor* this, GameState_Play* play, s16 messageId);
 void EnTab_AfterTextBox(Actor* this, GameState_Play* play, s16 messageId);
 
 static Actor* sByteCodeActor;
+
+static int opt(int x)
+{
+    return x > 0 ? 1 : -1;
+}
 
 /* TODO: Patch every bytecode and remove this */
 static s16 convertGi(s16 initial)
@@ -84,7 +96,7 @@ static void Actor_ByteCode_GiveItem(Actor* actor, GameState_Play* play, s16 gi, 
         func = EnBjt_GiveItem;
         break;
     default:
-        func = (void*)GiveItem;
+        func = (void*)Actor_OfferGetItem;
         break;
     }
 
@@ -105,7 +117,7 @@ static int Actor_ByteCode_HasParent(Actor* actor)
     int ret;
     void (*func)(Actor*);
 
-    ret = Actor_HasParent(actor);
+    ret = Actor_HasParentZ(actor);
     if (ret)
     {
         switch (actor->id)
@@ -229,8 +241,161 @@ PATCH_CALL(0x8010af50, Actor_ByteCode_DisplayTextBox2_Hook);
 
 static int canSpawnSoul(GameState_Play* play, s16 actorId, u16 variable)
 {
+    if (g.isCredits)
+        return 1;
+
     switch (actorId)
     {
+    case AC_EN_GINKO_MAN:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BANKER));
+    case AC_EN_AN:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_ANJU));
+    case AC_EN_GURUGURU:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GURU_GURU));
+    case AC_EN_DAIKU:
+    case AC_EN_DAIKU2:
+        if(play->sceneId == SCE_MM_MAYOR_HOUSE && play->roomCtx.curRoom.num == 0x01)
+            return opt(comboHasSoulMm(GI_MM_SOUL_NPC_MAYOR_DOTOUR));
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_CARPENTERS));
+    case AC_EN_MS:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BEAN_SALESMAN));
+    case AC_EN_MA_YTO:
+    case AC_EN_MA_YTS:
+    case AC_EN_MA4:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_MALON));
+    case AC_EN_ZOT:
+    case AC_EN_ZOW:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_ZORA));
+    case AC_EN_BJT:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_TOILET_HAND));
+    case AC_EN_BAL:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_TINGLE));
+    case AC_EN_TAKARAYA:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BOMBCHU_BOWLING_LADY));
+    case AC_EN_KBT:
+    case AC_EN_KGY:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BLACKSMITHS));
+    case AC_EN_GB2:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_POE_COLLECTOR));
+    case AC_EN_TAB:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_TALON));
+    case AC_EN_BJI_01:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_ASTRONOMER));
+    case AC_EN_MUTO:
+    case AC_EN_HEISHI:
+    case AC_EN_BAISEN:
+        if(play->sceneId == SCE_MM_MAYOR_HOUSE && play->roomCtx.curRoom.num != 0x01)
+            return 1;
+        /* Fallthrough */
+    case AC_EN_DT:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_MAYOR_DOTOUR));
+    case AC_EN_TRT:
+    case AC_EN_TRT2:
+    case AC_EN_TRU:
+    case AC_EN_TRU_MT:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_KOUME_KOTAKE));
+    case AC_EN_KITAN:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_KEATON));
+    case AC_EN_TEST3:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_KAFEI));
+    case AC_EN_TOTO:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_TOTO));
+    case AC_EN_ZOV:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_RUTO));
+    case AC_EN_ZOD:
+    case AC_EN_ZOS:
+    case AC_EN_ZOB:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_ZORA_MUSICIANS));
+    case AC_EN_FU:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_HONEY_DARLING));
+    case AC_EN_SOB1:
+        switch (variable & 0xf)
+        {
+        case 0: return opt(comboHasSoulMm(GI_MM_SOUL_NPC_ZORA_SHOPKEEPER));
+        case 1: return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GORON_SHOPKEEPER));
+        case 2: return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BOMBCHU_SHOPKEEPER));
+        default: return 1;
+        }
+    case AC_EN_JGAME_TSN:
+    case AC_EN_TSN:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_CHEST_GAME_OWNER));
+    case AC_EN_LIFT_NUTS:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_PLAYGROUND_SCRUBS));
+    case AC_EN_DNP:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_DEKU_PRINCESS));
+    case AC_EN_DNQ:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_DEKU_KING));
+    case AC_EN_TK:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_DAMPE));
+    case AC_EN_PO_COMPOSER:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_COMPOSER_BROS));
+    case AC_EN_STH:
+    case AC_EN_JA:
+    case AC_EN_YB:
+    case AC_EN_RZ:
+    case AC_EN_MM3:
+    case AC_EN_PM:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_CITIZEN));
+    case AC_EN_DNO:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BUTLER_DEKU));
+    case AC_EN_BOM_BOWL_MAN:
+    case AC_EN_BOMJIMA:
+    case AC_EN_BOMJIMB:
+    case AC_EN_BOMBERS:
+    case AC_EN_BOMBERS2:
+    case AC_EN_BOMBAL:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BOMBERS));
+    case AC_EN_RSN:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BOMBCHU_SHOPKEEPER));
+    case AC_EN_OSSAN:
+        switch (variable & 0xf)
+        {
+        case 0x00: return opt(comboHasSoulMm(GI_MM_SOUL_NPC_FISHING_POND_OWNER));
+        case 0x01: return opt(comboHasSoulMm(GI_MM_SOUL_NPC_ROOFTOP_MAN));
+        default: UNREACHABLE();
+        }
+    case AC_EN_ANI:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_ROOFTOP_MAN));
+    case AC_EN_GO:
+        switch (variable)
+        {
+        case 0x08: return opt(comboHasSoulMm(GI_MM_SOUL_NPC_MEDIGORON));
+        default: return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GORON));
+        }
+    case AC_EN_S_GORO:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GORON));
+    case AC_EN_GK:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GORON_CHILD));
+    case AC_EN_JG:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GORON_ELDER));
+    case AC_EN_DAI:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BIGGORON));
+    case AC_EN_SYATEKI_MAN:
+        if (play->sceneId == SCE_MM_SHOOTING_GALLERY_SWAMP)
+            return opt(comboHasSoulMm(GI_MM_SOUL_NPC_BAZAAR_SHOPKEEPER));
+        else
+            return opt(comboHasSoulMm(GI_MM_SOUL_NPC_SHOOTING_GALLERY_OWNER));
+    case AC_EN_SYATEKI_OKUTA:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_SHOOTING_GALLERY_OWNER));
+    case AC_EN_MK:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_SCIENTIST));
+    case AC_EN_IN:
+    case AC_EN_GM:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GORMAN));
+    case AC_EN_HS:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_GROG));
+    case AC_EN_AOB_01:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_DOG_LADY));
+    case AC_EN_AL:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_AROMA));
+    case AC_EN_JS:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_MOON_CHILDREN));
+    case AC_EN_SHN:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_TOURIST_CENTER));
+    case AC_EN_NB:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_OLD_HAG));
+    case AC_EN_KENDO_JS:
+        return opt(comboHasSoulMm(GI_MM_SOUL_NPC_CARPET_MAN));
     case AC_EN_OKUTA:
     case AC_EN_BIGOKUTA:
         return comboHasSoulMm(GI_MM_SOUL_ENEMY_OCTOROK);
@@ -267,8 +432,10 @@ static int canSpawnSoul(GameState_Play* play, s16 actorId, u16 variable)
         return comboHasSoulMm(GI_MM_SOUL_ENEMY_REDEAD_GIBDO);
     case AC_EN_SW:
         if (variable & 0x03)
-            return 1;
+            return opt(comboHasSoulMm(GI_MM_SOUL_MISC_GS));
         return comboHasSoulMm(GI_MM_SOUL_ENEMY_SKULLWALLTULA);
+    case AC_OBJ_MAKEKINSUTA:
+        return opt(comboHasSoulMm(GI_MM_SOUL_MISC_GS));
     case AC_EN_SB:
         return comboHasSoulMm(GI_MM_SOUL_ENEMY_SHELL_BLADE);
     case AC_EN_RR:
@@ -347,12 +514,16 @@ static int canSpawnSoul(GameState_Play* play, s16 actorId, u16 variable)
     case AC_EN_NEO_REEBA:
         return comboHasSoulMm(GI_MM_SOUL_ENEMY_LEEVER);
     case AC_EN_SKB:
-        if ((play->sceneId == SCE_MM_IKANA_GRAVEYARD) && (play->roomCtx.curRoom.id == 0x01)) /* Upper graveyard */
+        if ((play->sceneId == SCE_MM_IKANA_GRAVEYARD) && (play->roomCtx.curRoom.num == 0x01)) /* Upper graveyard */
             return 1;
         /* Fallthrough */
     case AC_EN_HINT_SKB:
     case AC_EN_RAIL_SKB:
         return comboHasSoulMm(GI_MM_SOUL_ENEMY_STALCHILD);
+    case AC_EN_SELLNUTS:
+    case AC_EN_SCOPENUTS:
+    case AC_EN_AKINDONUTS:
+        return opt(comboHasSoulMm(GI_MM_SOUL_MISC_BUSINESS_SCRUB));
     default:
         return 1;
     }
@@ -363,7 +534,7 @@ static int canSpawnActor(GameState_Play* play, s16 actorId, u16 variable)
     switch (actorId)
     {
     case AC_EN_SYATEKI_OKUTA:
-        if (play->sceneId == SCE_MM_SHOOTING_GALLERY && gSave.day > 3)
+        if (play->sceneId == SCE_MM_SHOOTING_GALLERY && (gSave.day > 3 || gSave.day < 1))
             return 0;
         /* Fallthrough */
     default:
@@ -373,12 +544,16 @@ static int canSpawnActor(GameState_Play* play, s16 actorId, u16 variable)
 
 static s16 sActorIdToSpawn;
 
-Actor* comboSpawnActorEx(ActorContext* actorCtx, GameState_Play *play, short actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3)
+Actor* Actor_SpawnAsChildAndCutsceneWrapper(ActorContext* actorCtx, GameState_Play *play, short actorId, float x, float y, float z, s16 rx, s16 ry, s16 rz, u16 variable, int ex1, int ex2, int ex3)
 {
     int ret;
 
     if (!canSpawnActor(play, actorId, variable))
         return NULL;
+
+    /* Patch for gorman on donkeys */
+    if (actorId == AC_EN_HORSE && ((variable & 0x1fff) == 0x13 || (variable & 0x1fff) == 0x14) && !comboHasSoulMm(GI_MM_SOUL_NPC_GORMAN))
+        variable = (variable & 0xe000);
 
     ret = canSpawnSoul(play, actorId, variable);
     if (ret <= 0)
@@ -388,7 +563,7 @@ Actor* comboSpawnActorEx(ActorContext* actorCtx, GameState_Play *play, short act
         return NULL;
     }
     sActorIdToSpawn = actorId;
-    return SpawnActorEx(actorCtx, play, actorId, x, y, z, rx, ry, rz, variable, ex1, ex2, ex3);
+    return _Actor_SpawnAsChildAndCutscene(actorCtx, play, actorId, x, y, z, rx, ry, rz, variable, ex1, ex2, ex3);
 }
 
 static int GetRoomClearFlagForActor(GameState_Play* play, int flag)
@@ -396,7 +571,7 @@ static int GetRoomClearFlagForActor(GameState_Play* play, int flag)
     int res;
 
     res = GetRoomClearFlag(play, flag);
-    if (comboConfig(CFG_ER_WALLMASTERS) && sActorIdToSpawn == AC_EN_WALLMAS)
+    if (Config_Flag(CFG_ER_WALLMASTERS) && sActorIdToSpawn == AC_EN_WALLMAS)
         res = 0;
     return res;
 }
@@ -411,9 +586,11 @@ static f32 D_8015BC18;
 void Actor_InitFaroresWind(GameState_Play* play) {
     Vec3f lightPos;
 
-    if (gSave.fw.data)
+    RespawnData* fw = &gCustomSave.fw[gOotSave.age];
+
+    if (fw->data)
     {
-        gSaveContext.respawn[RESPAWN_MODE_HUMAN] = gSave.fw;
+        gSaveContext.respawn[RESPAWN_MODE_HUMAN] = *fw;
     }
     else
     {
@@ -423,7 +600,7 @@ void Actor_InitFaroresWind(GameState_Play* play) {
         gSaveContext.respawn[RESPAWN_MODE_HUMAN].pos.z = 0.0f;
     }
 
-    lightPos = gSaveContext.save.fw.pos;
+    lightPos = fw->pos;
     lightPos.y += 60.0f;
 
     Lights_PointNoGlowSetInfo(&D_8015BC00, lightPos.x, lightPos.y, lightPos.z, 0xFF, 0xFF, 0xFF, -1);
@@ -442,10 +619,9 @@ void Actor_DrawFaroresWindPointer(GameState_Play* play)
 
     params = gSaveContext.respawn[RESPAWN_MODE_HUMAN].data;
 
-    if (params)
+    if (params && gSaveContext.respawn[RESPAWN_MODE_HUMAN].entrance != ENTR_FW_CROSS)
     {
-        /* f32 yOffset = LINK_IS_ADULT ? 80.0f : 60.0f; */
-        f32 yOffset = 60.0f;
+        f32 yOffset = comboIsLinkAdult() ? 80.0f : 60.0f;
         f32 ratio = 1.0f;
         s32 alpha = 255;
         s32 temp = params - 40;
@@ -499,7 +675,7 @@ void Actor_DrawFaroresWindPointer(GameState_Play* play)
             }
 
             effectPos.x = curPos->x + Rand_CenteredFloat(6.0f);
-            effectPos.y = curPos->y + 80.0f + (6.0f * RandFloat());
+            effectPos.y = curPos->y + 80.0f + (6.0f * Rand_ZeroOne());
             effectPos.z = curPos->z + Rand_CenteredFloat(6.0f);
 
             EffectSsKiraKira_SpawnDispersed(play, &effectPos, &effectVel, &effectAccel, &effectPrimCol, &effectEnvCol,
@@ -537,7 +713,7 @@ void Actor_DrawFaroresWindPointer(GameState_Play* play)
 
             if (alpha < 0)
             {
-                gSave.fw.data = 0;
+                gCustomSave.fw[gOotSave.age].data = 0;
                 gSaveContext.respawn[RESPAWN_MODE_HUMAN].data = 0;
                 alpha = 0;
             }
@@ -598,7 +774,7 @@ void Actor_DrawFaroresWindPointer(GameState_Play* play)
         }
 
         s32 shouldDraw = sceneMatches
-                && (D_8015BC18 != 0.0f || fwRoomId == play->roomCtx.curRoom.id || fwRoomId == play->roomCtx.prefRoom.id);
+                && (D_8015BC18 != 0.0f || fwRoomId == play->roomCtx.curRoom.num || fwRoomId == play->roomCtx.prefRoom.num);
 
         if ((play->csCtx.state == CS_STATE_IDLE) && shouldDraw)
         {
@@ -645,4 +821,202 @@ void Actor_AfterDrawAll(GameState_Play* play)
     }
 
     Actor_DrawFaroresWindPointer(play);
+    Multi_DrawWisps(play);
 }
+
+typedef struct
+{
+    u32 offset;
+    u16 value;
+}
+OverlayPatch;
+
+static OverlayPatch adultEponaPatch[] = {
+    { 0x865a, 0x0600 },
+    { 0x865e, 0x1e2c },
+    { 0x867a, 0x0600 },
+    { 0x868e, 0x3cec },
+    { 0x8706, 0x0600 },
+    { 0x870a, 0x3cec },
+    { 0x872a, 0x0600 },
+    { 0x8736, 0x3cec },
+    { 0x879a, 0x0600 },
+    { 0x87a2, 0x75f0 },
+    { 0x87ae, 0x0600 },
+    { 0x87be, 0x75f0 },
+    { 0x880e, 0x0600 },
+    { 0x8812, 0x6d50 },
+    { 0x8832, 0x0600 },
+    { 0x883e, 0x6d50 },
+    { 0x887e, 0x0600 },
+    { 0x8886, 0x6d50 },
+    { 0x8c22, 0x0600 },
+    { 0x8c2e, 0x3cec },
+    { 0x8c3a, 0x0600 },
+    { 0x8c4e, 0x3cec },
+    { 0x8d52, 0x0600 },
+    { 0x8d5e, 0x1e2c },
+    { 0x8d6a, 0x0600 },
+    { 0x8d7e, 0x1e2c },
+    { 0x8dde, 0x0600 },
+    { 0x8de6, 0x1e2c },
+    { 0x8df2, 0x0600 },
+    { 0x8e06, 0x1e2c },
+    { 0x8e72, 0x0600 },
+    { 0x8e7e, 0x6d50 },
+    { 0x8e92, 0x0600 },
+    { 0x8e9e, 0x6d50 },
+    { 0x8f06, 0x0600 },
+    { 0x8f0e, 0x6d50 },
+    { 0x8f1a, 0x0600 },
+    { 0x8f2e, 0x6d50 },
+    { 0xbbde, 0x3c23 },
+    { 0xc8ac, 0x1000 },
+    { 0xd792, 0x6d50 },
+    { 0xd796, 0x5584 },
+    { 0xd79a, 0x4dec },
+    { 0xd79e, 0x3cec },
+    { 0xd7a2, 0x75f0 },
+    { 0xd7a6, 0x32b0 },
+    { 0xd7aa, 0x1e2c },
+    { 0xd7ae, 0x2470 },
+    { 0xd7b2, 0x2c38 },
+    { 0xd81a, 0x9d74 },
+    { 0xdad6, 0x9f80 },
+    { 0xdada, 0xa180 },
+    { 0xdade, 0xa380 },
+};
+
+static void Actor_PatchAdultHorse(void* loadedRam)
+{
+    if (!comboIsLinkAdult())
+    {
+        return;
+    }
+
+    for (int i = 0; i < ARRAY_SIZE(adultEponaPatch); i++)
+    {
+        u16* patchPointer = (u16*)(((u8*)loadedRam) + adultEponaPatch[i].offset);
+        *patchPointer = adultEponaPatch[i].value;
+    }
+}
+
+static PlayerAgeProperties sPlayerAgePropertiesAdult = {
+    56.0f,
+    90.0f,
+    1.0f,
+    111.0f,
+    70.0f,
+    79.4f,
+    59.0f,
+    41.0f,
+    19.0f,
+    36.0f,
+    50.0f,
+    56.0f,
+    68.0f,
+    70.0f,
+    18.0f,
+    23.0f,
+    70.0f,
+    { 9, 0x123F, 0x167 },
+    {
+        { 8, 0x1256, 0x17C },
+        { 9, 0x17EA, 0x167 },
+        { 8, 0x1256, 0x17C },
+        { 9, 0x17EA, 0x167 },
+    },
+    {
+        { 9, 0x17EA, 0x167 },
+        { 9, 0x1E0D, 0x17C },
+        { 9, 0x17EA, 0x167 },
+        { 9, 0x1E0D, 0x17C },
+    },
+    {
+        { 8, 0x1256, 0x17C },
+        { 9, 0x17EA, 0x167 },
+        { -0x638, 0x1256, 0x17C },
+        { -0x637, 0x17EA, 0x167 },
+    },
+    0,
+    0x80,
+    22.0f,
+    36.0f,
+    (PlayerAnimationHeader*)0x0400e300, /* gPlayerAnim_pz_Tbox_open */
+    (PlayerAnimationHeader*)0x0400d548, /* gPlayerAnim_link_demo_back_to_past */
+    (PlayerAnimationHeader*)0x0400d660, /* gPlayerAnim_link_demo_return_to_past */
+    (PlayerAnimationHeader*)0x0400e378, /* gPlayerAnim_pz_climb_startA */
+    (PlayerAnimationHeader*)0x0400e380, /* gPlayerAnim_pz_climb_startB */
+    {
+        (PlayerAnimationHeader*)0x0400e388, /* gPlayerAnim_pz_climb_upL */
+        (PlayerAnimationHeader*)0x0400e390, /* gPlayerAnim_pz_climb_upR */
+        (PlayerAnimationHeader*)0x0400dab0, /* gPlayerAnim_link_normal_Fclimb_upL */
+        (PlayerAnimationHeader*)0x0400dab8, /* gPlayerAnim_link_normal_Fclimb_upR */
+    },
+    {
+        (PlayerAnimationHeader*)0x0400da90, /* gPlayerAnim_link_normal_Fclimb_sideL */
+        (PlayerAnimationHeader*)0x0400da98, /* gPlayerAnim_link_normal_Fclimb_sideR */
+    },
+    {
+        (PlayerAnimationHeader*)0x0400e358, /* gPlayerAnim_pz_climb_endAL */
+        (PlayerAnimationHeader*)0x04008360, /* gPlayerAnim_pz_climb_endAR */
+    },
+    {
+        (PlayerAnimationHeader*)0x0400e370, /* gPlayerAnim_pz_climb_endBR */
+        (PlayerAnimationHeader*)0x0400e368, /* gPlayerAnim_pz_climb_endBL */
+    },
+};
+
+static void Actor_PatchPlayerFormProperties()
+{
+    if (comboIsLinkAdult())
+    {
+        /* Maybe better to move this to when the overlay is loaded? */
+        PlayerAgeProperties* playerAgeProperties = (PlayerAgeProperties*) OverlayAddr(0x8085ba38);
+        playerAgeProperties[MM_PLAYER_FORM_HUMAN] = sPlayerAgePropertiesAdult;
+
+        u32* playerAnimationHeaders = (u32*)OverlayAddr(0x8085be84);
+        playerAnimationHeaders[0x36] = 0x0400e3c8;
+        playerAnimationHeaders[0x37] = 0x0400e3c8;
+        playerAnimationHeaders[0x38] = 0x0400e3c8;
+        playerAnimationHeaders[0x39] = 0x0400e3c8;
+        playerAnimationHeaders[0x3a] = 0x0400e3c8;
+        playerAnimationHeaders[0x3b] = 0x0400e3c8;
+
+        playerAnimationHeaders[0x42] = 0x0400e3d0;
+        playerAnimationHeaders[0x43] = 0x0400e3d0;
+        playerAnimationHeaders[0x44] = 0x0400e3d0;
+        playerAnimationHeaders[0x45] = 0x0400e3d0;
+        playerAnimationHeaders[0x46] = 0x0400e3d0;
+        playerAnimationHeaders[0x47] = 0x0400e3d0;
+    }
+}
+
+ActorInit* Actor_LoadOverlayCustom(ActorContext* actorCtx, s16 index)
+{
+    ActorInit* actorInit = Actor_LoadOverlay(actorCtx, index);
+
+    ActorOvl* overlayEntry = &gActorOvl[index];
+
+    if (overlayEntry->count == 0 && overlayEntry->data)
+    {
+        switch (index)
+        {
+        case AC_EN_HORSE:
+            Actor_PatchAdultHorse(overlayEntry->data);
+            break;
+        }
+    }
+
+    return actorInit;
+}
+
+PATCH_CALL(0x800bae44, Actor_LoadOverlayCustom);
+
+void KaleidoManager_LoadPlayerOvl(void* ovl)
+{
+    KaleidoManager_LoadOvl(ovl);
+    Actor_PatchPlayerFormProperties();
+}
+
+PATCH_CALL(0x801639d4, KaleidoManager_LoadPlayerOvl);

@@ -94,22 +94,34 @@ type PackArgs = {
   patchfile: Patchfile;
   addresses: GameAddresses;
 };
-export async function pack(args: PackArgs) {
+
+type PackOutput = {
+  rom: Buffer;
+  cosmeticLog: string | null;
+}
+
+export async function pack(args: PackArgs): Promise<PackOutput> {
   const { monitor, roms, patchfile } = args;
   const romBuilder = new RomBuilder();
 
   monitor.log("Pack: Building ROM");
+
+  /* Extract every file */
   for (const game of GAMES) {
-    const dg = roms[game];
-    const patches = patchfile.gamePatches[game];
-
-    /* Apply patches */
-    for (const patch of patches) {
-      patch.data.copy(dg.rom, patch.addr);
-    }
-
-    /* Extract files */
     extractFiles(game, roms, romBuilder);
+  }
+
+  /* Dummy out removed files */
+  for (const f of patchfile.removedFiles) {
+    romBuilder.dummyOutFile(f);
+  }
+
+  /* Apply patches */
+  for (const [filename, patchList] of Object.entries(patchfile.patches)) {
+    const f = romBuilder.fileByNameRequired(filename);
+    for (const patch of patchList) {
+      patch.data.copy(f.data, patch.addr);
+    }
   }
 
   /* We need to pack a few static files before we can pack the rest */
@@ -119,7 +131,7 @@ export async function pack(args: PackArgs) {
   /* Add the extra files */
   for (const newFile of patchfile.newFiles) {
     const type = newFile.compressed ? 'compressed' : 'uncompressed';
-    const { data } = newFile;
+    const data = Buffer.from(newFile.data);
     const vaddr = newFile.vrom;
     let name = newFile.name;
     if (name === null) {
@@ -134,7 +146,8 @@ export async function pack(args: PackArgs) {
   }
 
   /* Apply cosmetics */
-  await cosmetics(args.opts, args.addresses, romBuilder, (patchfile.meta || {}).cosmetics);
+  monitor.log("Pack: Cosmetics");
+  const cosmeticLog = await cosmetics(monitor, args.opts, romBuilder, (patchfile.meta || {}).cosmetics);
 
   /* Build the final ROM */
   monitor.log("Pack: Finishing up ROM");
@@ -142,5 +155,5 @@ export async function pack(args: PackArgs) {
   const sizeMB = (size / 1024 / 1024).toFixed(2);
   monitor.debug(`Pack: ROM size: ${sizeMB}MiB`);
 
-  return rom;
+  return { rom, cosmeticLog };
 }
